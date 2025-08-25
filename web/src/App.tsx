@@ -1,8 +1,7 @@
-import './App.css';
-import Full from './pages/Full';
+import NavigationSystem from './pages/NavigationSystem';
 
 function App() {
-  return <Full />;
+  return <NavigationSystem />;
 }
 
 export default App;
