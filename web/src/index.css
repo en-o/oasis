@@ -1,3 +1,4 @@
+/* 必须包含这三行，Tailwind 才能识别 @layer */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;

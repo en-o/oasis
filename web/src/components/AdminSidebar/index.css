@@ -1,0 +1,21 @@
+.admin-sidebar {
+  width: 16rem;
+  background-color: #fff;
+  border-radius: 0.75rem;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  padding: 1.5rem;
+}
+.admin-nav-button {
+  width: 100%;
+  text-align: left;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  transition: background-color 0.2s;
+}
+.admin-nav-button.active {
+  background-color: #dbeafe;
+  color: #2563eb;
+}
+.admin-nav-button:not(.active):hover {
+  background-color: #f3f4f6;
+}

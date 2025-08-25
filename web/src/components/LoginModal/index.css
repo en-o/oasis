@@ -1,0 +1,16 @@
+.login-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 50;
+}
+.login-container {
+  background-color: #fff;
+  border-radius: 0.75rem;
+  padding: 2rem;
+  width: 24rem;
+  max-width: 100%;
+}
