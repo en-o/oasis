@@ -23,7 +23,7 @@ const initialNavItems = [
     id: 1,
     序号: 1,
     名称: 'Google',
-    网址: 'https://www.google.com',
+    网址: 'https://www.google.com ',
     排序: 1,
     分类: '搜索引擎',
     图标: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSI+PGNpcmNsZSBjeD0iMTIiIGN5PSIxMiIgcj0iMTAiIGZpbGw9IiM0Mjg1RjQiLz48L3N2Zz4=',
@@ -34,7 +34,7 @@ const initialNavItems = [
     id: 2,
     序号: 2,
     名称: 'GitHub',
-    网址: 'https://github.com',
+    网址: 'https://github.com ',
     排序: 2,
     分类: '开发工具',
     图标: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSI+PGNpcmNsZSBjeD0iMTIiIGN5PSIxMiIgcj0iMTAiIGZpbGw9IiMxODE3MWIiLz48L3N2Zz4=',
@@ -68,6 +68,11 @@ const NavigationSystem = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [loginForm, setLoginForm] = useState({ username: '', password: '' });
   const [showLogin, setShowLogin] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+
+  // 新增：查看账户信息
+  const [showAccountSecret, setShowAccountSecret] = useState('');
+  const [showAccountMap, setShowAccountMap] = useState({});
 
   // 编辑状态
   const [editingNav, setEditingNav] = useState(null);
@@ -197,9 +202,6 @@ const NavigationSystem = () => {
   // 登录处理
   const handleLogin = (e) => {
     e.preventDefault();
-    console.log('尝试登录:', loginForm.username, loginForm.password);
-    console.log('系统配置:', systemConfig.用户信息);
-
     if (
       loginForm.username === systemConfig.用户信息.用户名 &&
       loginForm.password === systemConfig.用户信息.密码
@@ -208,10 +210,8 @@ const NavigationSystem = () => {
       setShowLogin(false);
       setLoginForm({ username: '', password: '' });
       setCurrentView('admin');
-      console.log('登录成功');
     } else {
       alert('用户名或密码错误！请检查输入的账户信息');
-      console.log('登录失败');
     }
   };
 
@@ -219,13 +219,6 @@ const NavigationSystem = () => {
   const handleNavigation = (item) => {
     const url = item.网址;
     const method = jumpMethod === '当前标签页' ? '_self' : '_blank';
-
-    // 如果有账户信息，可以在这里处理自动填充逻辑
-    if (item.账户信息.账户 && item.账户信息.密码) {
-      console.log('账户信息:', item.账户信息);
-      // 实际应用中，这里可以实现自动填充功能
-    }
-
     window.open(url, method);
   };
 
@@ -293,7 +286,6 @@ const NavigationSystem = () => {
     if (confirm('确定要删除这个分类吗？相关的导航项将需要重新分类。')) {
       const categoryToDelete = categories[index];
       setCategories(categories.filter((_, i) => i !== index));
-      // 可以选择将使用该分类的导航项分类设为空或其他默认值
     }
   };
 
@@ -319,6 +311,27 @@ const NavigationSystem = () => {
         [key]: value,
       },
     }));
+  };
+
+  // 新增：处理查看账户信息
+  const handleShowAccount = (itemId) => {
+    if (showAccountSecret === 'tan') {
+      setShowAccountMap((prev) => ({
+        ...prev,
+        [itemId]: !prev[itemId],
+      }));
+    } else {
+      const input = prompt('请输入密钥查看账户信息（默认：tan）');
+      if (input === 'tan') {
+        setShowAccountSecret('tan');
+        setShowAccountMap((prev) => ({
+          ...prev,
+          [itemId]: true,
+        }));
+      } else {
+        alert('密钥错误');
+      }
+    }
   };
 
   // 导航页面渲染
@@ -461,6 +474,25 @@ const NavigationSystem = () => {
                   </div>
                   <ExternalLink className="w-5 h-5 text-gray-400 group-hover:text-blue-600" />
                 </div>
+
+                {/* 新增：账户信息查看按钮 */}
+                <div className="mt-4">
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleShowAccount(item.id);
+                    }}
+                    className="text-xs text-blue-600 underline"
+                  >
+                    查看账户信息
+                  </button>
+                  {showAccountMap[item.id] && item.账户信息?.账户 && (
+                    <div className="mt-2 text-xs text-gray-600">
+                      <div>账户：{item.账户信息.账户}</div>
+                      <div>密码：{item.账户信息.密码}</div>
+                    </div>
+                  )}
+                </div>
               </div>
             ))}
           </div>
@@ -487,6 +519,25 @@ const NavigationSystem = () => {
                   {item.分类}
                 </span>
                 <ExternalLink className="w-5 h-5 text-gray-400 group-hover:text-blue-600" />
+
+                {/* 新增：账户信息查看按钮 */}
+                <div className="flex-shrink-0">
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleShowAccount(item.id);
+                    }}
+                    className="text-xs text-blue-600 underline"
+                  >
+                    查看账户信息
+                  </button>
+                  {showAccountMap[item.id] && item.账户信息?.账户 && (
+                    <div className="mt-1 text-xs text-gray-600">
+                      <div>账户：{item.账户信息.账户}</div>
+                      <div>密码：{item.账户信息.密码}</div>
+                    </div>
+                  )}
+                </div>
               </div>
             ))}
           </div>
@@ -522,19 +573,32 @@ const NavigationSystem = () => {
               </div>
               <div>
                 <label className="block text-sm font-medium mb-2">密码</label>
-                <input
-                  type="password"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                  value={loginForm.password}
-                  onChange={(e) =>
-                    setLoginForm((prev) => ({
-                      ...prev,
-                      password: e.target.value,
-                    }))
-                  }
-                  required
-                  placeholder="请输入密码"
-                />
+                <div className="relative">
+                  <input
+                    type={showPassword ? 'text' : 'password'}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 pr-10"
+                    value={loginForm.password}
+                    onChange={(e) =>
+                      setLoginForm((prev) => ({
+                        ...prev,
+                        password: e.target.value,
+                      }))
+                    }
+                    required
+                    placeholder="请输入密码"
+                  />
+                  <button
+                    type="button"
+                    className="absolute inset-y-0 right-0 px-3 flex items-center text-gray-500 hover:text-gray-700"
+                    onClick={() => setShowPassword(!showPassword)}
+                  >
+                    {showPassword ? (
+                      <EyeOff className="w-4 h-4" />
+                    ) : (
+                      <Eye className="w-4 h-4" />
+                    )}
+                  </button>
+                </div>
               </div>
               <div className="text-xs text-gray-500 bg-gray-50 p-2 rounded">
                 默认账户: tan / 123
@@ -661,6 +725,7 @@ const NavigationSystem = () => {
               <th className="text-left py-3 px-4">网址</th>
               <th className="text-left py-3 px-4">分类</th>
               <th className="text-left py-3 px-4">排序</th>
+              <th className="text-left py-3 px-4">账户信息</th>
               <th className="text-left py-3 px-4">操作</th>
             </tr>
           </thead>
@@ -681,6 +746,16 @@ const NavigationSystem = () => {
                 <td className="py-3 px-4 max-w-xs truncate">{item.网址}</td>
                 <td className="py-3 px-4">{item.分类}</td>
                 <td className="py-3 px-4">{item.排序}</td>
+                <td className="py-3 px-4 text-sm text-gray-600">
+                  {item.账户信息?.账户 && item.账户信息?.密码 ? (
+                    <div>
+                      <div>账户：{item.账户信息.账户}</div>
+                      <div>密码：{item.账户信息.密码}</div>
+                    </div>
+                  ) : (
+                    '—'
+                  )}
+                </td>
                 <td className="py-3 px-4">
                   <div className="flex items-center space-x-2">
                     <button
@@ -1015,7 +1090,7 @@ const NavigationSystem = () => {
                 onChange={(e) =>
                   setNavForm((prev) => ({ ...prev, 图标: e.target.value }))
                 }
-                placeholder="请输入图标地址或Base64编码：&#10;• HTTP/HTTPS链接: https://example.com/icon.png&#10;• Base64编码: data:image/png;base64,iVBORw0KGg...&#10;• 留空将显示名称前两字作为默认图标"
+                placeholder="请输入图标地址或Base64编码：&#10;• HTTP/HTTPS链接: https://example.com/icon.png&#10 ;• Base64编码: data:image/png;base64,iVBORw0KGg...&#10;• 留空将显示名称前两字作为默认图标"
               />
               <div className="text-xs text-gray-500">
                 <p>
