@@ -1,0 +1,305 @@
+/* Navigation System Styles */
+@tailwind components;
+
+@layer components {
+  /* 基础布局 */
+  .nav-container {
+    @apply min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100;
+  }
+
+  .nav-header {
+    @apply bg-white shadow-sm border-b;
+  }
+
+  .nav-header-content {
+    @apply max-w-6xl mx-auto px-6 py-4;
+  }
+
+  .nav-main {
+    @apply max-w-6xl mx-auto px-6 py-6;
+  }
+
+  /* 搜索和过滤区域 */
+  .search-section {
+    @apply bg-white rounded-xl shadow-sm p-6 mb-6;
+  }
+
+  .search-container {
+    @apply flex flex-col md:flex-row gap-4;
+  }
+
+  .search-input-group {
+    @apply flex-1 relative;
+  }
+
+  .search-input {
+    @apply w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent;
+  }
+
+  .search-icon {
+    @apply absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400;
+  }
+
+  .category-select-group {
+    @apply flex items-center space-x-2;
+  }
+
+  .category-label {
+    @apply text-sm font-medium text-gray-700 whitespace-nowrap;
+  }
+
+  .category-select {
+    @apply px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 min-w-32;
+  }
+
+  /* 视图切换按钮 */
+  .view-toggle {
+    @apply flex border border-gray-300 rounded-md;
+  }
+
+  .view-button {
+    @apply p-1.5 transition-colors duration-200;
+  }
+
+  .view-button.active {
+    @apply bg-blue-500 text-white;
+  }
+
+  .view-button:not(.active) {
+    @apply bg-white text-gray-600 hover:bg-gray-50;
+  }
+
+  .view-button:first-child {
+    @apply rounded-l-md;
+  }
+
+  .view-button:last-child {
+    @apply rounded-r-md;
+  }
+
+  /* 导航项样式 - 网格视图 */
+  .grid-container {
+    @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4;
+  }
+
+  .grid-item {
+    @apply bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-300 p-6 cursor-pointer;
+  }
+
+  .grid-item-content {
+    @apply flex items-center space-x-4;
+  }
+
+  .grid-item-info {
+    @apply flex-1;
+  }
+
+  .grid-item-title {
+    @apply font-semibold text-gray-800 transition-colors;
+  }
+
+  .grid-item-description {
+    @apply text-sm text-gray-500 mt-1;
+  }
+
+  .grid-item-category {
+    @apply inline-block bg-gray-100 text-xs text-gray-600 px-2 py-1 rounded-full mt-2;
+  }
+
+  /* 列表视图 */
+  .list-container {
+    @apply bg-white rounded-xl shadow-sm divide-y divide-gray-100;
+  }
+
+  .list-item {
+    @apply flex items-center space-x-4 p-4 hover:bg-gray-50 cursor-pointer transition-colors duration-200;
+  }
+
+  .list-item-info {
+    @apply flex-1;
+  }
+
+  .list-item-title {
+    @apply font-semibold text-gray-800 transition-colors;
+  }
+
+  .list-item-description {
+    @apply text-sm text-gray-500;
+  }
+
+  .list-item-category {
+    @apply text-sm text-gray-500 bg-gray-100 px-2 py-1 rounded-full;
+  }
+
+  /* 图标样式优化 */
+  .icon-container {
+    @apply relative flex-shrink-0;
+  }
+
+  .icon-image {
+    @apply rounded-lg object-cover;
+    max-width: 100%;
+    max-height: 100%;
+    width: auto;
+    height: auto;
+  }
+
+  .icon-fallback {
+    @apply rounded-lg bg-gradient-to-br flex items-center justify-center text-white font-bold;
+  }
+
+  .icon-size-sm {
+    @apply w-8 h-8;
+    font-size: 10px;
+  }
+
+  .icon-size-md {
+    @apply w-10 h-10;
+    font-size: 12px;
+  }
+
+  .icon-size-lg {
+    @apply w-12 h-12;
+    font-size: 14px;
+  }
+
+  .icon-size-xl {
+    @apply w-16 h-16;
+    font-size: 16px;
+  }
+
+  /* 账户信息样式 */
+  .account-info-toggle {
+    @apply text-xs text-blue-600 underline hover:text-blue-800;
+  }
+
+  .account-info-content {
+    @apply mt-2 text-xs text-gray-600 space-y-1;
+  }
+
+  /* 管理后台样式 */
+  .admin-container {
+    @apply min-h-screen bg-gray-100;
+  }
+
+  .admin-sidebar {
+    @apply w-64 bg-white rounded-xl shadow-sm p-6;
+  }
+
+  .admin-nav-button {
+    @apply w-full text-left px-4 py-2 rounded-lg transition-colors duration-200;
+  }
+
+  .admin-nav-button.active {
+    @apply bg-blue-100 text-blue-600;
+  }
+
+  .admin-nav-button:not(.active) {
+    @apply hover:bg-gray-100;
+  }
+
+  .admin-table-container {
+    @apply overflow-x-auto;
+  }
+
+  .admin-table {
+    @apply w-full;
+  }
+
+  .admin-table th {
+    @apply text-left py-3 px-4 font-medium text-gray-700 border-b;
+  }
+
+  .admin-table td {
+    @apply py-3 px-4 border-b;
+  }
+
+  .admin-table tr:hover {
+    @apply bg-gray-50;
+  }
+
+  /* 表单样式 */
+  .form-container {
+    @apply fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50;
+  }
+
+  .form-content {
+    @apply bg-white rounded-xl p-8 w-96 max-w-md max-h-[90vh] overflow-y-auto;
+  }
+
+  .form-group {
+    @apply space-y-4;
+  }
+
+  .form-label {
+    @apply block text-sm font-medium mb-2;
+  }
+
+  .form-input {
+    @apply w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent;
+  }
+
+  .form-select {
+    @apply w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500;
+  }
+
+  .form-textarea {
+    @apply w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 resize-none;
+  }
+
+  .form-button {
+    @apply w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 transition-colors;
+  }
+
+  .login-overlay {
+    @apply fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50;
+  }
+
+  .login-container {
+    @apply bg-white rounded-xl p-8 w-96 max-w-md;
+  }
+
+  .scrollbar-thin {
+    scrollbar-width: thin;
+    scrollbar-color: #cbd5e1 transparent;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar {
+    @apply w-2 h-2;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-track {
+    @apply bg-transparent;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    @apply bg-gray-300 rounded-full;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+    @apply bg-gray-400;
+  }
+
+  .loading-progress {
+    display: none !important;
+  }
+
+  .icon-auto-scale {
+    max-width: 100%;
+    max-height: 100%;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+  }
+
+  /* 替代 group-hover 的效果 */
+  .grid-item:hover .grid-item-title,
+  .list-item:hover .list-item-title {
+    @apply text-blue-600;
+  }
+
+  .grid-item:hover .external-link-icon,
+  .list-item:hover .external-link-icon {
+    @apply text-blue-600;
+  }
+}

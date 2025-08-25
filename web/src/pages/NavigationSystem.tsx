@@ -18,6 +18,7 @@ import {
   initialCategories,
   initialSystemConfig,
 } from '@/utils/mock';
+import './navigation-system.css';
 
 const NavigationSystem = () => {
   // 状态管理
@@ -119,7 +120,7 @@ const NavigationSystem = () => {
     return gradients[index];
   };
 
-  // 图标组件，包含错误处理和固定尺寸
+  // 优化后的图标组件
   const IconDisplay = ({
     iconData,
     title,
@@ -135,14 +136,15 @@ const NavigationSystem = () => {
     if (!iconData || iconData.trim() === '') {
       return (
         <div
-          className={`${size} rounded-lg bg-gradient-to-br ${gradientClass} flex items-center justify-center text-white font-bold flex-shrink-0`}
-          style={{
-            fontSize: size.includes('w-8')
-              ? '10px'
-              : size.includes('w-10')
-              ? '12px'
-              : '14px',
-          }}
+          className={`icon-fallback ${size} ${gradientClass} ${
+            size === 'w-8 h-8'
+              ? 'icon-size-sm'
+              : size === 'w-10 h-10'
+              ? 'icon-size-md'
+              : size === 'w-12 h-12'
+              ? 'icon-size-lg'
+              : 'icon-size-xl'
+          }`}
         >
           {defaultText}
         </div>
@@ -150,11 +152,11 @@ const NavigationSystem = () => {
     }
 
     return (
-      <div className={`${size} relative flex-shrink-0`}>
+      <div className={`icon-container ${size}`}>
         <img
           src={iconData}
           alt={title}
-          className={`${size} rounded-lg object-cover`}
+          className={`icon-image ${size}`}
           onError={(e) => {
             const target = e.target as HTMLImageElement;
             target.style.display = 'none';
@@ -165,15 +167,16 @@ const NavigationSystem = () => {
           }}
         />
         <div
-          className={`${size} rounded-lg bg-gradient-to-br ${gradientClass} flex items-center justify-center text-white font-bold absolute top-0 left-0`}
-          style={{
-            display: 'none',
-            fontSize: size.includes('w-8')
-              ? '10px'
-              : size.includes('w-10')
-              ? '12px'
-              : '14px',
-          }}
+          className={`icon-fallback ${size} ${gradientClass} absolute top-0 left-0 ${
+            size === 'w-8 h-8'
+              ? 'icon-size-sm'
+              : size === 'w-10 h-10'
+              ? 'icon-size-md'
+              : size === 'w-12 h-12'
+              ? 'icon-size-lg'
+              : 'icon-size-xl'
+          }`}
+          style={{ display: 'none' }}
         >
           {defaultText}
         </div>
@@ -316,10 +319,10 @@ const NavigationSystem = () => {
 
   // 导航页面渲染
   const renderNavigationPage = () => (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+    <div className="nav-container">
       {/* 头部 */}
-      <header className="bg-white shadow-sm border-b">
-        <div className="max-w-6xl mx-auto px-6 py-4">
+      <header className="nav-header">
+        <div className="nav-header-content">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
               <IconDisplay
@@ -333,7 +336,6 @@ const NavigationSystem = () => {
             </div>
             {!systemConfig.hideAdminEntry && (
               <div className="flex items-center space-x-4">
-                {/* 跳转方式选择 */}
                 <div className="flex items-center space-x-2">
                   <span className="text-sm text-gray-600">打开方式:</span>
                   <select
@@ -348,27 +350,22 @@ const NavigationSystem = () => {
                   </select>
                 </div>
 
-                {/* 视图切换 */}
                 <div className="flex items-center space-x-2">
                   <span className="text-sm text-gray-600">视图:</span>
-                  <div className="flex border border-gray-300 rounded-md">
+                  <div className="view-toggle">
                     <button
-                      className={`p-1.5 ${
-                        viewMode === 'grid'
-                          ? 'bg-blue-500 text-white'
-                          : 'bg-white text-gray-600'
-                      } rounded-l-md`}
+                      className={`view-button ${
+                        viewMode === 'grid' ? 'active' : ''
+                      }`}
                       onClick={() => setViewMode('grid')}
                       title="网格视图"
                     >
                       <Grid className="w-4 h-4" />
                     </button>
                     <button
-                      className={`p-1.5 ${
-                        viewMode === 'list'
-                          ? 'bg-blue-500 text-white'
-                          : 'bg-white text-gray-600'
-                      } rounded-r-md`}
+                      className={`view-button ${
+                        viewMode === 'list' ? 'active' : ''
+                      }`}
                       onClick={() => setViewMode('list')}
                       title="列表视图"
                     >
@@ -377,7 +374,6 @@ const NavigationSystem = () => {
                   </div>
                 </div>
 
-                {/* 管理后台按钮 */}
                 <button
                   onClick={() => setShowLogin(true)}
                   className="flex items-center space-x-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
@@ -392,18 +388,14 @@ const NavigationSystem = () => {
       </header>
 
       {/* 搜索和过滤区域 */}
-      <div className="max-w-6xl mx-auto px-6 py-6">
-        <div className="bg-white rounded-xl shadow-sm p-6 mb-6">
-          <div className="flex flex-col md:flex-row gap-4">
-            {/* 搜索和分类作为一组 */}
+      <div className="nav-main">
+        <div className="search-section">
+          <div className="search-container">
             <div className="flex flex-1 gap-4">
-              {/* 分类筛选 */}
-              <div className="flex items-center space-x-2">
-                <span className="text-sm font-medium text-gray-700 whitespace-nowrap">
-                  分类:
-                </span>
+              <div className="category-select-group">
+                <span className="category-label">分类:</span>
                 <select
-                  className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 min-w-32"
+                  className="category-select"
                   value={selectedCategory}
                   onChange={(e) => setSelectedCategory(e.target.value)}
                 >
@@ -415,13 +407,12 @@ const NavigationSystem = () => {
                 </select>
               </div>
 
-              {/* 搜索框 */}
-              <div className="flex-1 relative">
-                <Search className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
+              <div className="search-input-group">
+                <Search className="search-icon" />
                 <input
                   type="text"
                   placeholder="搜索导航..."
-                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="search-input"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                 />
@@ -432,44 +423,39 @@ const NavigationSystem = () => {
 
         {/* 导航项展示 */}
         {viewMode === 'grid' ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+          <div className="grid-container">
             {filteredNavItems.map((item) => (
               <div
                 key={item.id}
-                className="bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow p-6 cursor-pointer group"
+                className="grid-item"
                 onClick={() => handleNavigation(item)}
               >
-                <div className="flex items-center space-x-4">
+                <div className="grid-item-content">
                   <IconDisplay
                     iconData={item.icon}
                     title={item.name}
                     size="w-12 h-12"
                   />
-                  <div className="flex-1">
-                    <h3 className="font-semibold text-gray-800 group-hover:text-blue-600">
-                      {item.name}
-                    </h3>
-                    <p className="text-sm text-gray-500 mt-1">{item.remark}</p>
-                    <span className="inline-block bg-gray-100 text-xs text-gray-600 px-2 py-1 rounded-full mt-2">
-                      {item.category}
-                    </span>
+                  <div className="grid-item-info">
+                    <h3 className="grid-item-title">{item.name}</h3>
+                    <p className="grid-item-description">{item.remark}</p>
+                    <span className="grid-item-category">{item.category}</span>
                   </div>
                   <ExternalLink className="w-5 h-5 text-gray-400 group-hover:text-blue-600" />
                 </div>
 
-                {/* 新增：账户信息查看按钮 */}
                 <div className="mt-4">
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
                       handleShowAccount(item.id);
                     }}
-                    className="text-xs text-blue-600 underline"
+                    className="account-info-toggle"
                   >
                     查看账户信息
                   </button>
                   {showAccountMap[item.id] && item.accountInfo?.account && (
-                    <div className="mt-2 text-xs text-gray-600">
+                    <div className="account-info-content">
                       <div>账户：{item.accountInfo.account}</div>
                       <div>密码：{item.accountInfo.password}</div>
                     </div>
@@ -479,11 +465,11 @@ const NavigationSystem = () => {
             ))}
           </div>
         ) : (
-          <div className="bg-white rounded-xl shadow-sm">
+          <div className="list-container">
             {filteredNavItems.map((item) => (
               <div
                 key={item.id}
-                className="flex items-center space-x-4 p-4 border-b border-gray-100 last:border-b-0 hover:bg-gray-50 cursor-pointer group"
+                className="list-item"
                 onClick={() => handleNavigation(item)}
               >
                 <IconDisplay
@@ -491,30 +477,25 @@ const NavigationSystem = () => {
                   title={item.name}
                   size="w-10 h-10"
                 />
-                <div className="flex-1">
-                  <h3 className="font-semibold text-gray-800 group-hover:text-blue-600">
-                    {item.name}
-                  </h3>
-                  <p className="text-sm text-gray-500">{item.remark}</p>
+                <div className="list-item-info">
+                  <h3 className="list-item-title">{item.name}</h3>
+                  <p className="list-item-description">{item.remark}</p>
                 </div>
-                <span className="text-sm text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
-                  {item.category}
-                </span>
+                <span className="list-item-category">{item.category}</span>
                 <ExternalLink className="w-5 h-5 text-gray-400 group-hover:text-blue-600" />
 
-                {/* 新增：账户信息查看按钮 */}
                 <div className="flex-shrink-0">
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
                       handleShowAccount(item.id);
                     }}
-                    className="text-xs text-blue-600 underline"
+                    className="account-info-toggle"
                   >
                     查看账户信息
                   </button>
                   {showAccountMap[item.id] && item.accountInfo?.account && (
-                    <div className="mt-1 text-xs text-gray-600">
+                    <div className="account-info-content">
                       <div>账户：{item.accountInfo.account}</div>
                       <div>密码：{item.accountInfo.password}</div>
                     </div>
@@ -528,8 +509,8 @@ const NavigationSystem = () => {
 
       {/* 登录弹窗 */}
       {showLogin && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-xl p-8 w-96 max-w-md">
+        <div className="login-overlay">
+          <div className="login-container">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-xl font-bold">管理员登录</h2>
               <button onClick={() => setShowLogin(false)}>
@@ -538,10 +519,10 @@ const NavigationSystem = () => {
             </div>
             <form onSubmit={handleLogin} className="space-y-4">
               <div>
-                <label className="block text-sm font-medium mb-2">用户名</label>
+                <label className="form-label">用户名</label>
                 <input
                   type="text"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  className="form-input"
                   value={loginForm.username}
                   onChange={(e) =>
                     setLoginForm((prev) => ({
@@ -554,11 +535,11 @@ const NavigationSystem = () => {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium mb-2">密码</label>
+                <label className="form-label">密码</label>
                 <div className="relative">
                   <input
                     type={showPassword ? 'text' : 'password'}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 pr-10"
+                    className="form-input pr-10"
                     value={loginForm.password}
                     onChange={(e) =>
                       setLoginForm((prev) => ({
@@ -585,10 +566,7 @@ const NavigationSystem = () => {
               <div className="text-xs text-gray-500 bg-gray-50 p-2 rounded">
                 默认账户: tan / 123
               </div>
-              <button
-                type="submit"
-                className="w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 transition-colors"
-              >
+              <button type="submit" className="form-button">
                 登录
               </button>
             </form>
@@ -600,10 +578,10 @@ const NavigationSystem = () => {
 
   // 管理页面渲染
   const renderAdminPage = () => (
-    <div className="min-h-screen bg-gray-100">
+    <div className="admin-container">
       {/* 头部 */}
-      <header className="bg-white shadow-sm border-b">
-        <div className="max-w-6xl mx-auto px-6 py-4">
+      <header className="nav-header">
+        <div className="nav-header-content">
           <div className="flex items-center justify-between">
             <h1 className="text-2xl font-bold text-gray-800">管理后台</h1>
             <div className="flex items-center space-x-4">
@@ -627,36 +605,30 @@ const NavigationSystem = () => {
         </div>
       </header>
 
-      <div className="max-w-6xl mx-auto px-6 py-6">
+      <div className="nav-main">
         <div className="flex gap-6">
           {/* 侧边栏 */}
-          <div className="w-64 bg-white rounded-xl shadow-sm p-6">
+          <div className="admin-sidebar">
             <nav className="space-y-2">
               <button
-                className={`w-full text-left px-4 py-2 rounded-lg ${
-                  currentAdminTab === 'nav-management'
-                    ? 'bg-blue-100 text-blue-600'
-                    : 'hover:bg-gray-100'
+                className={`admin-nav-button ${
+                  currentAdminTab === 'nav-management' ? 'active' : ''
                 }`}
                 onClick={() => setCurrentAdminTab('nav-management')}
               >
                 导航页面管理
               </button>
               <button
-                className={`w-full text-left px-4 py-2 rounded-lg ${
-                  currentAdminTab === 'category-management'
-                    ? 'bg-blue-100 text-blue-600'
-                    : 'hover:bg-gray-100'
+                className={`admin-nav-button ${
+                  currentAdminTab === 'category-management' ? 'active' : ''
                 }`}
                 onClick={() => setCurrentAdminTab('category-management')}
               >
                 分类管理
               </button>
               <button
-                className={`w-full text-left px-4 py-2 rounded-lg ${
-                  currentAdminTab === 'system-management'
-                    ? 'bg-blue-100 text-blue-600'
-                    : 'hover:bg-gray-100'
+                className={`admin-nav-button ${
+                  currentAdminTab === 'system-management' ? 'active' : ''
                 }`}
                 onClick={() => setCurrentAdminTab('system-management')}
               >
@@ -698,24 +670,24 @@ const NavigationSystem = () => {
         </button>
       </div>
 
-      <div className="overflow-x-auto">
-        <table className="w-full">
+      <div className="admin-table-container">
+        <table className="admin-table">
           <thead>
-            <tr className="border-b">
-              <th className="text-left py-3 px-4">序号</th>
-              <th className="text-left py-3 px-4">名称</th>
-              <th className="text-left py-3 px-4">网址</th>
-              <th className="text-left py-3 px-4">分类</th>
-              <th className="text-left py-3 px-4">排序</th>
-              <th className="text-left py-3 px-4">账户信息</th>
-              <th className="text-left py-3 px-4">操作</th>
+            <tr>
+              <th>序号</th>
+              <th>名称</th>
+              <th>网址</th>
+              <th>分类</th>
+              <th>排序</th>
+              <th>账户信息</th>
+              <th>操作</th>
             </tr>
           </thead>
           <tbody>
             {navItems.map((item) => (
-              <tr key={item.id} className="border-b hover:bg-gray-50">
-                <td className="py-3 px-4">{item.order}</td>
-                <td className="py-3 px-4">
+              <tr key={item.id}>
+                <td>{item.order}</td>
+                <td>
                   <div className="flex items-center space-x-3">
                     <IconDisplay
                       iconData={item.icon}
@@ -725,10 +697,10 @@ const NavigationSystem = () => {
                     <span>{item.name}</span>
                   </div>
                 </td>
-                <td className="py-3 px-4 max-w-xs truncate">{item.url}</td>
-                <td className="py-3 px-4">{item.category}</td>
-                <td className="py-3 px-4">{item.sort}</td>
-                <td className="py-3 px-4 text-sm text-gray-600">
+                <td className="max-w-xs truncate">{item.url}</td>
+                <td>{item.category}</td>
+                <td>{item.sort}</td>
+                <td className="text-sm text-gray-600">
                   {item.accountInfo?.account && item.accountInfo?.password ? (
                     <div>
                       <div>账户：{item.accountInfo.account}</div>
@@ -738,7 +710,7 @@ const NavigationSystem = () => {
                     '—'
                   )}
                 </td>
-                <td className="py-3 px-4">
+                <td>
                   <div className="flex items-center space-x-2">
                     <button
                       onClick={() => handleEditNav(item)}
@@ -817,10 +789,10 @@ const NavigationSystem = () => {
         <h2 className="text-xl font-bold mb-6">网站信息管理</h2>
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium mb-2">网站标题</label>
+            <label className="form-label">网站标题</label>
             <input
               type="text"
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+              className="form-input"
               value={systemConfig.siteTitle}
               onChange={(e) =>
                 handleSystemConfigUpdate('siteTitle', e.target.value)
@@ -828,7 +800,7 @@ const NavigationSystem = () => {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium mb-2">网站Logo</label>
+            <label className="form-label">网站Logo</label>
             <div className="space-y-3">
               <div className="text-sm text-gray-600">
                 当前类型:{' '}
@@ -864,8 +836,8 @@ const NavigationSystem = () => {
                 </div>
               </div>
               <textarea
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                rows="3"
+                className="form-textarea"
+                rows={3}
                 value={systemConfig.siteLogo}
                 onChange={(e) =>
                   handleSystemConfigUpdate('siteLogo', e.target.value)
@@ -878,11 +850,9 @@ const NavigationSystem = () => {
             </div>
           </div>
           <div>
-            <label className="block text-sm font-medium mb-2">
-              默认跳转方式
-            </label>
+            <label className="form-label">默认跳转方式</label>
             <select
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+              className="form-select"
               value={systemConfig.defaultOpenMode}
               onChange={(e) =>
                 handleSystemConfigUpdate('defaultOpenMode', e.target.value)
@@ -914,19 +884,19 @@ const NavigationSystem = () => {
         <h2 className="text-xl font-bold mb-6">用户管理</h2>
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium mb-2">用户名</label>
+            <label className="form-label">用户名</label>
             <input
               type="text"
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+              className="form-input"
               value={systemConfig.user.username}
               onChange={(e) => handleUserUpdate('username', e.target.value)}
             />
           </div>
           <div>
-            <label className="block text-sm font-medium mb-2">密码</label>
+            <label className="form-label">密码</label>
             <input
               type="password"
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+              className="form-input"
               value={systemConfig.user.password}
               onChange={(e) => handleUserUpdate('password', e.target.value)}
             />
@@ -938,8 +908,8 @@ const NavigationSystem = () => {
 
   // 导航项表单
   const renderNavForm = () => (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-xl p-8 w-96 max-w-md max-h-[90vh] overflow-y-auto">
+    <div className="form-container">
+      <div className="form-content">
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-xl font-bold">
             {editingNav ? '编辑导航' : '添加导航'}
@@ -948,12 +918,12 @@ const NavigationSystem = () => {
             <X className="w-5 h-5" />
           </button>
         </div>
-        <div className="space-y-4">
+        <div className="form-group">
           <div>
-            <label className="block text-sm font-medium mb-2">名称</label>
+            <label className="form-label">名称</label>
             <input
               type="text"
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+              className="form-input"
               value={navForm.name}
               onChange={(e) =>
                 setNavForm((prev) => ({ ...prev, name: e.target.value }))
@@ -961,10 +931,10 @@ const NavigationSystem = () => {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium mb-2">网址</label>
+            <label className="form-label">网址</label>
             <input
               type="url"
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+              className="form-input"
               value={navForm.url}
               onChange={(e) =>
                 setNavForm((prev) => ({ ...prev, url: e.target.value }))
@@ -972,9 +942,9 @@ const NavigationSystem = () => {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium mb-2">分类</label>
+            <label className="form-label">分类</label>
             <select
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+              className="form-select"
               value={navForm.category}
               onChange={(e) =>
                 setNavForm((prev) => ({ ...prev, category: e.target.value }))
@@ -989,10 +959,10 @@ const NavigationSystem = () => {
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium mb-2">排序</label>
+            <label className="form-label">排序</label>
             <input
               type="number"
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+              className="form-input"
               value={navForm.sort}
               onChange={(e) =>
                 setNavForm((prev) => ({
@@ -1003,7 +973,7 @@ const NavigationSystem = () => {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium mb-2">图标</label>
+            <label className="form-label">图标</label>
             <div className="space-y-3">
               <div className="text-sm text-gray-600">
                 当前类型:{' '}
@@ -1039,8 +1009,8 @@ const NavigationSystem = () => {
                 </div>
               </div>
               <textarea
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                rows="3"
+                className="form-textarea"
+                rows={3}
                 value={navForm.icon}
                 onChange={(e) =>
                   setNavForm((prev) => ({ ...prev, icon: e.target.value }))
@@ -1053,10 +1023,10 @@ const NavigationSystem = () => {
             </div>
           </div>
           <div>
-            <label className="block text-sm font-medium mb-2">备注</label>
+            <label className="form-label">备注</label>
             <input
               type="text"
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+              className="form-input"
               value={navForm.remark}
               onChange={(e) =>
                 setNavForm((prev) => ({ ...prev, remark: e.target.value }))
@@ -1064,11 +1034,11 @@ const NavigationSystem = () => {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium mb-2">账户信息</label>
+            <label className="form-label">账户信息</label>
             <div className="space-y-2">
               <input
                 type="text"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                className="form-input"
                 placeholder="账户"
                 value={navForm.accountInfo.account}
                 onChange={(e) =>
@@ -1083,7 +1053,7 @@ const NavigationSystem = () => {
               />
               <input
                 type="text"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                className="form-input"
                 placeholder="密码"
                 value={navForm.accountInfo.password}
                 onChange={(e) =>
@@ -1098,10 +1068,7 @@ const NavigationSystem = () => {
               />
             </div>
           </div>
-          <button
-            onClick={handleSaveNav}
-            className="w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 transition-colors"
-          >
+          <button onClick={handleSaveNav} className="form-button">
             保存
           </button>
         </div>
@@ -1111,7 +1078,7 @@ const NavigationSystem = () => {
 
   // 分类表单
   const renderCategoryForm = () => (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div className="form-container">
       <div className="bg-white rounded-xl p-8 w-96 max-w-md">
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-xl font-bold">
@@ -1121,20 +1088,17 @@ const NavigationSystem = () => {
             <X className="w-5 h-5" />
           </button>
         </div>
-        <div className="space-y-4">
+        <div className="form-group">
           <div>
-            <label className="block text-sm font-medium mb-2">分类名称</label>
+            <label className="form-label">分类名称</label>
             <input
               type="text"
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+              className="form-input"
               value={categoryForm}
               onChange={(e) => setCategoryForm(e.target.value)}
             />
           </div>
-          <button
-            onClick={handleSaveCategory}
-            className="w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 transition-colors"
-          >
+          <button onClick={handleSaveCategory} className="form-button">
             保存
           </button>
         </div>
