@@ -1,4 +1,4 @@
-import { NavItem, SystemConfig } from '@/types';
+import type { NavItem, SystemConfig } from '@/types';
 // 模拟数据
 
 export const initialNavItems: NavItem[] = [

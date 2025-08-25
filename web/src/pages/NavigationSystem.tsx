@@ -1,69 +1,37 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
   Search,
   Settings,
   Plus,
   Edit2,
   Trash2,
-  Save,
   X,
   Eye,
   EyeOff,
   ExternalLink,
   Grid,
   List,
-  User,
-  Globe,
-  Shield,
 } from 'lucide-react';
-
-// 模拟数据
-const initialNavItems = [
-  {
-    id: 1,
-    序号: 1,
-    名称: 'Google',
-    网址: 'https://www.google.com ',
-    排序: 1,
-    分类: '搜索引擎',
-    图标: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSI+PGNpcmNsZSBjeD0iMTIiIGN5PSIxMiIgcj0iMTAiIGZpbGw9IiM0Mjg1RjQiLz48L3N2Zz4=',
-    备注: 'Google搜索引擎',
-    账户信息: { 账户: 'user@gmail.com', 密码: 'password123' },
-  },
-  {
-    id: 2,
-    序号: 2,
-    名称: 'GitHub',
-    网址: 'https://github.com ',
-    排序: 2,
-    分类: '开发工具',
-    图标: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSI+PGNpcmNsZSBjeD0iMTIiIGN5PSIxMiIgcj0iMTAiIGZpbGw9IiMxODE3MWIiLz48L3N2Zz4=',
-    备注: '代码托管平台',
-    账户信息: { 账户: 'developer', 密码: 'dev123' },
-  },
-];
-
-const initialCategories = ['搜索引擎', '开发工具', '社交媒体', '学习资源'];
-
-const initialSystemConfig = {
-  网站标题: '我的导航',
-  网站Logo:
-    'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHZpZXdCb3g9IjAgMCAzMiAzMiIgZmlsbD0ibm9uZSI+PGNpcmNsZSBjeD0iMTYiIGN5PSIxNiIgcj0iMTQiIGZpbGw9IiMzQjgyRjYiLz48L3N2Zz4=',
-  默认跳转方式: '新标签页',
-  隐藏管理后台入口: false,
-  用户信息: { 用户名: 'tan', 密码: '123' },
-};
+import type { NavItem, SystemConfig } from '@/types';
+import {
+  initialNavItems,
+  initialCategories,
+  initialSystemConfig,
+} from '@/utils/mock';
 
 const NavigationSystem = () => {
   // 状态管理
-  const [navItems, setNavItems] = useState(initialNavItems);
-  const [categories, setCategories] = useState(initialCategories);
-  const [systemConfig, setSystemConfig] = useState(initialSystemConfig);
+  const [navItems, setNavItems] = useState<NavItem[]>(initialNavItems);
+  const [categories, setCategories] = useState<string[]>(initialCategories);
+  const [systemConfig, setSystemConfig] =
+    useState<SystemConfig>(initialSystemConfig);
   const [currentView, setCurrentView] = useState('navigation'); // navigation, admin
   const [currentAdminTab, setCurrentAdminTab] = useState('nav-management'); // nav-management, category-management, system-management
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('全部');
-  const [jumpMethod, setJumpMethod] = useState('新标签页');
+  const [jumpMethod, setJumpMethod] = useState<'newTab' | 'currentTab'>(
+    'newTab'
+  );
   const [viewMode, setViewMode] = useState('grid');
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [loginForm, setLoginForm] = useState({ username: '', password: '' });
@@ -72,24 +40,26 @@ const NavigationSystem = () => {
 
   // 新增：查看账户信息
   const [showAccountSecret, setShowAccountSecret] = useState('');
-  const [showAccountMap, setShowAccountMap] = useState({});
+  const [showAccountMap, setShowAccountMap] = useState<Record<number, boolean>>(
+    {}
+  );
 
   // 编辑状态
-  const [editingNav, setEditingNav] = useState(null);
-  const [editingCategory, setEditingCategory] = useState(null);
+  const [editingNav, setEditingNav] = useState<NavItem | null>(null);
+  const [editingCategory, setEditingCategory] = useState<number | null>(null);
   const [showNavForm, setShowNavForm] = useState(false);
   const [showCategoryForm, setShowCategoryForm] = useState(false);
 
   // 表单数据
-  const [navForm, setNavForm] = useState({
-    序号: '',
-    名称: '',
-    网址: '',
-    排序: '',
-    分类: '',
-    图标: '',
-    备注: '',
-    账户信息: { 账户: '', 密码: '' },
+  const [navForm, setNavForm] = useState<Omit<NavItem, 'id'>>({
+    order: 0,
+    name: '',
+    url: '',
+    sort: 0,
+    category: '',
+    icon: '',
+    remark: '',
+    accountInfo: { account: '', password: '' },
   });
 
   const [categoryForm, setCategoryForm] = useState('');
@@ -101,16 +71,16 @@ const NavigationSystem = () => {
   const filteredNavItems = navItems
     .filter((item) => {
       const matchesSearch =
-        item.名称.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item.备注.toLowerCase().includes(searchTerm.toLowerCase());
+        item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        item.remark.toLowerCase().includes(searchTerm.toLowerCase());
       const matchesCategory =
-        selectedCategory === '全部' || item.分类 === selectedCategory;
+        selectedCategory === '全部' || item.category === selectedCategory;
       return matchesSearch && matchesCategory;
     })
-    .sort((a, b) => a.排序 - b.排序);
+    .sort((a, b) => a.sort - b.sort);
 
   // 图标类型检测函数
-  const getIconType = (iconData) => {
+  const getIconType = (iconData: string) => {
     if (!iconData || iconData.trim() === '') return 'empty';
     if (iconData.startsWith('data:')) return 'base64';
     if (iconData.startsWith('http')) return 'url';
@@ -118,7 +88,7 @@ const NavigationSystem = () => {
   };
 
   // 生成随机颜色的函数
-  const getRandomGradient = (text) => {
+  const getRandomGradient = (text: string) => {
     const gradients = [
       'from-blue-500 to-blue-600',
       'from-purple-500 to-purple-600',
@@ -150,7 +120,15 @@ const NavigationSystem = () => {
   };
 
   // 图标组件，包含错误处理和固定尺寸
-  const IconDisplay = ({ iconData, title, size = 'w-12 h-12' }) => {
+  const IconDisplay = ({
+    iconData,
+    title,
+    size = 'w-12 h-12',
+  }: {
+    iconData: string;
+    title: string;
+    size?: string;
+  }) => {
     const defaultText = title.slice(0, 2).toUpperCase();
     const gradientClass = getRandomGradient(title);
 
@@ -178,8 +156,12 @@ const NavigationSystem = () => {
           alt={title}
           className={`${size} rounded-lg object-cover`}
           onError={(e) => {
-            e.target.style.display = 'none';
-            e.target.nextElementSibling.style.display = 'flex';
+            const target = e.target as HTMLImageElement;
+            target.style.display = 'none';
+            const nextSibling = target.nextElementSibling as HTMLElement;
+            if (nextSibling) {
+              nextSibling.style.display = 'flex';
+            }
           }}
         />
         <div
@@ -200,11 +182,11 @@ const NavigationSystem = () => {
   };
 
   // 登录处理
-  const handleLogin = (e) => {
+  const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
     if (
-      loginForm.username === systemConfig.用户信息.用户名 &&
-      loginForm.password === systemConfig.用户信息.密码
+      loginForm.username === systemConfig.user.username &&
+      loginForm.password === systemConfig.user.password
     ) {
       setIsAuthenticated(true);
       setShowLogin(false);
@@ -216,10 +198,9 @@ const NavigationSystem = () => {
   };
 
   // 跳转处理
-  const handleNavigation = (item) => {
-    const url = item.网址;
-    const method = jumpMethod === '当前标签页' ? '_self' : '_blank';
-    window.open(url, method);
+  const handleNavigation = (item: NavItem) => {
+    const method = jumpMethod === 'currentTab' ? '_self' : '_blank';
+    window.open(item.url, method);
   };
 
   // 导航项CRUD操作
@@ -232,18 +213,18 @@ const NavigationSystem = () => {
       );
     } else {
       const newId = Math.max(...navItems.map((item) => item.id), 0) + 1;
-      setNavItems([...navItems, { ...navForm, id: newId }]);
+      setNavItems([...navItems, { ...navForm, id: newId } as NavItem]);
     }
     resetNavForm();
   };
 
-  const handleEditNav = (item) => {
+  const handleEditNav = (item: NavItem) => {
     setEditingNav(item);
     setNavForm(item);
     setShowNavForm(true);
   };
 
-  const handleDeleteNav = (id) => {
+  const handleDeleteNav = (id: number) => {
     if (confirm('确定要删除这个导航项吗？')) {
       setNavItems(navItems.filter((item) => item.id !== id));
     }
@@ -251,14 +232,14 @@ const NavigationSystem = () => {
 
   const resetNavForm = () => {
     setNavForm({
-      序号: '',
-      名称: '',
-      网址: '',
-      排序: '',
-      分类: '',
-      图标: '',
-      备注: '',
-      账户信息: { 账户: '', 密码: '' },
+      order: 0,
+      name: '',
+      url: '',
+      sort: 0,
+      category: '',
+      icon: '',
+      remark: '',
+      accountInfo: { account: '', password: '' },
     });
     setEditingNav(null);
     setShowNavForm(false);
@@ -276,15 +257,14 @@ const NavigationSystem = () => {
     resetCategoryForm();
   };
 
-  const handleEditCategory = (index) => {
+  const handleEditCategory = (index: number) => {
     setEditingCategory(index);
     setCategoryForm(categories[index]);
     setShowCategoryForm(true);
   };
 
-  const handleDeleteCategory = (index) => {
+  const handleDeleteCategory = (index: number) => {
     if (confirm('确定要删除这个分类吗？相关的导航项将需要重新分类。')) {
-      const categoryToDelete = categories[index];
       setCategories(categories.filter((_, i) => i !== index));
     }
   };
@@ -296,25 +276,25 @@ const NavigationSystem = () => {
   };
 
   // 系统配置更新
-  const handleSystemConfigUpdate = (key, value) => {
+  const handleSystemConfigUpdate = (key: keyof SystemConfig, value: any) => {
     setSystemConfig((prev) => ({
       ...prev,
       [key]: value,
     }));
   };
 
-  const handleUserUpdate = (key, value) => {
+  const handleUserUpdate = (key: keyof SystemConfig['user'], value: string) => {
     setSystemConfig((prev) => ({
       ...prev,
-      用户信息: {
-        ...prev.用户信息,
+      user: {
+        ...prev.user,
         [key]: value,
       },
     }));
   };
 
   // 新增：处理查看账户信息
-  const handleShowAccount = (itemId) => {
+  const handleShowAccount = (itemId: number) => {
     if (showAccountSecret === 'tan') {
       setShowAccountMap((prev) => ({
         ...prev,
@@ -343,15 +323,15 @@ const NavigationSystem = () => {
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
               <IconDisplay
-                iconData={systemConfig.网站Logo}
-                title={systemConfig.网站标题}
+                iconData={systemConfig.siteLogo}
+                title={systemConfig.siteTitle}
                 size="w-8 h-8"
               />
               <h1 className="text-2xl font-bold text-gray-800">
-                {systemConfig.网站标题}
+                {systemConfig.siteTitle}
               </h1>
             </div>
-            {!systemConfig.隐藏管理后台入口 && (
+            {!systemConfig.hideAdminEntry && (
               <div className="flex items-center space-x-4">
                 {/* 跳转方式选择 */}
                 <div className="flex items-center space-x-2">
@@ -359,10 +339,12 @@ const NavigationSystem = () => {
                   <select
                     className="px-3 py-1 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
                     value={jumpMethod}
-                    onChange={(e) => setJumpMethod(e.target.value)}
+                    onChange={(e) =>
+                      setJumpMethod(e.target.value as 'newTab' | 'currentTab')
+                    }
                   >
-                    <option value="新标签页">新标签页</option>
-                    <option value="当前标签页">当前标签页</option>
+                    <option value="newTab">新标签页</option>
+                    <option value="currentTab">当前标签页</option>
                   </select>
                 </div>
 
@@ -459,17 +441,17 @@ const NavigationSystem = () => {
               >
                 <div className="flex items-center space-x-4">
                   <IconDisplay
-                    iconData={item.图标}
-                    title={item.名称}
+                    iconData={item.icon}
+                    title={item.name}
                     size="w-12 h-12"
                   />
                   <div className="flex-1">
                     <h3 className="font-semibold text-gray-800 group-hover:text-blue-600">
-                      {item.名称}
+                      {item.name}
                     </h3>
-                    <p className="text-sm text-gray-500 mt-1">{item.备注}</p>
+                    <p className="text-sm text-gray-500 mt-1">{item.remark}</p>
                     <span className="inline-block bg-gray-100 text-xs text-gray-600 px-2 py-1 rounded-full mt-2">
-                      {item.分类}
+                      {item.category}
                     </span>
                   </div>
                   <ExternalLink className="w-5 h-5 text-gray-400 group-hover:text-blue-600" />
@@ -486,10 +468,10 @@ const NavigationSystem = () => {
                   >
                     查看账户信息
                   </button>
-                  {showAccountMap[item.id] && item.账户信息?.账户 && (
+                  {showAccountMap[item.id] && item.accountInfo?.account && (
                     <div className="mt-2 text-xs text-gray-600">
-                      <div>账户：{item.账户信息.账户}</div>
-                      <div>密码：{item.账户信息.密码}</div>
+                      <div>账户：{item.accountInfo.account}</div>
+                      <div>密码：{item.accountInfo.password}</div>
                     </div>
                   )}
                 </div>
@@ -505,18 +487,18 @@ const NavigationSystem = () => {
                 onClick={() => handleNavigation(item)}
               >
                 <IconDisplay
-                  iconData={item.图标}
-                  title={item.名称}
+                  iconData={item.icon}
+                  title={item.name}
                   size="w-10 h-10"
                 />
                 <div className="flex-1">
                   <h3 className="font-semibold text-gray-800 group-hover:text-blue-600">
-                    {item.名称}
+                    {item.name}
                   </h3>
-                  <p className="text-sm text-gray-500">{item.备注}</p>
+                  <p className="text-sm text-gray-500">{item.remark}</p>
                 </div>
                 <span className="text-sm text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
-                  {item.分类}
+                  {item.category}
                 </span>
                 <ExternalLink className="w-5 h-5 text-gray-400 group-hover:text-blue-600" />
 
@@ -531,10 +513,10 @@ const NavigationSystem = () => {
                   >
                     查看账户信息
                   </button>
-                  {showAccountMap[item.id] && item.账户信息?.账户 && (
+                  {showAccountMap[item.id] && item.accountInfo?.account && (
                     <div className="mt-1 text-xs text-gray-600">
-                      <div>账户：{item.账户信息.账户}</div>
-                      <div>密码：{item.账户信息.密码}</div>
+                      <div>账户：{item.accountInfo.account}</div>
+                      <div>密码：{item.accountInfo.password}</div>
                     </div>
                   )}
                 </div>
@@ -732,25 +714,25 @@ const NavigationSystem = () => {
           <tbody>
             {navItems.map((item) => (
               <tr key={item.id} className="border-b hover:bg-gray-50">
-                <td className="py-3 px-4">{item.序号}</td>
+                <td className="py-3 px-4">{item.order}</td>
                 <td className="py-3 px-4">
                   <div className="flex items-center space-x-3">
                     <IconDisplay
-                      iconData={item.图标}
-                      title={item.名称}
+                      iconData={item.icon}
+                      title={item.name}
                       size="w-8 h-8"
                     />
-                    <span>{item.名称}</span>
+                    <span>{item.name}</span>
                   </div>
                 </td>
-                <td className="py-3 px-4 max-w-xs truncate">{item.网址}</td>
-                <td className="py-3 px-4">{item.分类}</td>
-                <td className="py-3 px-4">{item.排序}</td>
+                <td className="py-3 px-4 max-w-xs truncate">{item.url}</td>
+                <td className="py-3 px-4">{item.category}</td>
+                <td className="py-3 px-4">{item.sort}</td>
                 <td className="py-3 px-4 text-sm text-gray-600">
-                  {item.账户信息?.账户 && item.账户信息?.密码 ? (
+                  {item.accountInfo?.account && item.accountInfo?.password ? (
                     <div>
-                      <div>账户：{item.账户信息.账户}</div>
-                      <div>密码：{item.账户信息.密码}</div>
+                      <div>账户：{item.accountInfo.account}</div>
+                      <div>密码：{item.accountInfo.password}</div>
                     </div>
                   ) : (
                     '—'
@@ -818,7 +800,7 @@ const NavigationSystem = () => {
               </div>
             </div>
             <p className="text-sm text-gray-500 mt-2">
-              {navItems.filter((item) => item.分类 === category).length}{' '}
+              {navItems.filter((item) => item.category === category).length}{' '}
               个导航项
             </p>
           </div>
@@ -839,9 +821,9 @@ const NavigationSystem = () => {
             <input
               type="text"
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-              value={systemConfig.网站标题}
+              value={systemConfig.siteTitle}
               onChange={(e) =>
-                handleSystemConfigUpdate('网站标题', e.target.value)
+                handleSystemConfigUpdate('siteTitle', e.target.value)
               }
             />
           </div>
@@ -852,7 +834,7 @@ const NavigationSystem = () => {
                 当前类型:{' '}
                 <span className="font-medium">
                   {(() => {
-                    const type = getIconType(systemConfig.网站Logo);
+                    const type = getIconType(systemConfig.siteLogo);
                     switch (type) {
                       case 'base64':
                         return 'Base64 编码图片';
@@ -874,19 +856,19 @@ const NavigationSystem = () => {
                 </span>
                 <div className="flex-shrink-0">
                   <IconDisplay
-                    iconData={systemConfig.网站Logo}
-                    title={systemConfig.网站标题}
+                    iconData={systemConfig.siteLogo}
+                    title={systemConfig.siteTitle}
                     size="w-10 h-10"
-                    key={`${systemConfig.网站Logo}-${systemConfig.网站标题}`}
+                    key={`${systemConfig.siteLogo}-${systemConfig.siteTitle}`}
                   />
                 </div>
               </div>
               <textarea
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                 rows="3"
-                value={systemConfig.网站Logo}
+                value={systemConfig.siteLogo}
                 onChange={(e) =>
-                  handleSystemConfigUpdate('网站Logo', e.target.value)
+                  handleSystemConfigUpdate('siteLogo', e.target.value)
                 }
                 placeholder="请输入Logo地址或Base64编码..."
               />
@@ -901,22 +883,22 @@ const NavigationSystem = () => {
             </label>
             <select
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-              value={systemConfig.默认跳转方式}
+              value={systemConfig.defaultOpenMode}
               onChange={(e) =>
-                handleSystemConfigUpdate('默认跳转方式', e.target.value)
+                handleSystemConfigUpdate('defaultOpenMode', e.target.value)
               }
             >
-              <option value="新标签页">新标签页</option>
-              <option value="当前标签页">当前标签页</option>
+              <option value="newTab">新标签页</option>
+              <option value="currentTab">当前标签页</option>
             </select>
           </div>
           <div className="flex items-center space-x-3">
             <input
               type="checkbox"
               id="hideAdmin"
-              checked={systemConfig.隐藏管理后台入口}
+              checked={systemConfig.hideAdminEntry}
               onChange={(e) =>
-                handleSystemConfigUpdate('隐藏管理后台入口', e.target.checked)
+                handleSystemConfigUpdate('hideAdminEntry', e.target.checked)
               }
               className="w-4 h-4 text-blue-600 focus:ring-blue-500"
             />
@@ -936,8 +918,8 @@ const NavigationSystem = () => {
             <input
               type="text"
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-              value={systemConfig.用户信息.用户名}
-              onChange={(e) => handleUserUpdate('用户名', e.target.value)}
+              value={systemConfig.user.username}
+              onChange={(e) => handleUserUpdate('username', e.target.value)}
             />
           </div>
           <div>
@@ -945,8 +927,8 @@ const NavigationSystem = () => {
             <input
               type="password"
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-              value={systemConfig.用户信息.密码}
-              onChange={(e) => handleUserUpdate('密码', e.target.value)}
+              value={systemConfig.user.password}
+              onChange={(e) => handleUserUpdate('password', e.target.value)}
             />
           </div>
         </div>
@@ -957,64 +939,25 @@ const NavigationSystem = () => {
   // 导航项表单
   const renderNavForm = () => (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-xl p-8 w-full max-w-2xl max-h-screen overflow-y-auto">
+      <div className="bg-white rounded-xl p-8 w-96 max-w-md max-h-[90vh] overflow-y-auto">
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-xl font-bold">
-            {editingNav ? '编辑导航项' : '添加导航项'}
+            {editingNav ? '编辑导航' : '添加导航'}
           </h2>
           <button onClick={resetNavForm}>
             <X className="w-5 h-5" />
           </button>
         </div>
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            handleSaveNav();
-          }}
-          className="space-y-4"
-        >
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium mb-2">序号</label>
-              <input
-                type="number"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                value={navForm.序号}
-                onChange={(e) =>
-                  setNavForm((prev) => ({
-                    ...prev,
-                    序号: parseInt(e.target.value) || '',
-                  }))
-                }
-                required
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-2">排序</label>
-              <input
-                type="number"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                value={navForm.排序}
-                onChange={(e) =>
-                  setNavForm((prev) => ({
-                    ...prev,
-                    排序: parseInt(e.target.value) || '',
-                  }))
-                }
-                required
-              />
-            </div>
-          </div>
+        <div className="space-y-4">
           <div>
             <label className="block text-sm font-medium mb-2">名称</label>
             <input
               type="text"
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-              value={navForm.名称}
+              value={navForm.name}
               onChange={(e) =>
-                setNavForm((prev) => ({ ...prev, 名称: e.target.value }))
+                setNavForm((prev) => ({ ...prev, name: e.target.value }))
               }
-              required
             />
           </div>
           <div>
@@ -1022,22 +965,20 @@ const NavigationSystem = () => {
             <input
               type="url"
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-              value={navForm.网址}
+              value={navForm.url}
               onChange={(e) =>
-                setNavForm((prev) => ({ ...prev, 网址: e.target.value }))
+                setNavForm((prev) => ({ ...prev, url: e.target.value }))
               }
-              required
             />
           </div>
           <div>
             <label className="block text-sm font-medium mb-2">分类</label>
             <select
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-              value={navForm.分类}
+              value={navForm.category}
               onChange={(e) =>
-                setNavForm((prev) => ({ ...prev, 分类: e.target.value }))
+                setNavForm((prev) => ({ ...prev, category: e.target.value }))
               }
-              required
             >
               <option value="">请选择分类</option>
               {categories.map((category) => (
@@ -1048,13 +989,27 @@ const NavigationSystem = () => {
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium mb-2">图标类型</label>
+            <label className="block text-sm font-medium mb-2">排序</label>
+            <input
+              type="number"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+              value={navForm.sort}
+              onChange={(e) =>
+                setNavForm((prev) => ({
+                  ...prev,
+                  sort: parseInt(e.target.value) || 0,
+                }))
+              }
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium mb-2">图标</label>
             <div className="space-y-3">
-              <div className="text-sm text-gray-600 mb-2">
-                图标类型:{' '}
+              <div className="text-sm text-gray-600">
+                当前类型:{' '}
                 <span className="font-medium">
                   {(() => {
-                    const type = getIconType(navForm.图标);
+                    const type = getIconType(navForm.icon);
                     switch (type) {
                       case 'base64':
                         return 'Base64 编码图片';
@@ -1076,98 +1031,80 @@ const NavigationSystem = () => {
                 </span>
                 <div className="flex-shrink-0">
                   <IconDisplay
-                    iconData={navForm.图标}
-                    title={navForm.名称 || '预览'}
+                    iconData={navForm.icon}
+                    title={navForm.name || '示例'}
                     size="w-10 h-10"
-                    key={`${navForm.图标}-${navForm.名称}`}
+                    key={`${navForm.icon}-${navForm.name}`}
                   />
                 </div>
               </div>
               <textarea
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                 rows="3"
-                value={navForm.图标}
+                value={navForm.icon}
                 onChange={(e) =>
-                  setNavForm((prev) => ({ ...prev, 图标: e.target.value }))
+                  setNavForm((prev) => ({ ...prev, icon: e.target.value }))
                 }
-                placeholder="请输入图标地址或Base64编码：&#10;• HTTP/HTTPS链接: https://example.com/icon.png&#10 ;• Base64编码: data:image/png;base64,iVBORw0KGg...&#10;• 留空将显示名称前两字作为默认图标"
+                placeholder="请输入图标地址或Base64编码..."
               />
               <div className="text-xs text-gray-500">
-                <p>
-                  <strong>支持格式:</strong>
-                </p>
-                <p>
-                  • <strong>HTTP链接:</strong> https://example.com/icon.png
-                </p>
-                <p>
-                  • <strong>Base64:</strong> data:image/png;base64,iVBORw0KGg...
-                </p>
-                <p>
-                  • <strong>默认图标:</strong> 留空将使用名称前两字
-                </p>
+                支持HTTP链接或Base64编码，留空将使用名称前两字作为默认图标
               </div>
             </div>
           </div>
           <div>
             <label className="block text-sm font-medium mb-2">备注</label>
-            <textarea
+            <input
+              type="text"
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-              rows="3"
-              value={navForm.备注}
+              value={navForm.remark}
               onChange={(e) =>
-                setNavForm((prev) => ({ ...prev, 备注: e.target.value }))
+                setNavForm((prev) => ({ ...prev, remark: e.target.value }))
               }
             />
           </div>
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium mb-2">账户</label>
+          <div>
+            <label className="block text-sm font-medium mb-2">账户信息</label>
+            <div className="space-y-2">
               <input
                 type="text"
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                value={navForm.账户信息.账户}
+                placeholder="账户"
+                value={navForm.accountInfo.account}
                 onChange={(e) =>
                   setNavForm((prev) => ({
                     ...prev,
-                    账户信息: { ...prev.账户信息, 账户: e.target.value },
+                    accountInfo: {
+                      ...prev.accountInfo,
+                      account: e.target.value,
+                    },
                   }))
                 }
-                placeholder="自动填充用户名"
               />
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-2">密码</label>
               <input
-                type="password"
+                type="text"
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                value={navForm.账户信息.密码}
+                placeholder="密码"
+                value={navForm.accountInfo.password}
                 onChange={(e) =>
                   setNavForm((prev) => ({
                     ...prev,
-                    账户信息: { ...prev.账户信息, 密码: e.target.value },
+                    accountInfo: {
+                      ...prev.accountInfo,
+                      password: e.target.value,
+                    },
                   }))
                 }
-                placeholder="自动填充密码"
               />
             </div>
           </div>
-          <div className="flex justify-end space-x-3 pt-4">
-            <button
-              type="button"
-              onClick={resetNavForm}
-              className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
-            >
-              取消
-            </button>
-            <button
-              type="submit"
-              className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
-            >
-              <Save className="w-4 h-4 inline mr-2" />
-              保存
-            </button>
-          </div>
-        </form>
+          <button
+            onClick={handleSaveNav}
+            className="w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 transition-colors"
+          >
+            保存
+          </button>
+        </div>
       </div>
     </div>
   );
@@ -1175,7 +1112,7 @@ const NavigationSystem = () => {
   // 分类表单
   const renderCategoryForm = () => (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-xl p-8 w-96">
+      <div className="bg-white rounded-xl p-8 w-96 max-w-md">
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-xl font-bold">
             {editingCategory !== null ? '编辑分类' : '添加分类'}
@@ -1184,13 +1121,7 @@ const NavigationSystem = () => {
             <X className="w-5 h-5" />
           </button>
         </div>
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            handleSaveCategory();
-          }}
-          className="space-y-4"
-        >
+        <div className="space-y-4">
           <div>
             <label className="block text-sm font-medium mb-2">分类名称</label>
             <input
@@ -1198,38 +1129,22 @@ const NavigationSystem = () => {
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
               value={categoryForm}
               onChange={(e) => setCategoryForm(e.target.value)}
-              required
             />
           </div>
-          <div className="flex justify-end space-x-3 pt-4">
-            <button
-              type="button"
-              onClick={resetCategoryForm}
-              className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
-            >
-              取消
-            </button>
-            <button
-              type="submit"
-              className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
-            >
-              <Save className="w-4 h-4 inline mr-2" />
-              保存
-            </button>
-          </div>
-        </form>
+          <button
+            onClick={handleSaveCategory}
+            className="w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 transition-colors"
+          >
+            保存
+          </button>
+        </div>
       </div>
     </div>
   );
 
-  // 主渲染
-  return (
-    <div className="font-sans">
-      {currentView === 'navigation'
-        ? renderNavigationPage()
-        : renderAdminPage()}
-    </div>
-  );
+  return currentView === 'navigation'
+    ? renderNavigationPage()
+    : renderAdminPage();
 };
 
 export default NavigationSystem;
