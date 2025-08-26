@@ -2,7 +2,6 @@ package cn.tannn.oasis.entity;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -39,25 +38,21 @@ public class BackupConfig {
     @Column(columnDefinition = "varchar(500)", nullable = false)
     @Comment("数据库连接地址")
     @Schema(description = "数据库连接地址", example = "jdbc:mysql://localhost:3306/backup_db")
-    @NotBlank(message = "数据库连接地址不能为空")
     private String url;
 
     @Column(columnDefinition = "varchar(100)", nullable = false)
     @Comment("账户")
     @Schema(description = "数据库用户名")
-    @NotBlank(message = "数据库用户名不能为空")
     private String username;
 
     @Column(columnDefinition = "varchar(200)", nullable = false)
     @Comment("密码")
     @Schema(description = "数据库密码")
-    @NotBlank(message = "数据库密码不能为空")
     private String password;
 
     @Column(columnDefinition = "varchar(200)", nullable = false)
     @Comment("驱动类名")
     @Schema(description = "数据库驱动类名", example = "com.mysql.cj.jdbc.Driver")
-    @NotBlank(message = "数据库驱动类名不能为空")
     private String driverClassName;
 
     @Column(columnDefinition = "varchar(100)")
@@ -73,47 +68,22 @@ public class BackupConfig {
     private Boolean enabled;
 
     @Column(columnDefinition = "varchar(200)")
+    @ColumnDefault("'数据备份到mysql'")
     @Comment("配置描述")
     @Schema(description = "配置描述")
     private String description;
 
-    @Column(name = "create_time", columnDefinition = "datetime")
-    @Comment("创建时间")
-    @Schema(description = "创建时间")
-    private LocalDateTime createTime;
 
-    @Column(name = "update_time", columnDefinition = "datetime")
-    @Comment("更新时间")
-    @Schema(description = "更新时间")
-    private LocalDateTime updateTime;
-
-    @Column(name = "last_backup_time", columnDefinition = "datetime")
+    @Column(columnDefinition = "datetime")
     @Comment("最后备份时间")
     @Schema(description = "最后备份时间")
     private LocalDateTime lastBackupTime;
 
-    @Column(name = "backup_count", columnDefinition = "bigint")
+    @Column(columnDefinition = "bigint")
     @ColumnDefault("0")
     @Comment("备份次数")
     @Schema(description = "备份次数")
     private Long backupCount;
-
-    @PrePersist
-    protected void onCreate() {
-        this.createTime = LocalDateTime.now();
-        this.updateTime = LocalDateTime.now();
-        if (this.enabled == null) {
-            this.enabled = false;
-        }
-        if (this.backupCount == null) {
-            this.backupCount = 0L;
-        }
-    }
-
-    @PreUpdate
-    protected void onUpdate() {
-        this.updateTime = LocalDateTime.now();
-    }
 
     /**
      * 更新备份统计信息

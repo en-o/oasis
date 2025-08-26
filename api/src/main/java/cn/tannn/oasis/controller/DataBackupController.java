@@ -2,6 +2,7 @@ package cn.tannn.oasis.controller;
 
 import cn.tannn.jdevelops.annotations.web.mapping.PathRestController;
 import cn.tannn.jdevelops.result.response.ResultVO;
+import cn.tannn.oasis.controller.dto.BackupConfigAdd;
 import cn.tannn.oasis.entity.BackupConfig;
 import cn.tannn.oasis.service.BackupConfigService;
 import cn.tannn.oasis.timer.DataBackupScheduler;
@@ -46,9 +47,11 @@ public class DataBackupController {
 
     @Operation(summary = "保存备份配置")
     @PostMapping("/config")
-    public ResultVO<String> saveConfig(@Valid @RequestBody BackupConfig config) {
+    public ResultVO<String> saveConfig(@Valid @RequestBody BackupConfigAdd config) {
         try {
-            backupConfigService.saveOrUpdate(config);
+            BackupConfig backupConfig = config.to(BackupConfig.class);
+            backupConfig.setDriverClassName("com.mysql.cj.jdbc.Driver");
+            backupConfigService.saveOrUpdate(backupConfig);
             log.info("备份配置保存成功: {}", config.getUrl());
             return ResultVO.successMessage("配置保存成功");
         } catch (Exception e) {
