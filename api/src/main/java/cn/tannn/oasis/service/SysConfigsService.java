@@ -11,4 +11,11 @@ import cn.tannn.oasis.entity.SysConfigs;
  * @date 2025-08-26
  */
 public interface SysConfigsService extends J2Service<SysConfigs> {
+
+    /**
+     * 登录
+     * @param username 账户
+     * @param password 登录密码
+     */
+    void login(String username, String password);
 }

@@ -22,4 +22,14 @@ public class SysConfigsServiceImpl extends J2ServiceImpl<SysConfigsDao, SysConfi
         super(SysConfigs.class);
     }
 
+    @Override
+    public void login(String username, String password) {
+        SysConfigs config = getJpaBasicsDao().findOne((root, query, cb) -> cb.and(
+                cb.equal(root.get("username"), username),
+                cb.equal(root.get("password"), password)
+        )).orElse(null);
+        if (config == null) {;
+            throw new RuntimeException("用户名或密码错误");
+        }
+    }
 }
