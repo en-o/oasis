@@ -1,0 +1,87 @@
+package cn.tannn.oasis.controller.dto;
+
+import cn.tannn.jdevelops.annotations.jpa.JpaUpdate;
+import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
+import jakarta.validation.constraints.NotNull;
+
+/**
+ * 编辑导航项表
+ *
+ * @author tan
+ * @version 0.0.1
+ * @date 2025-08-26
+ */
+@Schema(description = "编辑导航项表")
+@ToString
+@Getter
+@Setter
+public class NavigationEdit {
+
+    /**
+     * id
+     */
+    @Schema(description = "id", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotNull
+    @JpaUpdate(unique = true)
+    private Integer id;
+
+
+    /**
+     * 名称
+     */
+    @Schema(description = "名称")
+    private String name;
+
+    /**
+     * 访问地址
+     */
+    @Schema(description = "访问地址")
+    private String url;
+
+    /**
+     * 排序值
+     */
+    @Schema(description = "排序值")
+    private Integer sort;
+
+    /**
+     * 分类
+     */
+    @Schema(description = "分类")
+    private String category;
+
+    /**
+     * 图标
+     */
+    @Schema(description = "图标")
+    private String icon;
+
+    /**
+     * 备注
+     */
+    @Schema(description = "备注")
+    private String remark;
+
+    /**
+     * 登录账号
+     */
+    @Schema(description = "登录账号")
+    private String account;
+
+    /**
+     * 登录密码
+     */
+    @Schema(description = "登录密码")
+    private String password;
+
+    /**
+     * 状态；0、停用，1、启用
+     */
+    @Schema(description = "状态；0、停用，1、启用")
+    private Integer status;
+
+
+}

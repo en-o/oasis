@@ -1,0 +1,75 @@
+package cn.tannn.oasis.controller.dto;
+
+import cn.tannn.jdevelops.annotations.jpa.JpaUpdate;
+import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
+import jakarta.validation.constraints.NotNull;
+
+/**
+ * 编辑系统配置表
+ *
+ * @author tan
+ * @version 0.0.1
+ * @date 2025-08-26
+ */
+@Schema(description = "编辑系统配置表")
+@ToString
+@Getter
+@Setter
+public class SysConfigsEdit {
+
+    /**
+     * id
+     */
+    @Schema(description = "id", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotNull
+    @JpaUpdate(unique = true)
+    private Integer id;
+
+
+    /**
+     * 配置键
+     */
+    @Schema(description = "配置键")
+    private String configKey;
+
+    /**
+     * 站点标题
+     */
+    @Schema(description = "站点标题")
+    private String siteTitle;
+
+    /**
+     * 站点 Logo
+     */
+    @Schema(description = "站点 Logo")
+    private String siteLogo;
+
+    /**
+     * 默认打开方式；0、当前页，1、新标签页
+     */
+    @Schema(description = "默认打开方式；0、当前页，1、新标签页")
+    private Integer defaultOpenMode;
+
+    /**
+     * 是否隐藏后台入口；0、显示，1、隐藏
+     */
+    @Schema(description = "是否隐藏后台入口；0、显示，1、隐藏")
+    private Integer hideAdminEntry;
+
+    /**
+     * 管理员用户名
+     */
+    @Schema(description = "管理员用户名")
+    private String username;
+
+    /**
+     * 管理员密码
+     */
+    @Schema(description = "管理员密码")
+    private String password;
+
+
+}

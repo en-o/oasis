@@ -1,0 +1,29 @@
+server:
+  port: 1249
+
+spring:
+  application:
+    name: oasis
+  profiles:
+    active: h2
+  servlet:
+    multipart:
+      max-file-size: ${FILE_MAX_SIZE:500MB}
+      max-request-size: ${FILE_MAX_REQUEST:500MB}
+
+jdevelops:
+  swagger:
+    base-package:
+      - cn.tannn.oasis.controller
+    title: ${spring.application.name}
+    display-name: ??
+    group-name: oasis
+
+knife4j:
+  enable: true
+  setting:
+    language: zh-CN
+    custom-code: 500
+    enable-footer-custom: false
+    # ????????
+    enable-dynamic-parameter: true
