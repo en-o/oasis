@@ -22,4 +22,8 @@ public class NavigationServiceImpl extends J2ServiceImpl<NavigationDao, Navigati
         super(Navigation.class);
     }
 
+    @Override
+    public boolean categoryUse(String category) {
+        return this.getJpaBasicsDao().existsByCategory(category);
+    }
 }

@@ -47,7 +47,7 @@ public class NavigationController {
         return ResultVO.success(bean);
     }
 
-    @Operation(summary = "新增导航项表")
+    @Operation(summary = "新增导航项")
     @PostMapping("append")
     public ResultVO<String> append(@RequestBody @Valid NavigationAdd append) {
         navigationService.saveOneByVo(append);
@@ -77,7 +77,7 @@ public class NavigationController {
         return ResultVO.success();
     }
 
-    @Operation(summary = "编辑导航项表")
+    @Operation(summary = "编辑导航项")
     @PostMapping("edit")
     public ResultVO<String> edit(@RequestBody @Valid NavigationEdit edit) {
         navigationService.update(edit, SQLOperator.EQ);

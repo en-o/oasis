@@ -1,6 +1,8 @@
 package cn.tannn.oasis.service.impl;
 
+import cn.tannn.jdevelops.exception.built.BusinessException;
 import cn.tannn.jdevelops.jpa.service.J2ServiceImpl;
+import cn.tannn.oasis.controller.dto.NavCategoryAdd;
 import cn.tannn.oasis.entity.NavCategory;
 import cn.tannn.oasis.service.NavCategoryService;
 import cn.tannn.oasis.dao.NavCategoryDao;
@@ -22,4 +24,16 @@ public class NavCategoryServiceImpl extends J2ServiceImpl<NavCategoryDao, NavCat
         super(NavCategory.class);
     }
 
+    @Override
+    public boolean categoryExists(String category) {
+        return this.getJpaBasicsDao().existsByCategoryName(category);
+    }
+
+    @Override
+    public void create(NavCategoryAdd append) {
+        if(categoryExists(append.getCategoryName())) {
+            throw new BusinessException("分类已存在,请勿重复添加");
+        }
+        getJpaBasicsDao().save(append.to(NavCategory.class));
+    }
 }

@@ -10,4 +10,11 @@ import cn.tannn.oasis.entity.Navigation;
  * @date 2025-08-26
  */
 public interface NavigationDao extends JpaBasicsRepository<Navigation, Integer> {
+    /**
+     * 根据分类查询是否存在
+     *
+     * @param category 分类
+     * @return 是否存在
+     */
+    boolean existsByCategory(String category);
 }

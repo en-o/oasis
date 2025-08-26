@@ -33,8 +33,7 @@ public class NavCategoryAdd extends SerializableBean<NavCategoryAdd> {
     /**
      * 排序值
      */
-    @Schema(description = "排序值")
-    @NotNull(message = "排序值不允许为空")
+    @Schema(description = "排序值(默认1,正序)")
     private Integer sort;
 
 }
