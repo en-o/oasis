@@ -1,6 +1,7 @@
 package cn.tannn.oasis.controller.dto;
 
 import cn.tannn.jdevelops.result.bean.SerializableBean;
+import cn.tannn.oasis.utils.ImageUtils;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 import lombok.Setter;
@@ -41,8 +42,7 @@ public class SysConfigsAdd extends SerializableBean<SysConfigsAdd> {
     /**
      * 站点 Logo
      */
-    @Schema(description = "站点 Logo")
-    @NotBlank(message = "站点 Logo不允许为空")
+    @Schema(description = "站点 Logo[base64/url]")
     private String siteLogo;
 
 
@@ -77,4 +77,7 @@ public class SysConfigsAdd extends SerializableBean<SysConfigsAdd> {
     @NotBlank(message = "管理员密码不允许为空")
     private String password;
 
+    public String getSiteLogo() {
+        return ImageUtils.processImage(siteLogo);
+    }
 }

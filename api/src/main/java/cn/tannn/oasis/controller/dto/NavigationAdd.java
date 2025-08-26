@@ -1,6 +1,7 @@
 package cn.tannn.oasis.controller.dto;
 
 import cn.tannn.jdevelops.result.bean.SerializableBean;
+import cn.tannn.oasis.utils.ImageUtils;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 import lombok.Setter;
@@ -53,9 +54,9 @@ public class NavigationAdd extends SerializableBean<NavigationAdd> {
 
 
     /**
-     * 图标
+     * 图标[base64/url]
      */
-    @Schema(description = "图标")
+    @Schema(description = "图标[base64/url]")
     private String icon;
 
 
@@ -79,4 +80,7 @@ public class NavigationAdd extends SerializableBean<NavigationAdd> {
     @Schema(description = "登录密码")
     private String password;
 
+    public String getIcon() {
+        return ImageUtils.processImage(icon);
+    }
 }

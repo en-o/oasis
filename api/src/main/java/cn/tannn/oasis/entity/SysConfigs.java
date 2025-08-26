@@ -56,11 +56,11 @@ public class SysConfigs extends SerializableBean<SysConfigs> {
     private String siteTitle;
 
     /**
-     * 站点 Logo（base64 或 url）
+     * 站点 Logo[base64/url]
      */
     @Column(columnDefinition = "text")
-    @Comment("站点 Logo")
-    @Schema(description = "站点 Logo")
+    @Comment("站点 Logo[base64/url]")
+    @Schema(description = "站点 Logo[base64/url]")
     private String siteLogo;
 
     /**

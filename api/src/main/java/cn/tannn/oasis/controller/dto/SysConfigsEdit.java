@@ -1,6 +1,7 @@
 package cn.tannn.oasis.controller.dto;
 
 import cn.tannn.jdevelops.annotations.jpa.JpaUpdate;
+import cn.tannn.oasis.utils.ImageUtils;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
@@ -37,9 +38,9 @@ public class SysConfigsEdit {
     private String siteTitle;
 
     /**
-     * 站点 Logo
+     * 站点 Logo[base64/url]
      */
-    @Schema(description = "站点 Logo")
+    @Schema(description = "站点[base64/url]")
     private String siteLogo;
 
     /**
@@ -67,4 +68,7 @@ public class SysConfigsEdit {
     private String password;
 
 
+    public String getSiteLogo() {
+        return ImageUtils.processImage(siteLogo);
+    }
 }

@@ -70,11 +70,11 @@ public class Navigation extends SerializableBean<Navigation> {
     private String category;
 
     /**
-     * 图标（base64 或 url）
+     * 图标[base64/url]
      */
     @Column(columnDefinition = "text")
-    @Comment("图标")
-    @Schema(description = "图标")
+    @Comment("图标[base64/url]")
+    @Schema(description = "图标[base64/url]")
     private String icon;
 
     /**
