@@ -1,0 +1,25 @@
+spring:
+  datasource:
+    url: jdbc:h2:file:./api/db/db_oasis
+    username: sa
+    password: sa
+    driver-class-name: org.h2.Driver
+  jpa:
+    show-sql: false
+    hibernate:
+      ddl-auto: update
+    open-in-view: false
+    database: h2
+    properties:
+      hibernate:
+        format_sql: true
+  h2:
+    console:
+      path: /h2
+      enabled: true
+      settings:
+        web-allow-others: true
+  sql:
+    init:
+      schema-locations: classpath:sql/h2-schema.sql
+      mode: EMBEDDED
