@@ -36,7 +36,7 @@ import java.util.List;
  */
 @PathRestController("sysConfigs")
 @Slf4j
-@Tag(name = "系统配置表接口")
+@Tag(name = "系统配置")
 @RequiredArgsConstructor
 public class  SysConfigsController {
 

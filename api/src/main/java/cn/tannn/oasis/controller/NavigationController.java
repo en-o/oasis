@@ -34,7 +34,7 @@ import java.util.List;
  */
 @PathRestController("navigation")
 @Slf4j
-@Tag(name = "导航项表接口")
+@Tag(name = "导航项")
 @RequiredArgsConstructor
 public class NavigationController {
 

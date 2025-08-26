@@ -31,7 +31,7 @@ import java.util.List;
  */
 @PathRestController("navCategory")
 @Slf4j
-@Tag(name = "导航分类表接口")
+@Tag(name = "导航分类")
 @RequiredArgsConstructor
 public class NavCategoryController {
 
