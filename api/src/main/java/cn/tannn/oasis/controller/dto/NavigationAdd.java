@@ -25,7 +25,7 @@ public class NavigationAdd extends SerializableBean<NavigationAdd> {
     /**
      * 名称
      */
-    @Schema(description = "名称")
+    @Schema(description = "名称", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "名称不允许为空")
     private String name;
 
@@ -33,7 +33,7 @@ public class NavigationAdd extends SerializableBean<NavigationAdd> {
     /**
      * 访问地址
      */
-    @Schema(description = "访问地址")
+    @Schema(description = "访问地址", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "访问地址不允许为空")
     private String url;
 
@@ -41,15 +41,13 @@ public class NavigationAdd extends SerializableBean<NavigationAdd> {
     /**
      * 排序值
      */
-    @Schema(description = "排序值")
-    @NotNull(message = "排序值不允许为空")
+    @Schema(description = "排序值(默认1,正序)")
     private Integer sort;
-
 
     /**
      * 分类
      */
-    @Schema(description = "分类")
+    @Schema(description = "分类", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "分类不允许为空")
     private String category;
 
@@ -58,7 +56,6 @@ public class NavigationAdd extends SerializableBean<NavigationAdd> {
      * 图标
      */
     @Schema(description = "图标")
-    @NotBlank(message = "图标不允许为空")
     private String icon;
 
 
@@ -66,7 +63,6 @@ public class NavigationAdd extends SerializableBean<NavigationAdd> {
      * 备注
      */
     @Schema(description = "备注")
-    @NotBlank(message = "备注不允许为空")
     private String remark;
 
 
@@ -74,7 +70,6 @@ public class NavigationAdd extends SerializableBean<NavigationAdd> {
      * 登录账号
      */
     @Schema(description = "登录账号")
-    @NotBlank(message = "登录账号不允许为空")
     private String account;
 
 
@@ -82,15 +77,6 @@ public class NavigationAdd extends SerializableBean<NavigationAdd> {
      * 登录密码
      */
     @Schema(description = "登录密码")
-    @NotBlank(message = "登录密码不允许为空")
     private String password;
-
-
-    /**
-     * 状态；0、停用，1、启用
-     */
-    @Schema(description = "状态；0、停用，1、启用")
-    @NotNull(message = "状态；0、停用，1、启用不允许为空")
-    private Integer status;
 
 }

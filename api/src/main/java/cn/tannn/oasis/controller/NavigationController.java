@@ -50,7 +50,7 @@ public class NavigationController {
     @Operation(summary = "新增导航项")
     @PostMapping("append")
     public ResultVO<String> append(@RequestBody @Valid NavigationAdd append) {
-        navigationService.saveOneByVo(append);
+        navigationService.create(append);
         return ResultVO.success();
     }
 

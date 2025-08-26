@@ -1,6 +1,7 @@
 package cn.tannn.oasis.service.impl;
 
 import cn.tannn.jdevelops.jpa.service.J2ServiceImpl;
+import cn.tannn.oasis.controller.dto.NavigationAdd;
 import cn.tannn.oasis.entity.Navigation;
 import cn.tannn.oasis.service.NavigationService;
 import cn.tannn.oasis.dao.NavigationDao;
@@ -25,5 +26,13 @@ public class NavigationServiceImpl extends J2ServiceImpl<NavigationDao, Navigati
     @Override
     public boolean categoryUse(String category) {
         return this.getJpaBasicsDao().existsByCategory(category);
+    }
+
+    @Override
+    public void create(NavigationAdd append) {
+        if (this.getJpaBasicsDao().existsByName(append.getName())) {
+            throw new IllegalArgumentException("名称已存在");
+        }
+        getJpaBasicsDao().save(append.to(Navigation.class));
     }
 }

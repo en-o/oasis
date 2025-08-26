@@ -17,4 +17,11 @@ public interface NavigationDao extends JpaBasicsRepository<Navigation, Integer> 
      * @return 是否存在
      */
     boolean existsByCategory(String category);
+
+    /**
+     * 根据名称查询是否存在
+     * @param name name
+     * @return true存在 false不存在
+     */
+    boolean existsByName(String name);
 }

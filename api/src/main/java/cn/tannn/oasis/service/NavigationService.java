@@ -1,7 +1,9 @@
 package cn.tannn.oasis.service;
 
 import cn.tannn.jdevelops.jpa.service.J2Service;
+import cn.tannn.oasis.controller.dto.NavigationAdd;
 import cn.tannn.oasis.entity.Navigation;
+import jakarta.validation.Valid;
 
 /**
  * 导航项表
@@ -17,4 +19,10 @@ public interface NavigationService extends J2Service<Navigation> {
      * @return true存在 false不存在
      */
     boolean categoryUse(String category);
+
+    /**
+     * 新增导航项
+     * @param append NavigationAdd
+     */
+    void create(@Valid NavigationAdd append);
 }
