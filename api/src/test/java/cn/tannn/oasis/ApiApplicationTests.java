@@ -1,4 +1,4 @@
-package cn.tannn.oasis.api;
+package cn.tannn.oasis;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

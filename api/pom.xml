@@ -15,6 +15,12 @@
     <description>api</description>
     <properties>
         <java.version>17</java.version>
+        <!-- 编译 -->
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
+        <maven.compiler.encoding>UTF-8</maven.compiler.encoding>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     </properties>
     <dependencies>
         <dependency>
@@ -45,9 +51,137 @@
 
     <build>
         <plugins>
+<!--            <plugin>-->
+<!--                <groupId>org.springframework.boot</groupId>-->
+<!--                <artifactId>spring-boot-maven-plugin</artifactId>-->
+<!--            </plugin>-->
+
             <plugin>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-maven-plugin</artifactId>
+                <groupId>cn.tannn.jdevelops</groupId>
+                <artifactId>jdevelops-quick-maven-plugin</artifactId>
+                <version>0.0.5</version>
+                <configuration>
+                    <coverFile>false</coverFile>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <!--  jkd版本  -->
+                    <source>${java.version}</source>
+                    <target>${java.version}</target>
+                    <!-- 项目编码-->
+                    <encoding>${maven.compiler.encoding}</encoding>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>3.2.2</version>
+                <configuration>
+                    <archive>
+                        <manifest>
+                            <addClasspath>true</addClasspath>
+                            <!--MANIFEST.MF 中 Class-Path 加入前缀！用命令java -jar运行jar时就不用-Dloader.path指定外部资源路径了-->
+                            <classpathPrefix>lib/</classpathPrefix>
+                            <!--jar包名字是否包含唯一版本标识-->
+                            <useUniqueVersions>false</useUniqueVersions>
+                            <!--指定含main方法的主类入口-->
+                            <mainClass>cn.tannn.oasis.ApiApplication</mainClass>
+                        </manifest>
+                        <manifestEntries>
+                            <!--MANIFEST.MF 中 Class-Path 加入资源文件目录！用命令java -jar时就不用-Dloader.path指定外部资源路径了 -->
+                            <Class-Path>resources/</Class-Path>
+                        </manifestEntries>
+                    </archive>
+                    <!-- 打包时从jar包里排除资源文件 -->
+                    <excludes>
+                        <exclude>*.yml</exclude>
+                        <exclude>*.properties</exclude>
+                        <exclude>*.xml</exclude>
+                        <exclude>*.p12</exclude>
+                        <exclude>*.pem</exclude>
+                        <exclude>lua/**</exclude>
+                        <exclude>ipdb/**</exclude>
+                        <exclude>script/**</exclude>
+                        <exclude>doc/**</exclude>
+                        <exclude>mapper/**</exclude>
+                        <exclude>static/**</exclude>
+                        <exclude>templates/**</exclude>
+                    </excludes>
+                    <!-- 指定项目打成jar包输出位置 -->
+                    <outputDirectory>${project.build.directory}/output</outputDirectory>
+                </configuration>
+            </plugin>
+            <!-- 拷贝依赖jar包！插件maven-jar-plugin只是打包排除文件，
+                而把依赖jar包拷贝到外部lib目录就需要maven-dependency-plugin插件 -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <version>3.2.0</version>
+                <executions>
+                    <execution>
+                        <id>copy-dependencies</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>copy-dependencies</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${project.build.directory}/output/lib/</outputDirectory>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <!--拷贝资源文件！ 插件maven-jar-plugin只负责打包时排除文件，
+                而把资源文件拷贝到外部resource目录就需要maven-dependency-plugin插件-->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+                <version>3.3.1</version>
+                <executions>
+                    <execution>
+                        <id>copy-resources</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <encoding>${project.build.sourceEncoding}</encoding>
+                            <resources>
+                                <resource>
+                                    <!--拷贝此目录下的所有文件到指定的外部目录。只负责拷贝，而不是从jar包中排除！-->
+                                    <directory>src/main/resources</directory>
+                                </resource>
+                            </resources>
+                            <!-- 把“<resource><directory>”指定目录中的文件输出到此处指定目录 -->
+                            <outputDirectory>${project.build.directory}/output/resources</outputDirectory>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <!--跳过 parent 中的一些插件-->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <skip>true</skip>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-checkstyle-plugin</artifactId>
+                <configuration>
+                    <skip>true</skip>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>versions-maven-plugin</artifactId>
+                <version>${versions-maven-plugin.version}</version>
+                <configuration>
+                    <skip>true</skip>
+                </configuration>
             </plugin>
         </plugins>
     </build>

@@ -1,4 +1,4 @@
-package cn.tannn.oasis.api.entity;
+package cn.tannn.oasis.entity;
 
 import cn.tannn.jdevelops.result.bean.SerializableBean;
 import io.swagger.v3.oas.annotations.media.Schema;
