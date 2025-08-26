@@ -1,11 +1,113 @@
 package cn.tannn.oasis.api.entity;
 
+import cn.tannn.jdevelops.result.bean.SerializableBean;
+import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
+import org.hibernate.annotations.Comment;
+import org.hibernate.annotations.DynamicInsert;
+import org.hibernate.annotations.DynamicUpdate;
+import org.hibernate.annotations.ColumnDefault;
+
 /**
- * 导航
+ * 导航项表
  *
- * @author <a href="https://t.tannn.cn/">tan</a>
+ * @author tnnn
  * @version V1.0
- * @date 2025/8/26 09:26
+ * @date 2025-08-26
  */
-public class Navigation {
+@Entity
+@Table(name = "tb_nav_item", indexes = {
+        @Index(name = "idx_order", columnList = "item_order"),
+        @Index(name = "idx_category", columnList = "category")
+})
+@Comment("导航项表")
+@Schema(description = "导航项")
+@Getter
+@Setter
+@ToString
+@RequiredArgsConstructor
+@DynamicUpdate
+@DynamicInsert
+public class Navigation extends SerializableBean<Navigation> {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer id;
+    /**
+     * 名称
+     */
+    @Column(columnDefinition = "varchar(100)", nullable = false)
+    @Comment("名称")
+    @Schema(description = "名称")
+    private String name;
+
+    /**
+     * 访问地址
+     */
+    @Column(columnDefinition = "varchar(500)", nullable = false)
+    @Comment("访问地址")
+    @Schema(description = "访问地址")
+    private String url;
+
+    /**
+     * 排序值（越小越靠前）
+     */
+    @Column(nullable = false)
+    @ColumnDefault("1")
+    @Comment("排序值")
+    @Schema(description = "排序值")
+    private Integer order;
+
+    /**
+     * 分类
+     */
+    @Column(columnDefinition = "varchar(50)")
+    @Comment("分类")
+    @Schema(description = "分类")
+    private String category;
+
+    /**
+     * 图标（base64 或 url）
+     */
+    @Column(columnDefinition = "text")
+    @Comment("图标")
+    @Schema(description = "图标")
+    private String icon;
+
+    /**
+     * 备注
+     */
+    @Column(columnDefinition = "varchar(500)")
+    @Comment("备注")
+    @Schema(description = "备注")
+    private String remark;
+
+    /**
+     * 登录账号
+     */
+    @Column(columnDefinition = "varchar(100)")
+    @Comment("登录账号")
+    @Schema(description = "登录账号")
+    private String account;
+
+    /**
+     * 登录密码
+     */
+    @Column(columnDefinition = "varchar(255)")
+    @Comment("登录密码")
+    @Schema(description = "登录密码")
+    private String password;
+
+    /**
+     * 状态；0、停用，1、启用，默认1
+     */
+    @Column(nullable = false, columnDefinition = "smallint")
+    @ColumnDefault("1")
+    @Comment("状态；0、停用，1、启用")
+    @Schema(description = "状态；0、停用，1、启用")
+    private Integer status;
 }
