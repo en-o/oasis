@@ -16,8 +16,9 @@ jdevelops:
     base-package:
       - cn.tannn.oasis.controller
     title: ${spring.application.name}
-    display-name: ??
+    display-name: 导航
     group-name: oasis
+    security-scheme-default: false
 
 knife4j:
   enable: true

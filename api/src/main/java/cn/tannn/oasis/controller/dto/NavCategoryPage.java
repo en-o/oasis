@@ -29,7 +29,7 @@ public class NavCategoryPage extends SerializableBean<NavCategoryPage> {
      * id
      */
     @Schema(description = "id")
-    @JpaSelectOperator(operatorWrapper = SQLOperatorWrapper.LIKE, connect = SQLConnect.AND)
+    @JpaSelectOperator(operatorWrapper = SQLOperatorWrapper.EQ, connect = SQLConnect.AND)
     private Integer id;
 
     /**

@@ -29,7 +29,7 @@ public class SysConfigsPage extends SerializableBean<SysConfigsPage> {
      * id
      */
     @Schema(description = "id")
-    @JpaSelectOperator(operatorWrapper = SQLOperatorWrapper.LIKE, connect = SQLConnect.AND)
+    @JpaSelectOperator(operatorWrapper = SQLOperatorWrapper.EQ, connect = SQLConnect.AND)
     private Integer id;
 
     /**
