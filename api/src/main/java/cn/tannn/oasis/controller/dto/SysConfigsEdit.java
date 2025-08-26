@@ -2,6 +2,7 @@ package cn.tannn.oasis.controller.dto;
 
 import cn.tannn.jdevelops.annotations.jpa.JpaUpdate;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -20,19 +21,13 @@ import jakarta.validation.constraints.NotNull;
 @Setter
 public class SysConfigsEdit {
 
-    /**
-     * id
-     */
-    @Schema(description = "id", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotNull
-    @JpaUpdate(unique = true)
-    private Integer id;
-
 
     /**
      * 配置键
      */
-    @Schema(description = "配置键")
+    @Schema(description = "配置键", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotBlank(message = "配置键不允许为空")
+    @JpaUpdate(unique = true)
     private String configKey;
 
     /**

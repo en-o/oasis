@@ -97,4 +97,15 @@ public class SysConfigs extends SerializableBean<SysConfigs> {
     @Schema(description = "管理员密码")
     private String password;
 
+    public static SysConfigs newInstance(){
+        SysConfigs sysConfigs = new SysConfigs();
+        sysConfigs.setConfigKey("MAIN");
+        sysConfigs.setSiteTitle("Oasis");
+        sysConfigs.setDefaultOpenMode(1);
+        sysConfigs.setHideAdminEntry(0);
+        sysConfigs.setUsername("tan");
+        sysConfigs.setPassword("123");
+        return sysConfigs;
+    }
+
 }

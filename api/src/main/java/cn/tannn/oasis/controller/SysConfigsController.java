@@ -40,48 +40,19 @@ public class  SysConfigsController {
 
     private final SysConfigsService sysConfigsService;
 
-    @GetMapping("/{id}")
-    @Operation(summary = "根据ID获取详情", description = "详情")
-    public ResultVO<SysConfigs> info(@PathVariable("id") Long id) {
-        SysConfigs bean = sysConfigsService.findOnly("id", id).orElse(new SysConfigs());
+    @GetMapping("/")
+    @Operation(summary = "查询系统配置", description = "详情")
+    public ResultVO<SysConfigs> info() {
+        SysConfigs bean = sysConfigsService.findOnly("configKey", "MAIN").orElse(SysConfigs.newInstance());
         return ResultVO.success(bean);
-    }
-
-    @Operation(summary = "新增系统配置表")
-    @PostMapping("append")
-    public ResultVO<String> append(@RequestBody @Valid SysConfigsAdd append) {
-            sysConfigsService.saveOneByVo(append);
-        return ResultVO.success();
-    }
-
-    @Operation(summary = "分页查询")
-    @PostMapping("page")
-    public ResultPageVO<SysConfigs, JpaPageResult<SysConfigs>> page(@RequestBody @Valid SysConfigsPage page) {
-        Page<SysConfigs> byBean =  sysConfigsService.findPage(page, page.getPage());
-        JpaPageResult<SysConfigs> pageResult = JpaPageResult.toPage(byBean);
-        return ResultPageVO.success(pageResult, "查询成功");
-    }
-
-    @Operation(summary = "集合")
-    @GetMapping("lists")
-    public ResultVO<List<SysConfigs>> lists() {
-        List<SysConfigs> finds = sysConfigsService.finds();
-        return ResultVO.success(finds);
-    }
-
-    @Operation(summary = "删除")
-    @DeleteMapping("delete")
-    @Parameter(name = "id", description = "id", required = true)
-    public ResultVO<String> delete(@RequestParam("id") Integer id) {
-            sysConfigsService.deleteEq("id", id);
-        return ResultVO.success();
     }
 
     @Operation(summary = "编辑系统配置表")
     @PostMapping("edit")
     public ResultVO<String> edit(@RequestBody  @Valid SysConfigsEdit edit)  {
-            sysConfigsService.update(edit, SQLOperator.EQ);
+        sysConfigsService.update(edit, SQLOperator.EQ);
         return ResultVO.success();
     }
+
 
 }
