@@ -7,10 +7,10 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.Comment;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
-import org.hibernate.annotations.ColumnDefault;
 
 /**
  * 导航项表
@@ -20,8 +20,8 @@ import org.hibernate.annotations.ColumnDefault;
  * @date 2025-08-26
  */
 @Entity
-@Table(name = "tb_nav_item", indexes = {
-        @Index(name = "idx_order", columnList = "item_order"),
+@Table(name = "nav_item", indexes = {
+        @Index(name = "idx_sort", columnList = "sort"),
         @Index(name = "idx_category", columnList = "category")
 })
 @Comment("导航项表")
@@ -56,16 +56,15 @@ public class Navigation extends SerializableBean<Navigation> {
     /**
      * 排序值（越小越靠前）
      */
-    @Column(nullable = false)
     @ColumnDefault("1")
     @Comment("排序值")
     @Schema(description = "排序值")
-    private Integer order;
+    private Integer sort;
 
     /**
      * 分类
      */
-    @Column(columnDefinition = "varchar(50)")
+    @Column(columnDefinition = "varchar(50)", nullable = false)
     @Comment("分类")
     @Schema(description = "分类")
     private String category;
@@ -105,7 +104,7 @@ public class Navigation extends SerializableBean<Navigation> {
     /**
      * 状态；0、停用，1、启用，默认1
      */
-    @Column(nullable = false, columnDefinition = "smallint")
+    @Column(columnDefinition = "smallint")
     @ColumnDefault("1")
     @Comment("状态；0、停用，1、启用")
     @Schema(description = "状态；0、停用，1、启用")

@@ -7,7 +7,6 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-import lombok.extern.slf4j.Slf4j;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.Comment;
 import org.hibernate.annotations.DynamicInsert;
@@ -22,7 +21,7 @@ import org.hibernate.annotations.DynamicUpdate;
  */
 @Entity
 @Table(name = "system_config", indexes = {
-        @Index(name = "idx_config_key", columnList = "config_key", unique = true)
+        @Index(name = "idx_config_key", columnList = "configKey", unique = true)
 })
 @Comment("系统配置表")
 @Schema(description = "系统配置")
@@ -98,12 +97,4 @@ public class SysConfigs extends SerializableBean<SysConfigs> {
     @Schema(description = "管理员密码")
     private String password;
 
-    /**
-     * 配置状态；0、停用，1、启用，默认1
-     */
-    @Column(nullable = false, columnDefinition = "smallint")
-    @ColumnDefault("1")
-    @Comment("状态；0、停用，1、启用")
-    @Schema(description = "状态；0、停用，1、启用")
-    private Integer status;
 }

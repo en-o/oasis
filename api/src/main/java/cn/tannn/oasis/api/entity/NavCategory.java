@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.Comment;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
@@ -20,7 +21,7 @@ import org.hibernate.annotations.DynamicUpdate;
  */
 @Entity
 @Table(name = "nav_category", indexes = {
-        @Index(name = "idx_category_name", columnList = "category_name", unique = true)
+        @Index(name = "idx_category_name", columnList = "categoryName", unique = true)
 })
 @Comment("导航分类表")
 @Schema(description = "导航分类")
@@ -47,9 +48,10 @@ public class NavCategory extends SerializableBean<NavCategory> {
     /**
      * 排序值（越小越靠前）
      */
-    @Column(columnDefinition = "int default 0")
+    @Column(columnDefinition = "int")
+    @ColumnDefault("1")
     @Comment("排序值")
     @Schema(description = "排序值")
-    private Integer sortOrder;
+    private Integer sort;
 
 }
