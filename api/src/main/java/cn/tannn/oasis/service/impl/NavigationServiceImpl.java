@@ -2,11 +2,11 @@ package cn.tannn.oasis.service.impl;
 
 import cn.tannn.jdevelops.jpa.service.J2ServiceImpl;
 import cn.tannn.oasis.controller.dto.NavigationAdd;
+import cn.tannn.oasis.dao.NavigationDao;
 import cn.tannn.oasis.entity.Navigation;
 import cn.tannn.oasis.service.NavigationService;
-import cn.tannn.oasis.dao.NavigationDao;
-import org.springframework.stereotype.Service;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
 
 /**
  * 导航项表

@@ -1,32 +1,21 @@
 
 package cn.tannn.oasis.controller;
 
-import cn.tannn.jdevelops.annotations.web.authentication.ApiMapping;
 import cn.tannn.jdevelops.annotations.web.mapping.PathRestController;
 import cn.tannn.jdevelops.jpa.constant.SQLOperator;
-import cn.tannn.jdevelops.jpa.result.JpaPageResult;
-import cn.tannn.jdevelops.result.response.ResultPageVO;
 import cn.tannn.jdevelops.result.response.ResultVO;
-import cn.tannn.jdevelops.result.utils.ListTo;
 import cn.tannn.oasis.controller.dto.LoginPassword;
+import cn.tannn.oasis.controller.dto.SysConfigsEdit;
 import cn.tannn.oasis.entity.SysConfigs;
 import cn.tannn.oasis.service.SysConfigsService;
-import cn.tannn.oasis.controller.dto.SysConfigsAdd;
-import cn.tannn.oasis.controller.dto.SysConfigsEdit;
-import cn.tannn.oasis.controller.dto.SysConfigsPage;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import io.swagger.v3.oas.annotations.Parameter;
-
-import org.springframework.data.domain.Page;
-import org.springframework.web.bind.annotation.*;
-
 import jakarta.validation.Valid;
-
-import java.util.List;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 
 /**
  * 系统配置表

@@ -3,11 +3,10 @@ package cn.tannn.oasis.controller.dto;
 import cn.tannn.jdevelops.result.bean.SerializableBean;
 import cn.tannn.oasis.utils.ImageUtils;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 
 /**
  * 添加导航项表

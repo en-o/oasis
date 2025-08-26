@@ -3,10 +3,10 @@ package cn.tannn.oasis.controller.dto;
 import cn.tannn.jdevelops.annotations.jpa.JpaUpdate;
 import cn.tannn.oasis.utils.ImageUtils;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
-import jakarta.validation.constraints.NotNull;
 
 /**
  * 编辑导航项表

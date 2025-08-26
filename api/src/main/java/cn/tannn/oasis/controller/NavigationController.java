@@ -6,23 +6,19 @@ import cn.tannn.jdevelops.jpa.constant.SQLOperator;
 import cn.tannn.jdevelops.jpa.result.JpaPageResult;
 import cn.tannn.jdevelops.result.response.ResultPageVO;
 import cn.tannn.jdevelops.result.response.ResultVO;
-import cn.tannn.jdevelops.result.utils.ListTo;
-import cn.tannn.oasis.entity.Navigation;
-import cn.tannn.oasis.service.NavigationService;
 import cn.tannn.oasis.controller.dto.NavigationAdd;
 import cn.tannn.oasis.controller.dto.NavigationEdit;
 import cn.tannn.oasis.controller.dto.NavigationPage;
+import cn.tannn.oasis.entity.Navigation;
+import cn.tannn.oasis.service.NavigationService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.tags.Tag;
-import io.swagger.v3.oas.annotations.Parameter;
-
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
-
-import jakarta.validation.Valid;
 
 import java.util.List;
 
