@@ -25,12 +25,14 @@ import lombok.ToString;
 @Setter
 public class NavigationPage extends SerializableBean<NavigationPage> {
 
-    /**
-     * id
-     */
-    @Schema(description = "id")
-    @JpaSelectOperator(operatorWrapper = SQLOperatorWrapper.EQ, connect = SQLConnect.AND)
-    private Integer id;
+
+    @JpaSelectOperator(operatorWrapper = SQLOperatorWrapper.LIKE, connect = SQLConnect.AND)
+    @Schema(description = "名称")
+    private String name;
+
+    @Schema(description = "分类")
+    @JpaSelectOperator(operatorWrapper = SQLOperatorWrapper.LIKE, connect = SQLConnect.AND)
+    private String category;
 
     /**
      * 分页排序
@@ -42,8 +44,8 @@ public class NavigationPage extends SerializableBean<NavigationPage> {
 
     public PagingSorteds getPage() {
         if (page == null) {
-            return new PagingSorteds().fixSort(1, "id");
+            return new PagingSorteds().fixSort(0, "sort");
         }
-        return page;
+        return page.append(0, "sort");
     }
 }

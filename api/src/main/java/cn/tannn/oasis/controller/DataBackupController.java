@@ -60,7 +60,7 @@ public class DataBackupController {
         }
     }
 
-    @Operation(summary = "获取备份配置")
+    @Operation(summary = "获取备份配置",description = "如果没看就表示没有设置需要进行配置")
     @GetMapping("/config")
     public ResultVO<BackupConfig> getConfig() {
         try {

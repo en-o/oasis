@@ -79,6 +79,13 @@ public class NavigationAdd extends SerializableBean<NavigationAdd> {
     @Schema(description = "登录密码")
     private String password;
 
+    @Schema(description = "导航登录信息查看密钥")
+    private String nvaAccessSecret;
+
+    @Schema(description = "是否运行查看登录信息；false、密钥查看，true、直接查看，默认true")
+    private Boolean lookAccount;
+
+
     public String getIcon() {
         return ImageUtils.processImage(icon);
     }

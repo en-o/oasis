@@ -101,6 +101,25 @@ public class Navigation extends SerializableBean<Navigation> {
     @Schema(description = "登录密码")
     private String password;
 
+
+    /**
+     * 是否运行查看登录信息；false、密钥查看，true、直接查看，默认true
+     */
+    @Column(columnDefinition = "boolean")
+    @ColumnDefault("true")
+    @Comment("是否运行查看登录信息；false、不查看，true、查看，默认true")
+    @Schema(description = "是否运行查看登录信息；false、密钥查看，true、直接查看，默认true")
+    private Boolean lookAccount;
+
+    /**
+     * 导航登录信息查看密钥
+     */
+    @Column(columnDefinition = "varchar(100)")
+    @ColumnDefault("tan")
+    @Comment("导航登录信息查看密钥")
+    @Schema(description = "导航登录信息查看密钥")
+    private String nvaAccessSecret;
+
     /**
      * 状态；0、停用，1、启用，默认1
      */

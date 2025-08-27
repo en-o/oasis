@@ -50,13 +50,14 @@ public class NavigationController {
         return ResultVO.success();
     }
 
-    @Operation(summary = "分页查询")
+    @Operation(summary = "管理端分页")
     @PostMapping("page")
     public ResultPageVO<Navigation, JpaPageResult<Navigation>> page(@RequestBody @Valid NavigationPage page) {
         Page<Navigation> byBean = navigationService.findPage(page, page.getPage());
         JpaPageResult<Navigation> pageResult = JpaPageResult.toPage(byBean);
         return ResultPageVO.success(pageResult, "查询成功");
     }
+
 
     @Operation(summary = "集合")
     @GetMapping("lists")

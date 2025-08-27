@@ -6,6 +6,7 @@ import cn.tannn.jdevelops.jpa.constant.SQLOperator;
 import cn.tannn.jdevelops.result.response.ResultVO;
 import cn.tannn.oasis.controller.dto.LoginPassword;
 import cn.tannn.oasis.controller.dto.SysConfigsEdit;
+import cn.tannn.oasis.controller.vo.SiteInfo;
 import cn.tannn.oasis.entity.SysConfigs;
 import cn.tannn.oasis.service.SysConfigsService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -37,6 +38,9 @@ public class  SysConfigsController {
         SysConfigs bean = sysConfigsService.findOnly("configKey", "MAIN").orElse(SysConfigs.newInstance());
         return ResultVO.success(bean);
     }
+
+
+
 
     @Operation(summary = "编辑系统配置表")
     @PostMapping("edit")

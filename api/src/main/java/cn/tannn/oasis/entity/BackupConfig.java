@@ -1,5 +1,6 @@
 package cn.tannn.oasis.entity;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -77,6 +78,7 @@ public class BackupConfig {
     @Column(columnDefinition = "datetime")
     @Comment("最后备份时间")
     @Schema(description = "最后备份时间")
+    @JsonFormat(locale = "zh", timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime lastBackupTime;
 
     @Column(columnDefinition = "bigint")

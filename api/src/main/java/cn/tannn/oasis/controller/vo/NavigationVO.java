@@ -1,35 +1,24 @@
-package cn.tannn.oasis.controller.dto;
+package cn.tannn.oasis.controller.vo;
 
-import cn.tannn.jdevelops.annotations.jpa.JpaUpdate;
-import cn.tannn.oasis.utils.ImageUtils;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
 /**
- * 编辑导航项表
+ * 导航项表
  *
- * @author tan
- * @version 0.0.1
+ * @author tnnn
+ * @version V1.0
  * @date 2025-08-26
  */
-@Schema(description = "编辑导航项表")
-@ToString
+@Schema(description = "导航项")
 @Getter
 @Setter
-public class NavigationEdit {
+@ToString
+public class NavigationVO {
 
-    /**
-     * id
-     */
-    @Schema(description = "id", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotNull
-    @JpaUpdate(unique = true)
     private Integer id;
-
-
     /**
      * 名称
      */
@@ -43,7 +32,7 @@ public class NavigationEdit {
     private String url;
 
     /**
-     * 排序值
+     * 排序值（越小越靠前）
      */
     @Schema(description = "排序值")
     private Integer sort;
@@ -67,31 +56,20 @@ public class NavigationEdit {
     private String remark;
 
     /**
-     * 登录账号
+     * 是否运行查看登录信息；false、密钥查看，true、直接查看，默认true
      */
-    @Schema(description = "登录账号")
-    private String account;
-
-    /**
-     * 登录密码
-     */
-    @Schema(description = "登录密码")
-    private String password;
-
-    @Schema(description = "导航登录信息查看密钥")
-    private String nvaAccessSecret;
-
     @Schema(description = "是否运行查看登录信息；false、密钥查看，true、直接查看，默认true")
     private Boolean lookAccount;
 
     /**
-     * 状态；0、停用，1、启用
+     * 导航登录信息查看密钥
+     */
+    @Schema(description = "导航登录信息查看密钥")
+    private String nvaAccessSecret;
+
+    /**
+     * 状态；0、停用，1、启用，默认1
      */
     @Schema(description = "状态；0、停用，1、启用")
     private Integer status;
-
-
-    public String getIcon() {
-        return ImageUtils.processImage(icon);
-    }
 }
