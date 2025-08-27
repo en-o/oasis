@@ -46,10 +46,5 @@ public class  SysConfigsController {
         return ResultVO.success();
     }
 
-    @PostMapping(value = "/login")
-    public ResultVO<Boolean> login(LoginPassword login){
-        sysConfigsService.login(login.getUsername(), login.getPassword());
-        return ResultVO.success("登录成功",true);
-    }
 
 }
