@@ -39,9 +39,6 @@ public class  SysConfigsController {
         return ResultVO.success(bean);
     }
 
-
-
-
     @Operation(summary = "编辑系统配置表")
     @PostMapping("edit")
     public ResultVO<String> edit(@RequestBody  @Valid SysConfigsEdit edit)  {
