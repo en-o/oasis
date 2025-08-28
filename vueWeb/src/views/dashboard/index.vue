@@ -15,7 +15,7 @@
             <img :src="n.logo" class="pir-img">
             <div class="pir-f-1">
               <div class="pir-title">{{ n.name }}</div>
-              <div class="pir-desc overText">{{ n.desc }}</div>
+              <div class="pir-desc overText" :title="n.desc">{{ n.desc }}</div>
               <div class="pir-type">{{ n.type }}</div>
             </div>
             <svg-icon icon-class="skip-icon" class="pir-svg" />
@@ -40,7 +40,7 @@ export default {
         { code: '1', name: '学习资料' }
       ],
       navList: [
-        { logo: require('@/assets/logo.png'), code: '1', name: 'Google', desc: 'Google搜索引擎', type: '搜索引擎' },
+        { logo: require('@/assets/logo.png'), code: '1', name: 'Google', desc: 'Google搜索引擎Google搜索引擎Google搜索引擎Google搜索引擎', type: '搜索引擎' },
         { logo: require('@/assets/logo.png'), code: '2', name: 'Google', desc: 'Google搜索引擎', type: '搜索引擎' }
       ]
     }
