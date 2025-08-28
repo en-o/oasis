@@ -170,6 +170,9 @@ public class DbTransferUtil {
                 boolean isNullable = "YES".equalsIgnoreCase(nullable);
                 boolean autoIncrement = extra != null && extra.toLowerCase().contains("auto_increment");
 
+                // 清理和验证默认值
+                defaultValue = cleanDefaultValue(defaultValue, dataType);
+
                 ColumnInfo columnInfo = new ColumnInfo(columnName, dataType, columnSize, decimalDigits,
                         isNullable, defaultValue, autoIncrement, comment);
                 structure.columns.add(columnInfo);
@@ -179,6 +182,42 @@ public class DbTransferUtil {
             log.debug("使用SHOW COLUMNS获取MySQL列信息失败: {}", e.getMessage());
             return false;
         }
+    }
+
+    /**
+     * 清理和验证默认值
+     */
+    private static String cleanDefaultValue(String defaultValue, String dataType) {
+        if (defaultValue == null) {
+            return null;
+        }
+
+        String trimmed = defaultValue.trim();
+
+        // 空字符串默认值
+        if (trimmed.isEmpty()) {
+            return isStringType(dataType) ? "''" : null;
+        }
+
+        // NULL值
+        if ("NULL".equalsIgnoreCase(trimmed)) {
+            return null; // NULL默认值在建表时通过nullable处理
+        }
+
+        // 跳过包含特殊字符或转义序列的默认值
+        if (trimmed.contains("U&'") ||
+                trimmed.contains("\\\\") ||
+                trimmed.matches(".*\\\\[0-9a-fA-F]{4}.*")) {
+            log.debug("跳过包含特殊字符的默认值: {}", trimmed);
+            return null;
+        }
+
+        // 函数默认值
+        if (trimmed.toUpperCase().matches("CURRENT_TIMESTAMP.*|NOW\\(\\)|SYSDATE\\(\\)")) {
+            return trimmed;
+        }
+
+        return trimmed;
     }
 
     /**
@@ -203,6 +242,9 @@ public class DbTransferUtil {
                     String defaultValue = rs.getString("COLUMN_DEFAULT");
                     boolean autoIncrement = "YES".equalsIgnoreCase(rs.getString("IS_AUTOINCREMENT"));
                     String remarks = rs.getString("REMARKS");
+
+                    // 清理H2的默认值
+                    defaultValue = cleanDefaultValue(defaultValue, typeName);
 
                     ColumnInfo columnInfo = new ColumnInfo(columnName, typeName, columnSize, decimalDigits,
                             nullable, defaultValue, autoIncrement, remarks);
@@ -260,6 +302,9 @@ public class DbTransferUtil {
                             }
                         }
                     }
+
+                    // 清理默认值
+                    defaultValue = cleanDefaultValue(defaultValue, typeName);
 
                     ColumnInfo columnInfo = new ColumnInfo(columnName, typeName, columnSize, decimalDigits,
                             nullable, defaultValue, autoIncrement, remarks);
@@ -558,22 +603,129 @@ public class DbTransferUtil {
             }
         }
 
-        // 默认值
+        // 默认值 - 改进处理逻辑
         if (column.defaultValue != null && !column.autoIncrement) {
-            def.append(" DEFAULT ");
-            if (isStringType(column.dataType)) {
-                def.append("'").append(column.defaultValue).append("'");
-            } else {
-                def.append(column.defaultValue);
+            String processedDefault = processDefaultValue(column.defaultValue, column.dataType, isMySQL, isH2);
+            if (processedDefault != null && !processedDefault.trim().isEmpty()) {
+                def.append(" DEFAULT ").append(processedDefault);
             }
         }
 
         // 注释
         if (column.remarks != null && !column.remarks.trim().isEmpty() && isMySQL) {
-            def.append(" COMMENT '").append(column.remarks.replace("'", "''")).append("'");
+            String processedComment = processComment(column.remarks);
+            def.append(" COMMENT '").append(processedComment).append("'");
         }
 
         return def.toString();
+    }
+
+    /**
+     * 处理默认值
+     */
+    private static String processDefaultValue(String defaultValue, String dataType, boolean isMySQL, boolean isH2) {
+        if (defaultValue == null || defaultValue.trim().isEmpty()) {
+            return null;
+        }
+
+        String trimmedDefault = defaultValue.trim();
+
+        // 处理特殊的默认值
+        if ("NULL".equalsIgnoreCase(trimmedDefault)) {
+            return "NULL";
+        }
+
+        // 处理MySQL的函数默认值
+        if (trimmedDefault.toUpperCase().startsWith("CURRENT_TIMESTAMP") ||
+                trimmedDefault.toUpperCase().startsWith("NOW()") ||
+                trimmedDefault.toUpperCase().startsWith("SYSDATE()")) {
+            if (isH2) {
+                return "CURRENT_TIMESTAMP";
+            } else {
+                return trimmedDefault;
+            }
+        }
+
+        // 处理包含Unicode转义或特殊字符的字符串默认值
+        if (trimmedDefault.contains("U&'") || trimmedDefault.contains("\\")) {
+            log.debug("跳过包含特殊字符的默认值: {}", trimmedDefault);
+            return null; // 跳过这种复杂的默认值
+        }
+
+        // 处理字符串类型的默认值
+        if (isStringType(dataType)) {
+            // 如果已经有引号，先去掉外层引号再重新添加
+            if ((trimmedDefault.startsWith("'") && trimmedDefault.endsWith("'")) ||
+                    (trimmedDefault.startsWith("\"") && trimmedDefault.endsWith("\""))) {
+                String content = trimmedDefault.substring(1, trimmedDefault.length() - 1);
+                // 转义单引号
+                content = content.replace("'", "''");
+                return "'" + content + "'";
+            } else {
+                // 直接添加引号并转义
+                String escaped = trimmedDefault.replace("'", "''");
+                return "'" + escaped + "'";
+            }
+        }
+
+        // 处理布尔值
+        if (isBooleanType(dataType)) {
+            if ("true".equalsIgnoreCase(trimmedDefault) || "1".equals(trimmedDefault)) {
+                return isMySQL ? "1" : "TRUE";
+            } else if ("false".equalsIgnoreCase(trimmedDefault) || "0".equals(trimmedDefault)) {
+                return isMySQL ? "0" : "FALSE";
+            }
+        }
+
+        // 数值类型直接返回
+        if (isNumericType(dataType)) {
+            // 检查是否为有效数字
+            try {
+                Double.parseDouble(trimmedDefault);
+                return trimmedDefault;
+            } catch (NumberFormatException e) {
+                log.debug("无效的数字默认值: {}", trimmedDefault);
+                return null;
+            }
+        }
+
+        // 其他情况直接返回
+        return trimmedDefault;
+    }
+
+    /**
+     * 处理注释内容
+     */
+    private static String processComment(String comment) {
+        if (comment == null) {
+            return "";
+        }
+
+        // 转义单引号并移除可能的特殊字符
+        return comment.replace("'", "''")
+                .replace("\n", " ")
+                .replace("\r", " ")
+                .replace("\t", " ")
+                .replaceAll("\\\\[0-9a-fA-F]{4}", ""); // 移除Unicode转义序列
+    }
+
+    /**
+     * 判断是否为布尔类型
+     */
+    private static boolean isBooleanType(String dataType) {
+        String upperType = dataType.toUpperCase();
+        return upperType.equals("BOOLEAN") || upperType.equals("BOOL") ||
+                upperType.equals("BIT") || upperType.equals("TINYINT");
+    }
+
+    /**
+     * 判断是否为数值类型
+     */
+    private static boolean isNumericType(String dataType) {
+        String upperType = dataType.toUpperCase();
+        return upperType.contains("INT") || upperType.contains("DECIMAL") ||
+                upperType.contains("NUMERIC") || upperType.contains("FLOAT") ||
+                upperType.contains("DOUBLE") || upperType.contains("REAL");
     }
 
     /**
