@@ -24,7 +24,7 @@ public class BackupConfigAdd extends SerializableBean<BackupConfigAdd> {
             example = "0 0 2 * * ?")
     private String schedule;
 
-    @Schema(description = "是否启用定时备份")
+    @Schema(description = "是否启用定时备份",defaultValue = "false")
     private Boolean enabled;
 
     @Schema(description = "配置描述")
