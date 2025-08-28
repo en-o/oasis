@@ -33,7 +33,7 @@ public class LoginPassword extends SerializableBean<LoginPassword> {
     private String password;
 
 
-    public void setUserName(String loginName) {
+    public void setUsername(String loginName) {
         this.username = StringUtils.trim(loginName);
     }
 
