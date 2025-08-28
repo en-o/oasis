@@ -153,9 +153,13 @@ public class DataBackupController {
                     config.getDriverClassName()
             );
             // 连接测试
-            DbTransferUtil.testConnection(config);
-            log.info("数据库连接测试成功: {}", maskPassword(config.getUrl()));
-            return ResultVO.success("数据库连接测试成功");
+            if( DbTransferUtil.testConnection(config)){
+                log.info("数据库连接测试成功: {}", maskPassword(config.getUrl()));
+                return ResultVO.success("数据库连接测试成功");
+            }else {
+                log.error("数据库连接测试失败: {}", maskPassword(config.getUrl()));
+                return ResultVO.failMessage("数据库连接测试失败");
+            }
         } catch (Exception e) {
             log.error("数据库连接测试失败: {}", maskPassword(config.getUrl()), e);
             return ResultVO.failMessage("连接测试失败: " + e.getMessage());
