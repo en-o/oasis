@@ -51,7 +51,7 @@ public class  SysConfigsController {
     }
 
 
-    @Operation(summary = "init")
+    @Operation(summary = "初始化系统配置-里面有登录信息")
     @ApiMapping(value = "init",checkToken = false,method = RequestMethod.GET)
     public ResultVO<Boolean> initSysConfig()  {
         Optional<SysConfigs> configs = sysConfigsService.findOnly("configKey", "MAIN");
