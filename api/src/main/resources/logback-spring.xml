@@ -166,13 +166,13 @@
     <logger name="org.springframework.boot.autoconfigure.logging.ConditionEvaluationReportLogger" level="INFO"/>
 
 
-    <springProfile name="dev,h2">
+    <springProfile name="h2">
         <root level="debug">
             <appender-ref ref="STDOUT"/>
         </root>
     </springProfile>
     <!--    非dev环境下-->
-    <springProfile name="!dev">
+    <springProfile name="!h2">
         <!-- logger设置输出到文件，输出级别为info -->
         <root level="INFO">
             <appender-ref ref="STDOUT" />
