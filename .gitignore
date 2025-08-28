@@ -34,7 +34,7 @@ target/
 # idea
 /.idea
 *.iml
-*.json
+#*.json
 *.iws
 *.ipr
 
