@@ -1,5 +1,6 @@
 package cn.tannn.oasis.controller;
 
+import cn.tannn.jdevelops.annotations.web.authentication.ApiMapping;
 import cn.tannn.jdevelops.annotations.web.mapping.PathRestController;
 import cn.tannn.jdevelops.jwt.standalone.pojo.TokenSign;
 import cn.tannn.jdevelops.jwt.standalone.service.LoginService;
@@ -15,6 +16,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMethod;
 
 /**
  * 登录
@@ -33,7 +35,7 @@ public class LoginController {
     private final LoginService loginService;
 
     @Operation(summary = "登录")
-    @PostMapping(value = "/login")
+    @ApiMapping(value = "/login",checkToken = false,method = RequestMethod.POST)
     public ResultVO<String> login(@RequestBody @Valid LoginPassword login){
         sysConfigsService.login(login.getUsername(), login.getPassword());
         SignEntity<String> signEntity = SignEntity.init(login.getUsername());
