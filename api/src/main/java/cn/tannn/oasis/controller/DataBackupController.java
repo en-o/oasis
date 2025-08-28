@@ -144,19 +144,16 @@ public class DataBackupController {
 
     @Operation(summary = "测试数据库连接")
     @PostMapping("/test-connection")
-    public ResultVO<String> testConnection(@Valid @RequestBody BackupConfig config) {
+    public ResultVO<String> testConnection(@Valid @RequestBody DatabaseConfig config) {
         try {
             DatabaseConfig testConfig = new DatabaseConfig(
-                    "test",
                     config.getUrl(),
                     config.getUsername(),
                     config.getPassword(),
                     config.getDriverClassName()
             );
-
-            // 这里可以添加连接测试逻辑
-            // 例如：DbTransferUtil.testConnection(testConfig);
-
+            // 连接测试
+            DbTransferUtil.testConnection(config);
             log.info("数据库连接测试成功: {}", maskPassword(config.getUrl()));
             return ResultVO.success("数据库连接测试成功");
         } catch (Exception e) {
