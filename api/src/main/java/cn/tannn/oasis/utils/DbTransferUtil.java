@@ -19,7 +19,7 @@ public class DbTransferUtil {
      * @param tableName 表名
      */
     public static void transferTable(DatabaseConfig sourceCfg, DatabaseConfig targetCfg, String tableName) throws Exception {
-        log.info("开始迁移表: {} 从 {} 到 {}", tableName, sourceCfg.getEnv(), targetCfg.getEnv());
+        log.info("开始迁移表: {} 从 {} 到 {}", tableName, sourceCfg.getDriverClassName(), targetCfg.getDriverClassName());
         long startTime = System.currentTimeMillis();
 
         try (
