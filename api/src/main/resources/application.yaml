@@ -21,7 +21,7 @@ jdevelops:
     title: ${spring.application.name}
     display-name: 导航
     group-name: oasis
-    security-scheme-default: false
+#    security-scheme-default: false
 
 knife4j:
   enable: true
