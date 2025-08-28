@@ -60,7 +60,7 @@ public class DataBackupController {
         }
     }
 
-    @Operation(summary = "获取备份配置",description = "如果没看就表示没有设置需要进行配置")
+    @Operation(summary = "获取备份配置", description = "如果没看就表示没有设置需要进行配置")
     @GetMapping("/config")
     public ResultVO<BackupConfig> getConfig() {
         try {
@@ -147,10 +147,10 @@ public class DataBackupController {
     public ResultVO<String> testConnection(@Valid @RequestBody DatabaseConfig config) {
         try {
             // 连接测试
-            if( DbTransferUtil.testConnection(config)){
+            if (DbTransferUtil.testConnection(config)) {
                 log.info("数据库连接测试成功: {}", maskPassword(config.getUrl()));
                 return ResultVO.successMessage("数据库连接测试成功");
-            }else {
+            } else {
                 log.error("数据库连接测试失败: {}", maskPassword(config.getUrl()));
                 return ResultVO.failMessage("数据库连接测试失败");
             }
@@ -183,7 +183,7 @@ public class DataBackupController {
             for (String tableName : BACKUP_TABLES) {
                 try {
                     // 从MySQL恢复到H2（方向相反）
-                    DbTransferUtil.transferTable(DatabaseConfig.fromEnvironmentH2(environment), DatabaseConfig.createMysqlConfig(config), tableName);
+                    DbTransferUtil.transferTable(DatabaseConfig.createMysqlConfig(config), DatabaseConfig.fromEnvironmentH2(environment), tableName);
                     log.debug("表 {} 备份完成", tableName);
                 } catch (Exception e) {
                     log.error("表 {} 备份失败", tableName, e);
