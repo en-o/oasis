@@ -51,19 +51,7 @@ public class  SysConfigsController {
     }
 
 
-    @Operation(summary = "初始化系统配置-里面有登录信息")
-    @ApiMapping(value = "init",checkToken = false,method = RequestMethod.GET)
-    public ResultVO<Boolean> initSysConfig()  {
-        Optional<SysConfigs> configs = sysConfigsService.findOnly("configKey", "MAIN");
-        if(configs.isPresent()){
-            return ResultVO.success("已存在数据不允许初始哈",false);
-        }else {
-            SysConfigs bean = SysConfigs.newInstance();
-            sysConfigsService.saveOne(bean);
-            return ResultVO.success("完成初始化",true);
-        }
 
-    }
 
 
 }
