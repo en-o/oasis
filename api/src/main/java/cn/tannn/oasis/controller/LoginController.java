@@ -9,10 +9,12 @@ import cn.tannn.oasis.controller.dto.LoginPassword;
 import cn.tannn.oasis.service.SysConfigsService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 
 /**
  * 登录
@@ -32,7 +34,7 @@ public class LoginController {
 
     @Operation(summary = "登录")
     @PostMapping(value = "/login")
-    public ResultVO<String> login(LoginPassword login){
+    public ResultVO<String> login(@RequestBody @Valid LoginPassword login){
         sysConfigsService.login(login.getUsername(), login.getPassword());
         SignEntity<String> signEntity = SignEntity.init(login.getUsername());
         TokenSign token = loginService.login(signEntity);
