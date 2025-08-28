@@ -115,7 +115,7 @@ public class Navigation extends SerializableBean<Navigation> {
      * 导航登录信息查看密钥
      */
     @Column(columnDefinition = "varchar(100)")
-    @ColumnDefault("tan")
+    @ColumnDefault("'tan'")
     @Comment("导航登录信息查看密钥")
     @Schema(description = "导航登录信息查看密钥")
     private String nvaAccessSecret;

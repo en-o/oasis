@@ -76,7 +76,7 @@ public class WebController {
     }
 
     @Operation(summary = "网站分类")
-    @GetMapping("category")
+    @ApiMapping(value = "category",checkToken = false,method = RequestMethod.GET)
     public ResultVO<List<NavCategory>> category() {
         Sorteds defs = Sorteds.defs();
         defs.fixSort(0,"sort");
