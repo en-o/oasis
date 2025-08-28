@@ -146,16 +146,10 @@ public class DataBackupController {
     @PostMapping("/test-connection")
     public ResultVO<String> testConnection(@Valid @RequestBody DatabaseConfig config) {
         try {
-            DatabaseConfig testConfig = new DatabaseConfig(
-                    config.getUrl(),
-                    config.getUsername(),
-                    config.getPassword(),
-                    config.getDriverClassName()
-            );
             // 连接测试
             if( DbTransferUtil.testConnection(config)){
                 log.info("数据库连接测试成功: {}", maskPassword(config.getUrl()));
-                return ResultVO.success("数据库连接测试成功");
+                return ResultVO.successMessage("数据库连接测试成功");
             }else {
                 log.error("数据库连接测试失败: {}", maskPassword(config.getUrl()));
                 return ResultVO.failMessage("数据库连接测试失败");
