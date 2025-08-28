@@ -3,10 +3,7 @@ package cn.tannn.oasis.utils;
 import lombok.extern.slf4j.Slf4j;
 
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Slf4j
 public class DbTransferUtil {
@@ -92,9 +89,9 @@ public class DbTransferUtil {
                 List<String> columns = new ArrayList<>();
                 int totalRows = queryTableData(sourceConn, tableName, data, columns);
 
-                // 4. 批量插入数据
+                // 4. 批量插入数据 - 传递表结构信息
                 if (!data.isEmpty()) {
-                    insertDataInBatch(targetConn, tableName, columns, data);
+                    insertDataInBatch(targetConn, tableName, columns, data, tableStructure);
                 }
 
                 // 提交事务
@@ -977,25 +974,61 @@ public class DbTransferUtil {
      * 批量插入数据
      */
     private static void insertDataInBatch(Connection targetConn, String tableName,
-                                          List<String> columns, List<List<Object>> data) throws SQLException {
+                                          List<String> columns, List<List<Object>> data,
+                                          TableStructure structure) throws SQLException {
         if (data.isEmpty()) {
             return;
         }
 
+        // 找出自增列的索引
+        Set<Integer> autoIncrementColumns = new HashSet<>();
+        List<String> insertColumns = new ArrayList<>();
+        List<Integer> insertColumnIndices = new ArrayList<>();
+
+        for (int i = 0; i < columns.size(); i++) {
+            String columnName = columns.get(i);
+            boolean isAutoIncrement = false;
+
+            // 检查是否为自增列
+            for (ColumnInfo columnInfo : structure.columns) {
+                if (columnInfo.columnName.equalsIgnoreCase(columnName) && columnInfo.autoIncrement) {
+                    isAutoIncrement = true;
+                    autoIncrementColumns.add(i);
+                    break;
+                }
+            }
+
+            // 非自增列才加入插入列表
+            if (!isAutoIncrement) {
+                insertColumns.add(columnName);
+                insertColumnIndices.add(i);
+            }
+        }
+
+        // 如果没有非自增列，说明表只有自增列，这种情况很少见
+        if (insertColumns.isEmpty()) {
+            log.warn("表 {} 只包含自增列，跳过数据插入", tableName);
+            return;
+        }
+
+        // 构建INSERT SQL，只包含非自增列
         StringBuilder sql = new StringBuilder("INSERT INTO " + tableName + " (");
-        sql.append(String.join(",", columns)).append(") VALUES (");
-        sql.append("?,".repeat(columns.size()));
+        sql.append(String.join(",", insertColumns)).append(") VALUES (");
+        sql.append("?,".repeat(insertColumns.size()));
         sql.setLength(sql.length() - 1);
         sql.append(")");
 
-        log.debug("插入SQL: {}", sql);
+        log.debug("修正后的插入SQL: {}", sql);
 
         try (PreparedStatement ps = targetConn.prepareStatement(sql.toString())) {
             int batchCount = 0;
 
             for (List<Object> row : data) {
-                for (int i = 0; i < row.size(); i++) {
-                    ps.setObject(i + 1, row.get(i));
+                // 只设置非自增列的值
+                for (int i = 0; i < insertColumnIndices.size(); i++) {
+                    int originalIndex = insertColumnIndices.get(i);
+                    Object value = row.get(originalIndex);
+                    ps.setObject(i + 1, value);
                 }
                 ps.addBatch();
                 batchCount++;

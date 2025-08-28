@@ -52,6 +52,11 @@ public class DataBackupController {
             BackupConfig backupConfig = config.to(BackupConfig.class);
             backupConfig.setDriverClassName("com.mysql.cj.jdbc.Driver");
             backupConfigService.saveOrUpdate(backupConfig);
+            if(backupConfig.getEnabled()){
+                log.warn("启用新的备份配置，重启定时任务");
+                stop();
+                start();
+            }
             log.info("备份配置保存成功: {}", config.getUrl());
             return ResultVO.successMessage("配置保存成功");
         } catch (Exception e) {
