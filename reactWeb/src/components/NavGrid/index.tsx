@@ -2,6 +2,7 @@ import React from 'react';
 import type { NavItem } from '@/types';
 import IconDisplay from '../IconDisplay';
 import { ExternalLink, Eye, EyeOff } from 'lucide-react';
+import './NavGrid.css';
 
 interface Props {
   items: NavItem[];
@@ -17,27 +18,24 @@ const NavGrid: React.FC<Props> = ({ items, onNavigate, accountMap, onToggleAccou
   };
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+    <div className="nav-grid">
       {items.map((item) => (
-        <div
-          key={item.id}
-          className="bg-white/90 backdrop-blur-md rounded-xl p-4 shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105 border border-white/30 hover:bg-white/95"
-        >
-          <div className="flex items-start justify-between mb-3">
-            <div className="flex items-center space-x-3">
+        <div key={item.id} className="nav-grid-item">
+          <div className="nav-grid-header">
+            <div className="nav-grid-info">
               <IconDisplay
                 iconData={item.icon}
                 title={item.name}
-                size="w-10 h-10"
+                size="nav-grid-icon"
               />
-              <div className="flex-1 min-w-0">
-                <h3 className="font-semibold text-gray-800 truncate">{item.name}</h3>
-                <span className="inline-block bg-gray-100 px-2 py-1 rounded-full text-xs font-medium text-gray-600 mt-1">{item.category}</span>
+              <div className="nav-grid-details">
+                <h3 className="nav-grid-title">{item.name}</h3>
+                <span className="nav-grid-category">{item.category}</span>
               </div>
             </div>
             <button
               onClick={() => handleItemClick(item)}
-              className="text-blue-600 hover:text-blue-800 transition-colors"
+              className="nav-grid-link-button"
               title="访问网站"
             >
               <ExternalLink className="w-4 h-4" />
@@ -45,16 +43,16 @@ const NavGrid: React.FC<Props> = ({ items, onNavigate, accountMap, onToggleAccou
           </div>
 
           {item.remark && (
-            <p className="text-sm text-gray-600 mb-3 line-clamp-2">{item.remark}</p>
+            <p className="nav-grid-description">{item.remark}</p>
           )}
 
           {item.accountInfo && (
-            <div className="border-t pt-3">
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-gray-500">账户信息</span>
+            <div className="nav-grid-account">
+              <div className="nav-grid-account-header">
+                <span className="nav-grid-account-label">账户信息</span>
                 <button
                   onClick={() => onToggleAccount(item.id)}
-                  className="text-gray-400 hover:text-gray-600 transition-colors"
+                  className="nav-grid-account-toggle"
                 >
                   {accountMap[item.id] ? (
                     <EyeOff className="w-4 h-4" />
@@ -64,14 +62,14 @@ const NavGrid: React.FC<Props> = ({ items, onNavigate, accountMap, onToggleAccou
                 </button>
               </div>
               {accountMap[item.id] && (
-                <div className="mt-2 space-y-1">
-                  <div className="text-xs">
-                    <span className="text-gray-500">账号：</span>
-                    <span className="font-mono">{item.accountInfo.account}</span>
+                <div className="nav-grid-account-info">
+                  <div className="nav-grid-account-row">
+                    <span className="nav-grid-account-key">账号</span>
+                    <span className="nav-grid-account-value">{item.accountInfo.account}</span>
                   </div>
-                  <div className="text-xs">
-                    <span className="text-gray-500">密码：</span>
-                    <span className="font-mono">{item.accountInfo.password}</span>
+                  <div className="nav-grid-account-row">
+                    <span className="nav-grid-account-key">密码</span>
+                    <span className="nav-grid-account-value">{item.accountInfo.password}</span>
                   </div>
                 </div>
               )}

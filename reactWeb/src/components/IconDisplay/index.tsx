@@ -23,6 +23,7 @@ const IconDisplay: React.FC<Props> = ({ iconData, title, size = 'w-6 h-6', class
         src={iconData}
         alt={title}
         className={`${size} ${className}`}
+        style={{ objectFit: 'cover' }}
       />
     );
   }
@@ -33,9 +34,15 @@ const IconDisplay: React.FC<Props> = ({ iconData, title, size = 'w-6 h-6', class
         src={iconData}
         alt={title}
         className={`${size} ${className}`}
+        style={{ objectFit: 'cover' }}
         onError={(e) => {
           const target = e.target as HTMLImageElement;
           target.style.display = 'none';
+          // 创建替代元素
+          const replacement = document.createElement('div');
+          replacement.className = `${size} ${className} bg-blue-500 rounded flex items-center justify-center text-white font-bold`;
+          replacement.textContent = title.charAt(0).toUpperCase();
+          target.parentNode?.insertBefore(replacement, target);
         }}
       />
     );

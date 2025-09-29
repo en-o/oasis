@@ -1,5 +1,6 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { Search, Grid, List, Settings, ExternalLink, Monitor } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { useNavigation } from '@/hooks/useNavigation';
 import { authApi } from '@/services/api';
 import IconDisplay from '@/components/IconDisplay';
@@ -7,11 +8,8 @@ import NavGrid from '@/components/NavGrid';
 import NavList from '@/components/NavList';
 import LoginModal from '@/components/LoginModal';
 
-interface Props {
-  onEnterAdmin: () => void;
-}
-
-const Navigation: React.FC<Props> = ({ onEnterAdmin }) => {
+const Navigation: React.FC = () => {
+  const navigate = useNavigate();
   const { navItems, categories, systemConfig, loading } = useNavigation();
   console.log('=== Navigation 组件状态 ===');
   console.log('navItems 长度:', navItems.length);
@@ -81,9 +79,9 @@ const Navigation: React.FC<Props> = ({ onEnterAdmin }) => {
       const response = await authApi.login({ username, password });
 
       if (response.code === 200 && response.data) {
-        // 登录成功
+        // 登录成功，导航到管理页面
         localStorage.setItem('token', response.data);
-        onEnterAdmin();
+        navigate('/admin');
         return true;
       } else {
         console.error('登录失败:', response.message || '未返回 token');

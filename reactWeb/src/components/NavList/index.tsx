@@ -2,6 +2,7 @@ import React from 'react';
 import type { NavItem } from '@/types';
 import IconDisplay from '../IconDisplay';
 import { ExternalLink, Eye, EyeOff } from 'lucide-react';
+import './NavList.css';
 
 interface Props {
   items: NavItem[];
@@ -17,33 +18,30 @@ const NavList: React.FC<Props> = ({ items, onNavigate, accountMap, onToggleAccou
   };
 
   return (
-    <div className="space-y-3">
+    <div className="nav-list">
       {items.map((item) => (
-        <div
-          key={item.id}
-          className="bg-white/90 backdrop-blur-md rounded-xl p-4 shadow-xl hover:shadow-2xl transition-all duration-300 border border-white/30 hover:bg-white/95 hover:scale-[1.02]"
-        >
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4 flex-1 min-w-0">
+        <div key={item.id} className="nav-list-item">
+          <div className="nav-list-main">
+            <div className="nav-list-info">
               <IconDisplay
                 iconData={item.icon}
                 title={item.name}
-                size="w-8 h-8"
+                size="nav-list-icon"
               />
-              <div className="flex-1 min-w-0">
-                <h3 className="font-semibold text-gray-800 truncate">{item.name}</h3>
-                <div className="flex items-center space-x-4 text-sm text-gray-500">
-                  <span className="truncate bg-gray-100 px-2 py-1 rounded-full text-xs font-medium">{item.category}</span>
-                  {item.remark && <span className="truncate text-gray-400">{item.remark}</span>}
+              <div className="nav-list-details">
+                <h3 className="nav-list-title">{item.name}</h3>
+                <div className="nav-list-meta">
+                  <span className="nav-list-category">{item.category}</span>
+                  {item.remark && <span className="nav-list-description">{item.remark}</span>}
                 </div>
               </div>
             </div>
 
-            <div className="flex items-center space-x-2">
+            <div className="nav-list-actions">
               {item.accountInfo && (
                 <button
                   onClick={() => onToggleAccount(item.id)}
-                  className="text-gray-400 hover:text-gray-600 transition-colors p-1"
+                  className="nav-list-button"
                   title={accountMap[item.id] ? '隐藏账户信息' : '显示账户信息'}
                 >
                   {accountMap[item.id] ? (
@@ -55,7 +53,7 @@ const NavList: React.FC<Props> = ({ items, onNavigate, accountMap, onToggleAccou
               )}
               <button
                 onClick={() => handleItemClick(item)}
-                className="text-blue-600 hover:text-blue-800 transition-colors p-1"
+                className="nav-list-link-button"
                 title="访问网站"
               >
                 <ExternalLink className="w-4 h-4" />
@@ -64,15 +62,15 @@ const NavList: React.FC<Props> = ({ items, onNavigate, accountMap, onToggleAccou
           </div>
 
           {item.accountInfo && accountMap[item.id] && (
-            <div className="mt-3 pt-3 border-t border-gray-200">
-              <div className="grid grid-cols-2 gap-4 text-sm">
-                <div>
-                  <span className="text-gray-500">账号：</span>
-                  <span className="font-mono ml-1">{item.accountInfo.account}</span>
+            <div className="nav-list-account">
+              <div className="nav-list-account-grid">
+                <div className="nav-list-account-item">
+                  <div className="nav-list-account-key">账号</div>
+                  <div className="nav-list-account-value">{item.accountInfo.account}</div>
                 </div>
-                <div>
-                  <span className="text-gray-500">密码：</span>
-                  <span className="font-mono ml-1">{item.accountInfo.password}</span>
+                <div className="nav-list-account-item">
+                  <div className="nav-list-account-key">密码</div>
+                  <div className="nav-list-account-value">{item.accountInfo.password}</div>
                 </div>
               </div>
             </div>
