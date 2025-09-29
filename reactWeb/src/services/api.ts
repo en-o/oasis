@@ -10,7 +10,6 @@ import type {
   NavAccessInfo,
   ResultVO,
   ResultPageVO,
-  PageResult
 } from '@/types';
 
 // Navigation APIs - 对应 NavigationController
