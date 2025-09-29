@@ -114,8 +114,8 @@ const NavManagement: React.FC = () => {
     },
     {
       title: '分类',
-      dataIndex: 'categoryName',
-      key: 'categoryName',
+      dataIndex: 'category',
+      key: 'category',
       width: 120,
       ellipsis: true,
     },
