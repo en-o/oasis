@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import type { NavItem, NavCategory, SystemConfig, NavigationVO } from '@/types';
 import { webApi } from '@/services/api';
 
@@ -16,6 +16,10 @@ export const useNavigation = () => {
   const [categories, setCategories] = useState<NavCategory[]>([]);
   const [systemConfig, setSystemConfig] = useState<SystemConfig>(DEFAULT_SYSTEM_CONFIG);
   const [loading, setLoading] = useState(true);
+
+  // 添加防重复调用的标志
+  const isLoadingRef = useRef(false);
+  const hasLoadedRef = useRef(false);
 
   const loadNavItems = async () => {
     try {
@@ -81,13 +85,30 @@ export const useNavigation = () => {
   };
 
   const loadData = async () => {
+    // 防止重复调用
+    if (isLoadingRef.current || hasLoadedRef.current) {
+      console.log('数据已在加载中或已加载，跳过重复调用');
+      return;
+    }
+
+    isLoadingRef.current = true;
     setLoading(true);
-    await Promise.all([
-      loadNavItems(),
-      loadCategories(),
-      loadSystemConfig(),
-    ]);
-    setLoading(false);
+
+    try {
+      console.log('开始加载导航数据...');
+      await Promise.all([
+        loadNavItems(),
+        loadCategories(),
+        loadSystemConfig(),
+      ]);
+      hasLoadedRef.current = true;
+      console.log('导航数据加载完成');
+    } catch (error) {
+      console.error('加载导航数据失败:', error);
+    } finally {
+      isLoadingRef.current = false;
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -98,10 +119,19 @@ export const useNavigation = () => {
     loadData();
 
     return () => {
-      // 清理函数，取消所有正在进行的请求
+      // 清理函数，重置标志并取消所有正在进行的请求
+      isLoadingRef.current = false;
+      hasLoadedRef.current = false;
       abortController.abort();
+      console.log('useNavigation hook 清理完成');
     };
   }, []); // 空依赖数组，确保只在组件挂载时执行一次
+
+  // 提供刷新功能，但会重置防重复标志
+  const refresh = async () => {
+    hasLoadedRef.current = false; // 允许重新加载
+    await loadData();
+  };
 
   return {
     navItems,
@@ -111,6 +141,6 @@ export const useNavigation = () => {
     systemConfig,
     setSystemConfig,
     loading,
-    refresh: loadData,
+    refresh,
   };
 };
