@@ -50,7 +50,8 @@ const Navigation: React.FC<Props> = ({ onEnterAdmin }) => {
 
       if (response.ok) {
         const result = await response.json();
-        if (result.success) {
+        // 根据后端返回格式：ResultVO<String>，其中data是token
+        if (result.success && result.data) {
           // 存储token
           localStorage.setItem('token', result.data);
           onEnterAdmin();

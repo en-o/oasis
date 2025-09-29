@@ -39,22 +39,22 @@ export const useNavigation = () => {
 
   const loadSystemConfig = async () => {
     try {
-      const response = await sysConfigApi.getList();
-      const configs = response.data || [];
+      // 调用新的API接口 - GET /sysConfigs/
+      const response = await sysConfigApi.getConfig();
+      const config = response.data;
 
-      const configMap = configs.reduce((acc, config) => {
-        acc[config.configKey] = config.configValue;
-        return acc;
-      }, {} as Record<string, string>);
-
-      setSystemConfig({
-        siteTitle: configMap.siteTitle || DEFAULT_SYSTEM_CONFIG.siteTitle,
-        siteLogo: configMap.siteLogo || DEFAULT_SYSTEM_CONFIG.siteLogo,
-        defaultOpenMode: (configMap.defaultOpenMode as 'newTab' | 'currentTab') || DEFAULT_SYSTEM_CONFIG.defaultOpenMode,
-        hideAdminEntry: configMap.hideAdminEntry === 'true',
-        adminUsername: configMap.adminUsername || DEFAULT_SYSTEM_CONFIG.adminUsername,
-        adminPassword: configMap.adminPassword || DEFAULT_SYSTEM_CONFIG.adminPassword,
-      });
+      if (config) {
+        setSystemConfig({
+          siteTitle: config.siteTitle || DEFAULT_SYSTEM_CONFIG.siteTitle,
+          siteLogo: config.siteLogo || DEFAULT_SYSTEM_CONFIG.siteLogo,
+          defaultOpenMode: (config.defaultOpenMode as 'newTab' | 'currentTab') || DEFAULT_SYSTEM_CONFIG.defaultOpenMode,
+          hideAdminEntry: config.hideAdminEntry === 'true' || config.hideAdminEntry === true,
+          adminUsername: config.adminUsername || DEFAULT_SYSTEM_CONFIG.adminUsername,
+          adminPassword: config.adminPassword || DEFAULT_SYSTEM_CONFIG.adminPassword,
+        });
+      } else {
+        setSystemConfig(DEFAULT_SYSTEM_CONFIG);
+      }
     } catch (error) {
       console.error('加载系统配置失败:', error);
       setSystemConfig(DEFAULT_SYSTEM_CONFIG);
