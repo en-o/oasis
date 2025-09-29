@@ -37,12 +37,31 @@ const Navigation: React.FC<Props> = ({ onEnterAdmin }) => {
       .sort((a, b) => a.sort - b.sort);
   }, [navItems, searchTerm, selectedCategory]);
 
-  const handleLogin = (username: string, password: string) => {
-    if (username === systemConfig.adminUsername && password === systemConfig.adminPassword) {
-      onEnterAdmin();
-      return true;
+  const handleLogin = async (username: string, password: string) => {
+    try {
+      // 调用后端登录接口
+      const response = await fetch('/api/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ username, password }),
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        if (result.success) {
+          // 存储token
+          localStorage.setItem('token', result.data);
+          onEnterAdmin();
+          return true;
+        }
+      }
+      return false;
+    } catch (error) {
+      console.error('登录失败:', error);
+      return false;
     }
-    return false;
   };
 
   const handleNavigate = (item: { url: string }) => {
@@ -95,7 +114,7 @@ const Navigation: React.FC<Props> = ({ onEnterAdmin }) => {
                 <div className="flex items-center space-x-2">
                   <span className="text-sm text-gray-600">打开方式:</span>
                   <select
-                    className="px-3 py-1 text-sm border border-gray-300 rounded-md"
+                    className="px-3 py-1 text-sm border border-white/40 rounded-xl bg-white/80 backdrop-blur-md transition-all hover:bg-white/90 hover:border-white/60 focus:outline-none focus:bg-white/95 focus:border-blue-500"
                     value={jumpMethod}
                     onChange={(e) => setJumpMethod(e.target.value as 'newTab' | 'currentTab')}
                   >
@@ -126,7 +145,7 @@ const Navigation: React.FC<Props> = ({ onEnterAdmin }) => {
 
                 <button
                   onClick={() => setShowLogin(true)}
-                  className="flex items-center space-x-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+                  className="flex items-center space-x-2 px-4 py-2 bg-white/80 hover:bg-white/90 backdrop-blur-md rounded-xl transition-all border border-white/40 hover:border-white/60"
                 >
                   <Settings className="w-4 h-4" />
                   <span>管理后台</span>

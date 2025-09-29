@@ -17,7 +17,7 @@ const Admin: React.FC<Props> = ({ onExit }) => {
 
   return (
     <div className="admin-container">
-      <header className="nav-header">
+      <header className="admin-header">
         <div className="nav-header-content">
           <div className="flex items-center justify-between">
             <h1 className="text-2xl font-bold text-gray-800">管理后台</h1>
@@ -43,10 +43,12 @@ const Admin: React.FC<Props> = ({ onExit }) => {
         </div>
       </header>
 
-      <div className="nav-main">
+      <div className="admin-main">
         <div className="flex gap-6">
-          <AdminSidebar currentAdminTab={currentTab} onChangeTab={setCurrentTab} />
-          <div className="flex-1">
+          <div className="admin-sidebar">
+            <AdminSidebar currentAdminTab={currentTab} onChangeTab={setCurrentTab} />
+          </div>
+          <div className="flex-1 admin-content">
             {currentTab === 'nav-management' && <NavManagement />}
             {currentTab === 'category-management' && <CategoryManagement />}
             {currentTab === 'system-management' && <SystemManagement />}

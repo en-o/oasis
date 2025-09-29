@@ -16,7 +16,7 @@ const NavGrid: React.FC<Props> = ({ items, onNavigate, accountMap, onToggleAccou
       {items.map((item) => (
         <div
           key={item.id}
-          className="bg-white/95 backdrop-blur-sm rounded-lg p-4 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 border border-white/20"
+          className="bg-white/90 backdrop-blur-md rounded-xl p-4 shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105 border border-white/30 hover:bg-white/95"
         >
           <div className="flex items-start justify-between mb-3">
             <div className="flex items-center space-x-3">

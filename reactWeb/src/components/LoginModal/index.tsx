@@ -5,7 +5,7 @@ import { User, Lock } from 'lucide-react';
 interface Props {
   visible: boolean;
   onClose: () => void;
-  onLogin: (username: string, password: string) => boolean;
+  onLogin: (username: string, password: string) => Promise<boolean>;
 }
 
 const LoginModal: React.FC<Props> = ({ visible, onClose, onLogin }) => {
@@ -15,7 +15,7 @@ const LoginModal: React.FC<Props> = ({ visible, onClose, onLogin }) => {
   const handleSubmit = async (values: { username: string; password: string }) => {
     setLoading(true);
     try {
-      const success = onLogin(values.username, values.password);
+      const success = await onLogin(values.username, values.password);
       if (success) {
         message.success('登录成功');
         onClose();
