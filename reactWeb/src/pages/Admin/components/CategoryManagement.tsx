@@ -74,14 +74,14 @@ const CategoryManagement: React.FC = () => {
       title: '分类名称',
       dataIndex: 'categoryName',
       key: 'categoryName',
-      width: 200,
+      width: 150,
       ellipsis: true,
     },
     {
       title: '排序',
       dataIndex: 'sort',
       key: 'sort',
-      width: 80,
+      width: 60,
     },
     {
       title: '备注',
@@ -97,7 +97,7 @@ const CategoryManagement: React.FC = () => {
     {
       title: '操作',
       key: 'action',
-      width: 120,
+      width: 100,
       fixed: 'right' as const,
       render: (_: any, record: NavCategory) => (
         <Space>
@@ -149,7 +149,6 @@ const CategoryManagement: React.FC = () => {
           dataSource={categories}
           loading={loading}
           rowKey="id"
-          scroll={{ x: 600, y: 400 }}
           pagination={{
             pageSize: 10,
             showSizeChanger: true,

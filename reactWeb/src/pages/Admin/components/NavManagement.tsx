@@ -91,14 +91,14 @@ const NavManagement: React.FC = () => {
       title: '名称',
       dataIndex: 'name',
       key: 'name',
-      width: 150,
+      width: 120,
       ellipsis: true,
     },
     {
       title: 'URL',
       dataIndex: 'url',
       key: 'url',
-      width: 200,
+      width: 150,
       ellipsis: true,
       render: (url: string) => (
         <a
@@ -116,14 +116,14 @@ const NavManagement: React.FC = () => {
       title: '分类',
       dataIndex: 'category',
       key: 'category',
-      width: 120,
+      width: 100,
       ellipsis: true,
     },
     {
       title: '排序',
       dataIndex: 'sort',
       key: 'sort',
-      width: 80,
+      width: 60,
     },
     {
       title: '备注',
@@ -139,7 +139,7 @@ const NavManagement: React.FC = () => {
     {
       title: '操作',
       key: 'action',
-      width: 120,
+      width: 100,
       fixed: 'right' as const,
       render: (_: any, record: NavItem) => (
         <Space>
@@ -190,7 +190,6 @@ const NavManagement: React.FC = () => {
           dataSource={navItems}
           loading={loading}
           rowKey="id"
-          scroll={{ x: 800, y: 400 }}
           pagination={{
             pageSize: 10,
             showSizeChanger: true,
