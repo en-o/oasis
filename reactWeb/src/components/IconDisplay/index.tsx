@@ -1,13 +1,22 @@
 import React from 'react';
 
 interface Props {
-  iconData: string;
+  iconData: string | null | undefined;
   title: string;
   size?: string;
   className?: string;
 }
 
 const IconDisplay: React.FC<Props> = ({ iconData, title, size = 'w-6 h-6', className = '' }) => {
+  // 如果 iconData 为空，显示默认图标
+  if (!iconData) {
+    return (
+      <div className={`${size} ${className} bg-blue-500 rounded flex items-center justify-center text-white font-bold`}>
+        {title.charAt(0).toUpperCase()}
+      </div>
+    );
+  }
+
   if (iconData.startsWith('data:image/')) {
     return (
       <img

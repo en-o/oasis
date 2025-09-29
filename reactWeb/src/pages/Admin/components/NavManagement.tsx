@@ -19,11 +19,25 @@ const NavManagement: React.FC = () => {
         navigationApi.getList(),
         categoryApi.getList(),
       ]);
-      setNavItems(navResponse.data || []);
-      setCategories(categoryResponse.data || []);
+
+      // 处理 ResultVO 响应结构
+      if (navResponse.code === 200 && navResponse.data) {
+        setNavItems(navResponse.data);
+      } else {
+        console.error('导航接口响应异常:', navResponse);
+        setNavItems([]);
+      }
+
+      if (categoryResponse.code === 200 && categoryResponse.data) {
+        setCategories(categoryResponse.data);
+      } else {
+        console.error('分类接口响应异常:', categoryResponse);
+        setCategories([]);
+      }
     } catch (error) {
       console.error('加载导航数据失败:', error);
-      // 全局错误已在request.ts中处理，此处不需要再显示
+      setNavItems([]);
+      setCategories([]);
     } finally {
       setLoading(false);
     }

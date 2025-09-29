@@ -80,13 +80,13 @@ const Navigation: React.FC<Props> = ({ onEnterAdmin }) => {
       // 使用标准的 API 调用方式
       const response = await authApi.login({ username, password });
 
-      if (response.data) {
+      if (response.code === 200 && response.data) {
         // 登录成功
         localStorage.setItem('token', response.data);
         onEnterAdmin();
         return true;
       } else {
-        console.error('登录失败: 未返回 token');
+        console.error('登录失败:', response.message || '未返回 token');
         return false;
       }
     } catch (error) {
@@ -255,6 +255,7 @@ const Navigation: React.FC<Props> = ({ onEnterAdmin }) => {
                 onNavigate={handleNavigate}
                 accountMap={accountMap}
                 onToggleAccount={toggleAccount}
+                jumpMethod={jumpMethod}
               />
             );
           } else {
@@ -265,6 +266,7 @@ const Navigation: React.FC<Props> = ({ onEnterAdmin }) => {
                 onNavigate={handleNavigate}
                 accountMap={accountMap}
                 onToggleAccount={toggleAccount}
+                jumpMethod={jumpMethod}
               />
             );
           }

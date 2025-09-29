@@ -43,23 +43,31 @@ export interface LoginForm {
   password: string;
 }
 
-export interface ApiResponse<T = any> {
+// 后端返回结构 - 基础响应
+export interface ResultVO<T = any> {
   code: number;
   message: string;
   data: T;
+  ts: number;
+  traceId?: string;
 }
 
-export interface PageRequest {
-  page: number;
-  size: number;
-}
-
-export interface PageResponse<T> {
-  content: T[];
-  totalElements: number;
+// 后端返回结构 - 分页数据
+export interface PageResult<T> {
+  currentPage: number;
+  pageSize: number;
   totalPages: number;
-  number: number;
-  size: number;
+  total: number;
+  rows: T[];
+}
+
+// 后端返回结构 - 分页响应
+export interface ResultPageVO<T> {
+  code: number;
+  message: string;
+  data: PageResult<T>;
+  ts: number;
+  traceId?: string;
 }
 
 // WebController 相关类型定义
@@ -81,14 +89,6 @@ export interface NavigationVO {
   lookAccount: boolean;
   nvaAccessSecret: string;
   status: number;      // 0=停用, 1=启用
-}
-
-export interface JpaPageResult<T> {
-  list: T[];
-  totalElements: number;
-  totalPages: number;
-  number: number;
-  size: number;
 }
 
 export interface NavigationPageRequest {

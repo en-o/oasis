@@ -8,9 +8,14 @@ interface Props {
   onNavigate: (item: NavItem) => void;
   accountMap: Record<number, boolean>;
   onToggleAccount: (id: number) => void;
+  jumpMethod: 'newTab' | 'currentTab';
 }
 
-const NavList: React.FC<Props> = ({ items, onNavigate, accountMap, onToggleAccount }) => {
+const NavList: React.FC<Props> = ({ items, onNavigate, accountMap, onToggleAccount, jumpMethod }) => {
+  const handleItemClick = (item: NavItem) => {
+    window.open(item.url, jumpMethod === 'currentTab' ? '_self' : '_blank');
+  };
+
   return (
     <div className="space-y-3">
       {items.map((item) => (
@@ -28,8 +33,8 @@ const NavList: React.FC<Props> = ({ items, onNavigate, accountMap, onToggleAccou
               <div className="flex-1 min-w-0">
                 <h3 className="font-semibold text-gray-800 truncate">{item.name}</h3>
                 <div className="flex items-center space-x-4 text-sm text-gray-500">
-                  <span className="truncate">{item.categoryName}</span>
-                  {item.remark && <span className="truncate">{item.remark}</span>}
+                  <span className="truncate bg-gray-100 px-2 py-1 rounded-full text-xs font-medium">{item.category}</span>
+                  {item.remark && <span className="truncate text-gray-400">{item.remark}</span>}
                 </div>
               </div>
             </div>
@@ -49,7 +54,7 @@ const NavList: React.FC<Props> = ({ items, onNavigate, accountMap, onToggleAccou
                 </button>
               )}
               <button
-                onClick={() => onNavigate(item)}
+                onClick={() => handleItemClick(item)}
                 className="text-blue-600 hover:text-blue-800 transition-colors p-1"
                 title="访问网站"
               >

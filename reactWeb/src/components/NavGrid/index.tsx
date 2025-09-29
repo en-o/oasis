@@ -8,9 +8,14 @@ interface Props {
   onNavigate: (item: NavItem) => void;
   accountMap: Record<number, boolean>;
   onToggleAccount: (id: number) => void;
+  jumpMethod: 'newTab' | 'currentTab';
 }
 
-const NavGrid: React.FC<Props> = ({ items, onNavigate, accountMap, onToggleAccount }) => {
+const NavGrid: React.FC<Props> = ({ items, onNavigate, accountMap, onToggleAccount, jumpMethod }) => {
+  const handleItemClick = (item: NavItem) => {
+    window.open(item.url, jumpMethod === 'currentTab' ? '_self' : '_blank');
+  };
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
       {items.map((item) => (
@@ -27,11 +32,11 @@ const NavGrid: React.FC<Props> = ({ items, onNavigate, accountMap, onToggleAccou
               />
               <div className="flex-1 min-w-0">
                 <h3 className="font-semibold text-gray-800 truncate">{item.name}</h3>
-                <p className="text-sm text-gray-500 truncate">{item.categoryName}</p>
+                <span className="inline-block bg-gray-100 px-2 py-1 rounded-full text-xs font-medium text-gray-600 mt-1">{item.category}</span>
               </div>
             </div>
             <button
-              onClick={() => onNavigate(item)}
+              onClick={() => handleItemClick(item)}
               className="text-blue-600 hover:text-blue-800 transition-colors"
               title="访问网站"
             >

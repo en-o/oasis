@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import type { NavItem, NavCategory, SystemConfig, NavigationVO } from '@/types';
+import type { NavItem, NavCategory, SystemConfig, NavigationVO, ResultPageVO, ResultVO, SiteInfo } from '@/types';
 import { webApi } from '@/services/api';
 
 const DEFAULT_SYSTEM_CONFIG: SystemConfig = {
@@ -19,30 +19,41 @@ export const useNavigation = () => {
 
   // 只需要防止并发调用，不需要防止重新加载
   const isLoadingRef = useRef(false);
+  const prevNavItemsRef = useRef<NavItem[]>([]);
+
+  // 添加调试：监听 navItems 状态变化
+  useEffect(() => {
+    console.log('=== navItems 状态变化 ===');
+    console.log('上一次 navItems 长度:', prevNavItemsRef.current.length);
+    console.log('新的 navItems 长度:', navItems.length);
+    console.log('新的 navItems 内容:', navItems);
+    console.log('状态是否真的发生了变化:', navItems !== prevNavItemsRef.current);
+    prevNavItemsRef.current = navItems;
+  }, [navItems]);
 
   const loadNavItems = async () => {
     try {
       console.log('=== 开始调用导航接口 ===');
 
-      const response = await webApi.getNavsPage({
+      const response: ResultPageVO<NavigationVO> = await webApi.getNavsPage({
         page: { pageNum: 1, pageSize: 100 }
       });
 
       console.log('导航接口响应:', response);
 
       // 检查响应结构
-      if (!response || !response.data || !response.data.list) {
+      if (!response || response.code !== 200 || !response.data || !response.data.rows) {
         console.error('导航接口响应结构异常:', response);
         setNavItems([]);
         return;
       }
 
       // NavigationVO 数组
-      const navigationVOs = response.data.list;
+      const navigationVOs = response.data.rows;
       console.log('NavigationVO 数组:', navigationVOs);
 
       // 转换 NavigationVO 到 NavItem 格式
-      const navItems: NavItem[] = navigationVOs.map((nav: NavigationVO) => ({
+      const convertedNavItems: NavItem[] = navigationVOs.map((nav: NavigationVO) => ({
         id: nav.id,
         name: nav.name,
         url: nav.url,
@@ -52,8 +63,9 @@ export const useNavigation = () => {
         remark: nav.remark
       }));
 
-      console.log('转换后的 NavItem 数组:', navItems);
-      setNavItems(navItems);
+      console.log('转换后的 NavItem 数组:', convertedNavItems);
+      console.log('调用 setNavItems，数组长度:', convertedNavItems.length);
+      setNavItems(convertedNavItems);
 
     } catch (error) {
       console.error('导航接口调用失败:', error);
@@ -65,11 +77,11 @@ export const useNavigation = () => {
     try {
       console.log('=== 开始调用分类接口 ===');
 
-      const response = await webApi.getCategory();
+      const response: ResultVO<NavCategory[]> = await webApi.getCategory();
       console.log('分类接口响应:', response);
 
       // 检查响应结构
-      if (!response || !response.data) {
+      if (!response || response.code !== 200 || !response.data) {
         console.error('分类接口响应结构异常:', response);
         setCategories([]);
         return;
@@ -91,11 +103,11 @@ export const useNavigation = () => {
     try {
       console.log('=== 开始调用站点信息接口 ===');
 
-      const response = await webApi.getSiteInfo();
+      const response: ResultVO<SiteInfo> = await webApi.getSiteInfo();
       console.log('站点信息接口响应:', response);
 
       // 检查响应结构
-      if (!response || !response.data) {
+      if (!response || response.code !== 200 || !response.data) {
         console.error('站点信息接口响应结构异常:', response);
         setSystemConfig(DEFAULT_SYSTEM_CONFIG);
         return;
@@ -122,12 +134,16 @@ export const useNavigation = () => {
   };
 
   const loadData = async () => {
+    console.log('=== loadData 函数被调用 ===');
+    console.log('isLoadingRef.current:', isLoadingRef.current);
+
     // 只防止并发调用，不阻止重新加载
     if (isLoadingRef.current) {
       console.log('数据正在加载中，跳过并发调用');
       return;
     }
 
+    console.log('开始设置 loading 状态...');
     isLoadingRef.current = true;
     setLoading(true);
 
@@ -135,18 +151,21 @@ export const useNavigation = () => {
 
     // 独立调用三个接口，避免相互影响
     try {
+      console.log('调用 loadNavItems...');
       await loadNavItems();
     } catch (error) {
       console.error('loadNavItems 失败:', error);
     }
 
     try {
+      console.log('调用 loadCategories...');
       await loadCategories();
     } catch (error) {
       console.error('loadCategories 失败:', error);
     }
 
     try {
+      console.log('调用 loadSystemConfig...');
       await loadSystemConfig();
     } catch (error) {
       console.error('loadSystemConfig 失败:', error);

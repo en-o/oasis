@@ -15,10 +15,16 @@ const CategoryManagement: React.FC = () => {
     setLoading(true);
     try {
       const response = await categoryApi.getList();
-      setCategories(response.data || []);
+      // 处理 ResultVO 响应结构
+      if (response.code === 200 && response.data) {
+        setCategories(response.data);
+      } else {
+        console.error('分类接口响应异常:', response);
+        setCategories([]);
+      }
     } catch (error) {
       console.error('加载分类数据失败:', error);
-      // 全局错误已在request.ts中处理，此处不需要再显示
+      setCategories([]);
     } finally {
       setLoading(false);
     }
