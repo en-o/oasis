@@ -93,16 +93,12 @@ const Navigation: React.FC = () => {
     }
   };
 
-  const handleNavigate = (item: { url: string }) => {
-    window.open(item.url, jumpMethod === 'currentTab' ? '_self' : '_blank');
-  };
-
   const toggleAccount = async (id: number) => {
     const item = navItems.find(item => item.id === id);
     if (!item) return;
 
     // 如果没有账户信息，直接返回
-    if (!item.account || !item.password) {
+    if (!item.hasAccount) {
       return;
     }
 
@@ -120,7 +116,7 @@ const Navigation: React.FC = () => {
         response = await webApi.getNavAccess(id);
       } else {
         // 如果 lookAccount 为 false，需要密钥验证
-        const secret = prompt(`请输入密钥查看账户信息（默认：${item.nvaAccessSecret}）`);
+        const secret = prompt('请输入密钥查看账户信息');
         if (!secret) {
           return; // 用户取消
         }
@@ -286,7 +282,6 @@ const Navigation: React.FC = () => {
             return (
               <NavGrid
                 items={filteredItems}
-                onNavigate={handleNavigate}
                 accountMap={accountMap}
                 accountDataMap={accountDataMap}
                 onToggleAccount={toggleAccount}
@@ -298,7 +293,6 @@ const Navigation: React.FC = () => {
             return (
               <NavList
                 items={filteredItems}
-                onNavigate={handleNavigate}
                 accountMap={accountMap}
                 accountDataMap={accountDataMap}
                 onToggleAccount={toggleAccount}

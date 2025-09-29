@@ -6,14 +6,13 @@ import './NavGrid.css';
 
 interface Props {
   items: NavItem[];
-  onNavigate: (item: NavItem) => void;
   accountMap: Record<number, boolean>;
   accountDataMap: Record<number, { account: string; password: string }>;
   onToggleAccount: (id: number) => void;
   jumpMethod: 'newTab' | 'currentTab';
 }
 
-const NavGrid: React.FC<Props> = ({ items, onNavigate, accountMap, accountDataMap, onToggleAccount, jumpMethod }) => {
+const NavGrid: React.FC<Props> = ({ items, accountMap, accountDataMap, onToggleAccount, jumpMethod }) => {
   const handleItemClick = (item: NavItem) => {
     window.open(item.url, jumpMethod === 'currentTab' ? '_self' : '_blank');
   };
@@ -47,7 +46,7 @@ const NavGrid: React.FC<Props> = ({ items, onNavigate, accountMap, accountDataMa
             <p className="nav-grid-description">{item.remark}</p>
           )}
 
-          {(item.account && item.password) && (
+          {item.hasAccount && (
             <div className="nav-grid-account">
               <div className="nav-grid-account-header">
                 <span className="nav-grid-account-label">

@@ -62,6 +62,12 @@ public class NavigationVO {
     private Boolean lookAccount;
 
     /**
+     * 是否有账户信息
+     */
+    @Schema(description = "是否有账户信息")
+    private Boolean hasAccount;
+
+    /**
      * 状态；0、停用，1、启用，默认1
      */
     @Schema(description = "状态；0、停用，1、启用")

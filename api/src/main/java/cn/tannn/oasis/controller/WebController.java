@@ -55,7 +55,32 @@ public class WebController {
     @ApiMapping(value = "navs",checkToken = false,method = RequestMethod.POST)
     public ResultPageVO<NavigationVO, JpaPageResult<NavigationVO>> navsPage(@RequestBody @Valid NavigationPage page) {
         Page<Navigation> byBean = navigationService.findPage(page, page.getPage());
-        JpaPageResult<NavigationVO> pageResult = JpaPageResult.toPage(byBean,NavigationVO.class);
+
+        // 自定义转换，设置 hasAccount 字段
+        List<NavigationVO> voList = byBean.getContent().stream().map(nav -> {
+            NavigationVO vo = new NavigationVO();
+            vo.setId(nav.getId());
+            vo.setName(nav.getName());
+            vo.setUrl(nav.getUrl());
+            vo.setSort(nav.getSort());
+            vo.setCategory(nav.getCategory());
+            vo.setIcon(nav.getIcon());
+            vo.setRemark(nav.getRemark());
+            vo.setLookAccount(nav.getLookAccount());
+            vo.setStatus(nav.getStatus());
+            // 设置是否有账户信息，但不暴露具体内容
+            vo.setHasAccount(nav.getAccount() != null && !nav.getAccount().trim().isEmpty() &&
+                           nav.getPassword() != null && !nav.getPassword().trim().isEmpty());
+            return vo;
+        }).toList();
+
+        JpaPageResult<NavigationVO> pageResult = new JpaPageResult<>();
+        pageResult.setCurrentPage(byBean.getNumber() + 1);
+        pageResult.setPageSize(byBean.getSize());
+        pageResult.setTotalPages(byBean.getTotalPages());
+        pageResult.setTotal(byBean.getTotalElements());
+        pageResult.setRows(voList);
+
         return ResultPageVO.success(pageResult, "查询成功");
     }
 

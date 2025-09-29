@@ -64,20 +64,10 @@ export const useNavigation = () => {
             category: nav.category,
             icon: nav.icon,
             remark: nav.remark,
-            account: nav.account,
-            password: nav.password,
             lookAccount: nav.lookAccount,
-            nvaAccessSecret: nav.nvaAccessSecret,
+            hasAccount: nav.hasAccount,
             status: nav.status,
           };
-
-          // 为了向后兼容，如果有账户信息，添加 accountInfo 字段
-          if (nav.account && nav.password) {
-            navItem.accountInfo = {
-              account: nav.account,
-              password: nav.password,
-            };
-          }
 
           return navItem;
         });

@@ -6,14 +6,13 @@ import './NavList.css';
 
 interface Props {
   items: NavItem[];
-  onNavigate: (item: NavItem) => void;
   accountMap: Record<number, boolean>;
   accountDataMap: Record<number, { account: string; password: string }>;
   onToggleAccount: (id: number) => void;
   jumpMethod: 'newTab' | 'currentTab';
 }
 
-const NavList: React.FC<Props> = ({ items, onNavigate, accountMap, accountDataMap, onToggleAccount, jumpMethod }) => {
+const NavList: React.FC<Props> = ({ items, accountMap, accountDataMap, onToggleAccount, jumpMethod }) => {
   const handleItemClick = (item: NavItem) => {
     window.open(item.url, jumpMethod === 'currentTab' ? '_self' : '_blank');
   };
@@ -39,7 +38,7 @@ const NavList: React.FC<Props> = ({ items, onNavigate, accountMap, accountDataMa
             </div>
 
             <div className="nav-list-actions">
-              {(item.account && item.password) && (
+              {item.hasAccount && (
                 <button
                   onClick={() => onToggleAccount(item.id)}
                   className="nav-list-button"
@@ -63,7 +62,7 @@ const NavList: React.FC<Props> = ({ items, onNavigate, accountMap, accountDataMa
             </div>
           </div>
 
-          {(item.account && item.password) && accountMap[item.id] && accountDataMap[item.id] && (
+          {item.hasAccount && accountMap[item.id] && accountDataMap[item.id] && (
             <div className="nav-list-account">
               <div className="nav-list-account-grid">
                 <div className="nav-list-account-item">

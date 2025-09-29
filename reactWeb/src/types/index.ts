@@ -6,16 +6,9 @@ export interface NavItem {
   category: string;
   icon?: string;
   remark?: string;
-  account?: string;
-  password?: string;
   lookAccount: boolean;
-  nvaAccessSecret: string;
+  hasAccount: boolean; // 是否有账户信息（从后端安全返回）
   status: number; // 0=停用, 1=启用
-  // 为了向后兼容，保留 accountInfo 字段（从 account 和 password 字段计算得出）
-  accountInfo?: {
-    account: string;
-    password: string;
-  };
 }
 
 export interface NavCategory {
@@ -92,10 +85,8 @@ export interface NavigationVO {
   category: string;
   icon?: string;
   remark?: string;
-  account?: string;
-  password?: string;
   lookAccount: boolean;
-  nvaAccessSecret: string;
+  hasAccount: boolean;
   status: number; // 0=停用, 1=启用
 }
 

@@ -23,9 +23,9 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response) => {
     const { data } = response;
-    // 后端返回格式: {code: 200, success: true, data: {...}}
-    // 成功的判断条件：code为200且success为true
-    if (data.code === 200 && data.success === true) {
+    // 后端返回格式: {code: 200, message: string, data: {...}}
+    // 成功的判断条件：code为200
+    if (data.code === 200) {
       return data;
     } else {
       // 业务错误，显示后端返回的错误信息
