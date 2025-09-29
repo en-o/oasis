@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import type { NavItem, NavCategory, SystemConfig } from '@/types';
-import { navigationApi, categoryApi, sysConfigApi } from '@/services/api';
+import { navigationApi, categoryApi, webApi } from '@/services/api';
 
 const DEFAULT_SYSTEM_CONFIG: SystemConfig = {
   siteTitle: 'Oasis 导航',
@@ -41,10 +41,10 @@ export const useNavigation = () => {
 
   const loadSystemConfig = async () => {
     try {
-      // 调用新的API接口 - GET /sysConfigs/
-      const response = await sysConfigApi.getConfig();
+      // 使用WebController的站点信息接口 - GET /webs/site (无需token，适用于导航页面)
+      const response = await webApi.getSiteInfo();
       const config = response.data;
-      console.log('导航页面加载的系统配置:', config);
+      console.log('导航页面加载的站点信息:', config);
 
       if (config) {
         setSystemConfig({
@@ -56,11 +56,11 @@ export const useNavigation = () => {
           adminPassword: config.password || DEFAULT_SYSTEM_CONFIG.adminPassword,
         });
       } else {
-        console.log('未获取到系统配置，使用默认配置');
+        console.log('未获取到站点信息，使用默认配置');
         setSystemConfig(DEFAULT_SYSTEM_CONFIG);
       }
     } catch (error) {
-      console.error('加载系统配置失败:', error);
+      console.error('加载站点信息失败:', error);
       setSystemConfig(DEFAULT_SYSTEM_CONFIG);
     }
   };

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Form, Input, Select, message, Button, Card, Row, Col, Alert } from 'antd';
-import { Save } from 'lucide-react';
+import { Save, RefreshCw } from 'lucide-react';
 import type { SysConfig } from '@/types';
 import { sysConfigApi } from '@/services/api';
 
@@ -64,7 +64,7 @@ const SystemManagement: React.FC = () => {
     try {
       const response = await sysConfigApi.getConfig();
       const configData = response.data;
-      console.log('加载的系统配置数据:', configData);
+      console.log('管理页面加载的系统配置数据:', configData);
       setConfig(configData);
       if (configData) {
         // 确保表单回显正确的值
@@ -87,9 +87,7 @@ const SystemManagement: React.FC = () => {
     }
   };
 
-  useEffect(() => {
-    loadData();
-  }, []);
+  // 移除自动加载，改为手动触发
 
   const handleSubmit = async (values: any) => {
     try {
@@ -164,42 +162,66 @@ const SystemManagement: React.FC = () => {
     <div className="bg-white rounded-lg p-6 overflow-hidden">
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-xl font-semibold">系统配置</h2>
+        <Button
+          type="default"
+          icon={<RefreshCw className="w-4 h-4" />}
+          onClick={loadData}
+          loading={loading}
+        >
+          加载配置
+        </Button>
       </div>
 
       <div className="overflow-auto max-h-[calc(100vh-200px)]">
-        <Card>
-          <Form
-            form={form}
-            layout="vertical"
-            onFinish={handleSubmit}
-          >
-            <Row gutter={16}>
-              {configFields.map((field) => (
-                <Col xs={24} md={12} key={field.key}>
-                  <Form.Item
-                    name={field.key}
-                    label={field.label}
-                    rules={field.required ? [{ required: true, message: `请输入${field.label}` }] : []}
-                    help={field.description}
-                  >
-                    {renderField(field)}
-                  </Form.Item>
-                </Col>
-              ))}
-            </Row>
-
-            <Form.Item className="mb-0 text-right">
+        {!config ? (
+          <Card>
+            <div className="text-center py-8">
+              <p className="text-gray-500 mb-4">请先点击"加载配置"按钮获取系统配置信息</p>
               <Button
                 type="primary"
-                htmlType="submit"
+                icon={<RefreshCw className="w-4 h-4" />}
+                onClick={loadData}
                 loading={loading}
-                icon={<Save className="w-4 h-4" />}
               >
-                保存配置
+                加载配置
               </Button>
-            </Form.Item>
-          </Form>
-        </Card>
+            </div>
+          </Card>
+        ) : (
+          <Card>
+            <Form
+              form={form}
+              layout="vertical"
+              onFinish={handleSubmit}
+            >
+              <Row gutter={16}>
+                {configFields.map((field) => (
+                  <Col xs={24} md={12} key={field.key}>
+                    <Form.Item
+                      name={field.key}
+                      label={field.label}
+                      rules={field.required ? [{ required: true, message: `请输入${field.label}` }] : []}
+                      help={field.description}
+                    >
+                      {renderField(field)}
+                    </Form.Item>
+                  </Col>
+                ))}
+              </Row>
+
+              <Form.Item className="mb-0 text-right">
+                <Button
+                  type="primary"
+                  htmlType="submit"
+                  loading={loading}
+                  icon={<Save className="w-4 h-4" />}
+                >
+                  保存配置
+                </Button>
+              </Form.Item>
+            </Form>
+          </Card>
+        )}
       </div>
     </div>
   );
