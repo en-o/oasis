@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { Search, Grid, List, Settings, ExternalLink, Monitor } from 'lucide-react';
 import { useNavigation } from '@/hooks/useNavigation';
+import { authApi } from '@/services/api';
 import IconDisplay from '@/components/IconDisplay';
 import NavGrid from '@/components/NavGrid';
 import NavList from '@/components/NavList';
@@ -39,25 +40,16 @@ const Navigation: React.FC<Props> = ({ onEnterAdmin }) => {
 
   const handleLogin = async (username: string, password: string) => {
     try {
-      // 调用后端登录接口
-      const response = await fetch('/api/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ username, password }),
-      });
+      // 使用标准的 API 调用方式
+      const response = await authApi.login({ username, password });
 
-      const result = await response.json();
-
-      if (response.ok && result.success && result.data) {
+      if (response.data) {
         // 登录成功
-        localStorage.setItem('token', result.data);
+        localStorage.setItem('token', response.data);
         onEnterAdmin();
         return true;
       } else {
-        // 登录失败 - 显示后端返回的错误信息
-        console.error('登录失败:', result.message || '用户名或密码错误');
+        console.error('登录失败: 未返回 token');
         return false;
       }
     } catch (error) {

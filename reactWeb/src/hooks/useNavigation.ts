@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import type { NavItem, NavCategory, SystemConfig } from '@/types';
-import { navigationApi, categoryApi, webApi } from '@/services/api';
+import { webApi } from '@/services/api';
 
 const DEFAULT_SYSTEM_CONFIG: SystemConfig = {
   siteTitle: 'Oasis 导航',
@@ -19,22 +19,24 @@ export const useNavigation = () => {
 
   const loadNavItems = async () => {
     try {
-      const response = await navigationApi.getList();
-      setNavItems(response.data || []);
+      // 使用 WebController 的导航分页接口
+      const response = await webApi.getNavsPage({
+        page: { pageNum: 1, pageSize: 1000 } // 获取足够多的数据
+      });
+      setNavItems(response.data?.list || []);
     } catch (error) {
       console.error('加载导航数据失败:', error);
-      // 全局错误已在request.ts中处理，此处不需要再显示
       setNavItems([]);
     }
   };
 
   const loadCategories = async () => {
     try {
-      const response = await categoryApi.getList();
+      // 使用 WebController 的分类接口
+      const response = await webApi.getCategory();
       setCategories(response.data || []);
     } catch (error) {
       console.error('加载分类数据失败:', error);
-      // 全局错误已在request.ts中处理，此处不需要再显示
       setCategories([]);
     }
   };
