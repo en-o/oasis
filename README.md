@@ -6,3 +6,10 @@
 浏览器访问 http://localhost:1249/h2
 JDBC URL：jdbc:h2:file:./api/db/db_oasis
 用户名/密码：sa / sa
+
+
+# web
+> reactWeb  
+
+admin: http://localhost:3000/admin
+nva: http://localhost:3000
