@@ -17,7 +17,8 @@ const CategoryManagement: React.FC = () => {
       const response = await categoryApi.getList();
       setCategories(response.data || []);
     } catch (error) {
-      message.error('加载数据失败');
+      console.error('加载分类数据失败:', error);
+      // 全局错误已在request.ts中处理，此处不需要再显示
     } finally {
       setLoading(false);
     }
@@ -52,7 +53,8 @@ const CategoryManagement: React.FC = () => {
       setModalVisible(false);
       loadData();
     } catch (error) {
-      message.error(editingCategory ? '更新失败' : '添加失败');
+      console.error('分类操作失败:', error);
+      // 全局错误已在request.ts中处理，此处不需要再显示
     }
   };
 
@@ -62,11 +64,8 @@ const CategoryManagement: React.FC = () => {
       message.success('删除成功');
       loadData();
     } catch (error: any) {
-      if (error.message?.includes('存在导航项')) {
-        message.error('该分类下存在导航项，无法删除');
-      } else {
-        message.error('删除失败');
-      }
+      console.error('删除分类失败:', error);
+      // 全局错误已在request.ts中处理，此处不需要再显示
     }
   };
 

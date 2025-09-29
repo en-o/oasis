@@ -23,6 +23,7 @@ export const useNavigation = () => {
       setNavItems(response.data || []);
     } catch (error) {
       console.error('加载导航数据失败:', error);
+      // 全局错误已在request.ts中处理，此处不需要再显示
       setNavItems([]);
     }
   };
@@ -33,6 +34,7 @@ export const useNavigation = () => {
       setCategories(response.data || []);
     } catch (error) {
       console.error('加载分类数据失败:', error);
+      // 全局错误已在request.ts中处理，此处不需要再显示
       setCategories([]);
     }
   };
@@ -42,17 +44,19 @@ export const useNavigation = () => {
       // 调用新的API接口 - GET /sysConfigs/
       const response = await sysConfigApi.getConfig();
       const config = response.data;
+      console.log('导航页面加载的系统配置:', config);
 
       if (config) {
         setSystemConfig({
           siteTitle: config.siteTitle || DEFAULT_SYSTEM_CONFIG.siteTitle,
           siteLogo: config.siteLogo || DEFAULT_SYSTEM_CONFIG.siteLogo,
-          defaultOpenMode: (config.defaultOpenMode as 'newTab' | 'currentTab') || DEFAULT_SYSTEM_CONFIG.defaultOpenMode,
-          hideAdminEntry: config.hideAdminEntry === 'true' || config.hideAdminEntry === true,
-          adminUsername: config.adminUsername || DEFAULT_SYSTEM_CONFIG.adminUsername,
-          adminPassword: config.adminPassword || DEFAULT_SYSTEM_CONFIG.adminPassword,
+          defaultOpenMode: config.defaultOpenMode === 1 ? 'newTab' : 'currentTab',
+          hideAdminEntry: config.hideAdminEntry === 1,
+          adminUsername: config.username || DEFAULT_SYSTEM_CONFIG.adminUsername,
+          adminPassword: config.password || DEFAULT_SYSTEM_CONFIG.adminPassword,
         });
       } else {
+        console.log('未获取到系统配置，使用默认配置');
         setSystemConfig(DEFAULT_SYSTEM_CONFIG);
       }
     } catch (error) {

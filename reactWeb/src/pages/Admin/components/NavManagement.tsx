@@ -22,7 +22,8 @@ const NavManagement: React.FC = () => {
       setNavItems(navResponse.data || []);
       setCategories(categoryResponse.data || []);
     } catch (error) {
-      message.error('加载数据失败');
+      console.error('加载导航数据失败:', error);
+      // 全局错误已在request.ts中处理，此处不需要再显示
     } finally {
       setLoading(false);
     }
@@ -69,7 +70,8 @@ const NavManagement: React.FC = () => {
       setModalVisible(false);
       loadData();
     } catch (error) {
-      message.error(editingItem ? '更新失败' : '添加失败');
+      console.error('导航操作失败:', error);
+      // 全局错误已在request.ts中处理，此处不需要再显示
     }
   };
 
@@ -79,7 +81,8 @@ const NavManagement: React.FC = () => {
       message.success('删除成功');
       loadData();
     } catch (error) {
-      message.error('删除失败');
+      console.error('删除导航失败:', error);
+      // 全局错误已在request.ts中处理，此处不需要再显示
     }
   };
 

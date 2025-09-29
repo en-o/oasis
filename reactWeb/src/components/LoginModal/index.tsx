@@ -23,8 +23,9 @@ const LoginModal: React.FC<Props> = ({ visible, onClose, onLogin }) => {
       } else {
         message.error('用户名或密码错误');
       }
-    } catch (error) {
-      message.error('登录失败');
+    } catch (error: any) {
+      const errorMessage = error?.message || '登录失败，请稍后重试';
+      message.error(errorMessage);
     } finally {
       setLoading(false);
     }

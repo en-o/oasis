@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Form, Input, Select, message, Button, Card, Space, Row, Col } from 'antd';
+import { Form, Input, Select, message, Button, Card, Row, Col, Alert } from 'antd';
 import { Save } from 'lucide-react';
 import type { SysConfig } from '@/types';
 import { sysConfigApi } from '@/services/api';
@@ -10,31 +10,78 @@ const SystemManagement: React.FC = () => {
   const [form] = Form.useForm();
 
   const configFields = [
-    { key: 'siteTitle', label: '网站标题', type: 'text' },
-    { key: 'siteLogo', label: '网站Logo', type: 'textarea' },
-    { key: 'defaultOpenMode', label: '默认打开方式', type: 'select', options: [
-      { label: '新标签页', value: 'newTab' },
-      { label: '当前标签页', value: 'currentTab' },
+    { key: 'siteTitle', label: '网站标题', type: 'text', required: true },
+    { key: 'siteLogo', label: '网站Logo', type: 'textarea', required: false, description: '支持Base64编码图片、HTTP/HTTPS链接或留空使用默认图标' },
+    { key: 'defaultOpenMode', label: '默认打开方式', type: 'select', required: true, options: [
+      { label: '新标签页', value: 1 },
+      { label: '当前标签页', value: 0 },
     ]},
-    { key: 'hideAdminEntry', label: '隐藏管理入口', type: 'select', options: [
-      { label: '显示', value: 'false' },
-      { label: '隐藏', value: 'true' },
+    { key: 'hideAdminEntry', label: '隐藏管理入口', type: 'select', required: true, options: [
+      { label: '显示', value: 0 },
+      { label: '隐藏', value: 1 },
     ]},
-    { key: 'adminUsername', label: '管理员账号', type: 'text' },
-    { key: 'adminPassword', label: '管理员密码', type: 'password' },
+    { key: 'username', label: '管理员账号', type: 'text', required: true },
+    { key: 'password', label: '管理员密码', type: 'password', required: true },
   ];
+
+  // Logo格式检测函数
+  const detectLogoFormat = (value: string) => {
+    if (!value || value.trim() === '') {
+      return 'empty';
+    }
+
+    // Base64格式检测
+    if (value.startsWith('data:image/')) {
+      return 'base64';
+    }
+
+    // URL格式检测
+    if (value.startsWith('http://') || value.startsWith('https://')) {
+      return 'url';
+    }
+
+    return 'invalid';
+  };
+
+  // 获取格式描述
+  const getFormatDescription = (format: string) => {
+    switch (format) {
+      case 'base64':
+        return 'Base64 编码图片';
+      case 'url':
+        return 'HTTP/HTTPS 链接';
+      case 'empty':
+        return '空值 (将显示默认图标)';
+      case 'invalid':
+        return '无效格式';
+      default:
+        return '未知';
+    }
+  };
 
   const loadData = async () => {
     setLoading(true);
     try {
       const response = await sysConfigApi.getConfig();
       const configData = response.data;
+      console.log('加载的系统配置数据:', configData);
       setConfig(configData);
       if (configData) {
-        form.setFieldsValue(configData);
+        // 确保表单回显正确的值
+        const formValues = {
+          siteTitle: configData.siteTitle,
+          siteLogo: configData.siteLogo,
+          defaultOpenMode: configData.defaultOpenMode,
+          hideAdminEntry: configData.hideAdminEntry,
+          username: configData.username,
+          password: configData.password,
+        };
+        console.log('设置表单值:', formValues);
+        form.setFieldsValue(formValues);
       }
     } catch (error) {
-      message.error('加载数据失败');
+      console.error('加载系统配置失败:', error);
+      // 全局错误已在request.ts中处理，此处不需要再显示
     } finally {
       setLoading(false);
     }
@@ -53,13 +100,46 @@ const SystemManagement: React.FC = () => {
       }
       loadData();
     } catch (error) {
-      message.error('更新失败');
+      console.error('更新系统配置失败:', error);
+      // 全局错误已在request.ts中处理，此处不需要再显示
     } finally {
       setLoading(false);
     }
   };
 
   const renderField = (field: any) => {
+    if (field.key === 'siteLogo') {
+      return (
+        <div>
+          <Input.TextArea
+            rows={3}
+            placeholder={`请输入${field.label}`}
+            onChange={(e) => {
+              const format = detectLogoFormat(e.target.value);
+              // 可以在这里添加实时验证逻辑
+            }}
+          />
+          <Form.Item noStyle shouldUpdate={(prevValues, curValues) => prevValues.siteLogo !== curValues.siteLogo}>
+            {({ getFieldValue }) => {
+              const logoValue = getFieldValue('siteLogo');
+              const format = detectLogoFormat(logoValue || '');
+              const description = getFormatDescription(format);
+              const isValid = format !== 'invalid';
+
+              return logoValue ? (
+                <Alert
+                  message={`检测到格式: ${description}`}
+                  type={isValid ? 'success' : 'error'}
+                  size="small"
+                  style={{ marginTop: 8 }}
+                />
+              ) : null;
+            }}
+          </Form.Item>
+        </div>
+      );
+    }
+
     switch (field.type) {
       case 'select':
         return (
@@ -98,7 +178,8 @@ const SystemManagement: React.FC = () => {
                 <Form.Item
                   name={field.key}
                   label={field.label}
-                  rules={[{ required: true, message: `请输入${field.label}` }]}
+                  rules={field.required ? [{ required: true, message: `请输入${field.label}` }] : []}
+                  help={field.description}
                 >
                   {renderField(field)}
                 </Form.Item>

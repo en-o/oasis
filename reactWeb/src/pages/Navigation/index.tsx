@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { Search, Grid, List, Settings } from 'lucide-react';
+import { Search, Grid, List, Settings, ExternalLink, Monitor } from 'lucide-react';
 import { useNavigation } from '@/hooks/useNavigation';
 import IconDisplay from '@/components/IconDisplay';
 import NavGrid from '@/components/NavGrid';
@@ -48,19 +48,20 @@ const Navigation: React.FC<Props> = ({ onEnterAdmin }) => {
         body: JSON.stringify({ username, password }),
       });
 
-      if (response.ok) {
-        const result = await response.json();
-        // 根据后端返回格式：ResultVO<String>，其中data是token
-        if (result.success && result.data) {
-          // 存储token
-          localStorage.setItem('token', result.data);
-          onEnterAdmin();
-          return true;
-        }
+      const result = await response.json();
+
+      if (response.ok && result.success && result.data) {
+        // 登录成功
+        localStorage.setItem('token', result.data);
+        onEnterAdmin();
+        return true;
+      } else {
+        // 登录失败 - 显示后端返回的错误信息
+        console.error('登录失败:', result.message || '用户名或密码错误');
+        return false;
       }
-      return false;
     } catch (error) {
-      console.error('登录失败:', error);
+      console.error('登录请求失败:', error);
       return false;
     }
   };
@@ -111,21 +112,29 @@ const Navigation: React.FC<Props> = ({ onEnterAdmin }) => {
             </div>
 
             {!systemConfig.hideAdminEntry && (
-              <div className="flex items-center space-x-4">
-                <div className="flex items-center space-x-2">
-                  <span className="text-sm text-gray-600">打开方式:</span>
-                  <select
-                    className="px-3 py-1 text-sm border border-white/40 rounded-xl bg-white/80 backdrop-blur-md transition-all hover:bg-white/90 hover:border-white/60 focus:outline-none focus:bg-white/95 focus:border-blue-500"
-                    value={jumpMethod}
-                    onChange={(e) => setJumpMethod(e.target.value as 'newTab' | 'currentTab')}
-                  >
-                    <option value="newTab">新标签页</option>
-                    <option value="currentTab">当前标签页</option>
-                  </select>
+              <div className="flex items-center space-x-3">
+                {/* 打开方式切换 */}
+                <div className="flex items-center space-x-1">
+                  <div className="view-toggle">
+                    <button
+                      className={`view-button ${jumpMethod === 'newTab' ? 'active' : ''}`}
+                      onClick={() => setJumpMethod('newTab')}
+                      title="新标签页打开"
+                    >
+                      <ExternalLink className="w-4 h-4" />
+                    </button>
+                    <button
+                      className={`view-button ${jumpMethod === 'currentTab' ? 'active' : ''}`}
+                      onClick={() => setJumpMethod('currentTab')}
+                      title="当前标签页打开"
+                    >
+                      <Monitor className="w-4 h-4" />
+                    </button>
+                  </div>
                 </div>
 
-                <div className="flex items-center space-x-2">
-                  <span className="text-sm text-gray-600">视图:</span>
+                {/* 视图切换 */}
+                <div className="flex items-center space-x-1">
                   <div className="view-toggle">
                     <button
                       className={`view-button ${viewMode === 'grid' ? 'active' : ''}`}
@@ -144,12 +153,14 @@ const Navigation: React.FC<Props> = ({ onEnterAdmin }) => {
                   </div>
                 </div>
 
+                {/* 管理后台按钮 */}
                 <button
                   onClick={() => setShowLogin(true)}
-                  className="flex items-center space-x-2 px-4 py-2 bg-white/80 hover:bg-white/90 backdrop-blur-md rounded-xl transition-all border border-white/40 hover:border-white/60"
+                  className="admin-button"
+                  title="管理后台"
                 >
                   <Settings className="w-4 h-4" />
-                  <span>管理后台</span>
+                  <span className="ml-2">管理</span>
                 </button>
               </div>
             )}

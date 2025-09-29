@@ -22,8 +22,12 @@ export interface NavCategory {
 export interface SysConfig {
   id: number;
   configKey: string;
-  configValue: string;
-  remark: string;
+  siteTitle: string;
+  siteLogo: string;
+  defaultOpenMode: number; // 0=当前页, 1=新标签页
+  hideAdminEntry: number; // 0=显示, 1=隐藏
+  username: string; // 管理员用户名
+  password: string; // 管理员密码
 }
 
 export interface SystemConfig {
