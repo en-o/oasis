@@ -13,6 +13,7 @@ interface Props {
 
 const Navigation: React.FC<Props> = ({ onEnterAdmin }) => {
   const { navItems, categories, systemConfig, loading } = useNavigation();
+  console.log('Navigation 页面接收到的数据:', { navItems, categories, loading });
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('全部');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
@@ -24,18 +25,35 @@ const Navigation: React.FC<Props> = ({ onEnterAdmin }) => {
   const allCategories = ['全部', ...categories.map(c => c.categoryName)];
 
   const filteredItems = useMemo(() => {
-    return navItems
+    console.log('filteredItems 计算中:', {
+      navItems: navItems.length,
+      searchTerm,
+      selectedCategory,
+      categories: categories.length
+    });
+
+    const result = navItems
       .filter(item => {
         const matchesSearch =
           item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
           item.remark.toLowerCase().includes(searchTerm.toLowerCase());
 
         const matchesCategory =
-          selectedCategory === '全部' || item.categoryName === selectedCategory;
+          selectedCategory === '全部' || item.category === selectedCategory;
+
+        console.log(`筛选项目 ${item.name}:`, {
+          matchesSearch,
+          matchesCategory,
+          itemCategory: item.category,
+          selectedCategory
+        });
 
         return matchesSearch && matchesCategory;
       })
       .sort((a, b) => a.sort - b.sort);
+
+    console.log('filteredItems 结果:', result);
+    return result;
   }, [navItems, searchTerm, selectedCategory]);
 
   const handleLogin = async (username: string, password: string) => {

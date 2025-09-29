@@ -28,8 +28,12 @@ export const useNavigation = () => {
         page: { pageNum: 1, pageSize: 100 } // 获取足够多的数据
       });
 
+      console.log('导航接口原始响应:', response);
+
       // 转换 NavigationVO 到 NavItem 格式
       const navigationVOs = response.data?.list || [];
+      console.log('接收到的 NavigationVO 数据:', navigationVOs);
+
       const navItems: NavItem[] = navigationVOs.map((nav: NavigationVO) => ({
         id: nav.id,
         name: nav.name,
@@ -40,6 +44,7 @@ export const useNavigation = () => {
         remark: nav.remark
       }));
 
+      console.log('转换后的 NavItem 数据:', navItems);
       setNavItems(navItems);
     } catch (error) {
       console.error('加载导航数据失败:', error);
