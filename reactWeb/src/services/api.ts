@@ -1,5 +1,17 @@
 import request from '@/utils/request';
-import type { NavItem, NavCategory, SysConfig, LoginForm, PageRequest, PageResponse } from '@/types';
+import type {
+  NavItem,
+  NavCategory,
+  SysConfig,
+  LoginForm,
+  PageRequest,
+  PageResponse,
+  SiteInfo,
+  NavigationVO,
+  JpaPageResult,
+  NavigationPageRequest,
+  NavAccessInfo
+} from '@/types';
 
 // Navigation APIs - 对应 NavigationController
 export const navigationApi = {
@@ -47,17 +59,18 @@ export const sysConfigApi = {
 // Web APIs - 对应 WebController (前端导航页面接口)
 export const webApi = {
   // 获取站点信息 - GET /webs/site (无需token)
-  getSiteInfo: () => request.get<any>('/webs/site'),
+  getSiteInfo: () => request.get<SiteInfo>('/webs/site'),
 
   // 获取导航列表 - POST /webs/navs (无需token)
-  getNavsPage: (params: any) => request.post<any>('/webs/navs', params),
+  getNavsPage: (params: NavigationPageRequest) =>
+    request.post<JpaPageResult<NavigationVO>>('/webs/navs', params),
 
   // 获取导航访问信息 - GET /webs/navs/access/{id} (无需token)
   getNavAccess: (id: number, secret?: string) =>
-    request.get<any>(`/webs/navs/access/${id}${secret ? `?nvaAccessSecret=${secret}` : ''}`),
+    request.get<NavAccessInfo>(`/webs/navs/access/${id}${secret ? `?nvaAccessSecret=${secret}` : ''}`),
 
   // 获取网站分类 - GET /webs/category (无需token)
-  getCategory: () => request.get<any>('/webs/category'),
+  getCategory: () => request.get<NavCategory[]>('/webs/category'),
 };
 
 // Login API - 对应 LoginController

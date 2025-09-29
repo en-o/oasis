@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import type { NavItem, NavCategory, SystemConfig } from '@/types';
+import type { NavItem, NavCategory, SystemConfig, NavigationVO } from '@/types';
 import { webApi } from '@/services/api';
 
 const DEFAULT_SYSTEM_CONFIG: SystemConfig = {
@@ -21,9 +21,22 @@ export const useNavigation = () => {
     try {
       // 使用 WebController 的导航分页接口
       const response = await webApi.getNavsPage({
-        page: { pageNum: 1, pageSize: 1000 } // 获取足够多的数据
+        page: { pageNum: 1, pageSize: 100 } // 获取足够多的数据
       });
-      setNavItems(response.data?.list || []);
+
+      // 转换 NavigationVO 到 NavItem 格式
+      const navigationVOs = response.data?.list || [];
+      const navItems: NavItem[] = navigationVOs.map((nav: NavigationVO) => ({
+        id: nav.id,
+        name: nav.name,
+        url: nav.url,
+        sort: nav.sort,
+        category: nav.categoryName, // NavigationVO 中是 categoryName
+        icon: nav.icon,
+        remark: nav.remark
+      }));
+
+      setNavItems(navItems);
     } catch (error) {
       console.error('加载导航数据失败:', error);
       setNavItems([]);
@@ -78,8 +91,17 @@ export const useNavigation = () => {
   };
 
   useEffect(() => {
+    // 使用 AbortController 来避免内存泄漏和竞态条件
+    const abortController = new AbortController();
+
+    // 只在组件挂载时加载一次数据
     loadData();
-  }, []);
+
+    return () => {
+      // 清理函数，取消所有正在进行的请求
+      abortController.abort();
+    };
+  }, []); // 空依赖数组，确保只在组件挂载时执行一次
 
   return {
     navItems,

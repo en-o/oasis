@@ -62,3 +62,45 @@ export interface PageResponse<T> {
   number: number;
   size: number;
 }
+
+// WebController 相关类型定义
+export interface SiteInfo {
+  siteTitle: string;
+  siteLogo: string;
+  defaultOpenMode: number;
+  hideAdminEntry: number;
+  username?: string;
+  password?: string;
+}
+
+export interface NavigationVO {
+  id: number;
+  name: string;
+  url: string;
+  sort: number;
+  categoryName: string;
+  icon: string;
+  remark: string;
+}
+
+export interface JpaPageResult<T> {
+  list: T[];
+  totalElements: number;
+  totalPages: number;
+  number: number;
+  size: number;
+}
+
+export interface NavigationPageRequest {
+  page: {
+    pageNum: number;
+    pageSize: number;
+  };
+  name?: string;
+  categoryName?: string;
+}
+
+export interface NavAccessInfo {
+  account?: string;
+  password?: string;
+}
