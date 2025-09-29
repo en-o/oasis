@@ -16,7 +16,6 @@ export interface NavCategory {
   id: number;
   categoryName: string;
   sort: number;
-  remark: string;
 }
 
 export interface SysConfig {
@@ -67,10 +66,8 @@ export interface PageResponse<T> {
 export interface SiteInfo {
   siteTitle: string;
   siteLogo: string;
-  defaultOpenMode: number;
-  hideAdminEntry: number;
-  username?: string;
-  password?: string;
+  defaultOpenMode: number; // 0=当前页, 1=新标签页
+  hideAdminEntry: number;  // 0=显示, 1=隐藏
 }
 
 export interface NavigationVO {
@@ -78,9 +75,12 @@ export interface NavigationVO {
   name: string;
   url: string;
   sort: number;
-  categoryName: string;
+  category: string;    // 注意：这里是 category，不是 categoryName
   icon: string;
   remark: string;
+  lookAccount: boolean;
+  nvaAccessSecret: string;
+  status: number;      // 0=停用, 1=启用
 }
 
 export interface JpaPageResult<T> {
@@ -92,15 +92,15 @@ export interface JpaPageResult<T> {
 }
 
 export interface NavigationPageRequest {
+  name?: string;
+  category?: string;
   page: {
     pageNum: number;
     pageSize: number;
   };
-  name?: string;
-  categoryName?: string;
 }
 
 export interface NavAccessInfo {
-  account?: string;
-  password?: string;
+  account: string;
+  password: string;
 }

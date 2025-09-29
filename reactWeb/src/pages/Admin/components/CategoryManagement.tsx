@@ -84,17 +84,6 @@ const CategoryManagement: React.FC = () => {
       width: 60,
     },
     {
-      title: '备注',
-      dataIndex: 'remark',
-      key: 'remark',
-      ellipsis: {
-        showTitle: false,
-      },
-      render: (text: string) => (
-        <span title={text}>{text}</span>
-      ),
-    },
-    {
       title: '操作',
       key: 'action',
       width: 100,
@@ -185,10 +174,6 @@ const CategoryManagement: React.FC = () => {
             rules={[{ required: true, message: '请输入排序值' }]}
           >
             <InputNumber min={0} placeholder="排序值，数字越小越靠前" className="w-full" />
-          </Form.Item>
-
-          <Form.Item name="remark" label="备注">
-            <Input.TextArea rows={3} placeholder="分类描述信息" />
           </Form.Item>
 
           <Form.Item className="mb-0 text-right">

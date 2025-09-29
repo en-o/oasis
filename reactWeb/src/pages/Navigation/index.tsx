@@ -13,7 +13,11 @@ interface Props {
 
 const Navigation: React.FC<Props> = ({ onEnterAdmin }) => {
   const { navItems, categories, systemConfig, loading } = useNavigation();
-  console.log('Navigation 页面接收到的数据:', { navItems, categories, loading });
+  console.log('=== Navigation 组件状态 ===');
+  console.log('navItems 长度:', navItems.length);
+  console.log('navItems 内容:', navItems);
+  console.log('categories 长度:', categories.length);
+  console.log('loading 状态:', loading);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('全部');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
@@ -25,11 +29,11 @@ const Navigation: React.FC<Props> = ({ onEnterAdmin }) => {
   const allCategories = ['全部', ...categories.map(c => c.categoryName)];
 
   const filteredItems = useMemo(() => {
-    console.log('filteredItems 计算中:', {
-      navItems: navItems.length,
+    console.log('=== filteredItems 计算 ===');
+    console.log('输入数据:', {
+      navItemsCount: navItems.length,
       searchTerm,
-      selectedCategory,
-      categories: categories.length
+      selectedCategory
     });
 
     const result = navItems
@@ -41,18 +45,11 @@ const Navigation: React.FC<Props> = ({ onEnterAdmin }) => {
         const matchesCategory =
           selectedCategory === '全部' || item.category === selectedCategory;
 
-        console.log(`筛选项目 ${item.name}:`, {
-          matchesSearch,
-          matchesCategory,
-          itemCategory: item.category,
-          selectedCategory
-        });
-
         return matchesSearch && matchesCategory;
       })
       .sort((a, b) => a.sort - b.sort);
 
-    console.log('filteredItems 结果:', result);
+    console.log('筛选结果:', result.length, result);
     return result;
   }, [navItems, searchTerm, selectedCategory]);
 

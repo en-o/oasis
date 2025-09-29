@@ -17,82 +17,114 @@ export const useNavigation = () => {
   const [systemConfig, setSystemConfig] = useState<SystemConfig>(DEFAULT_SYSTEM_CONFIG);
   const [loading, setLoading] = useState(true);
 
-  // 添加防重复调用的标志
+  // 只需要防止并发调用，不需要防止重新加载
   const isLoadingRef = useRef(false);
-  const hasLoadedRef = useRef(false);
 
   const loadNavItems = async () => {
     try {
-      // 使用 WebController 的导航分页接口
+      console.log('=== 开始调用导航接口 ===');
+
       const response = await webApi.getNavsPage({
-        page: { pageNum: 1, pageSize: 100 } // 获取足够多的数据
+        page: { pageNum: 1, pageSize: 100 }
       });
 
-      console.log('导航接口原始响应:', response);
+      console.log('导航接口响应:', response);
+
+      // 检查响应结构
+      if (!response || !response.data || !response.data.list) {
+        console.error('导航接口响应结构异常:', response);
+        setNavItems([]);
+        return;
+      }
+
+      // NavigationVO 数组
+      const navigationVOs = response.data.list;
+      console.log('NavigationVO 数组:', navigationVOs);
 
       // 转换 NavigationVO 到 NavItem 格式
-      const navigationVOs = response.data?.list || [];
-      console.log('接收到的 NavigationVO 数据:', navigationVOs);
-
       const navItems: NavItem[] = navigationVOs.map((nav: NavigationVO) => ({
         id: nav.id,
         name: nav.name,
         url: nav.url,
         sort: nav.sort,
-        category: nav.categoryName, // NavigationVO 中是 categoryName
+        category: nav.category, // NavigationVO 中就是 category 字段
         icon: nav.icon,
         remark: nav.remark
       }));
 
-      console.log('转换后的 NavItem 数据:', navItems);
+      console.log('转换后的 NavItem 数组:', navItems);
       setNavItems(navItems);
+
     } catch (error) {
-      console.error('加载导航数据失败:', error);
+      console.error('导航接口调用失败:', error);
       setNavItems([]);
     }
   };
 
   const loadCategories = async () => {
     try {
-      // 使用 WebController 的分类接口
+      console.log('=== 开始调用分类接口 ===');
+
       const response = await webApi.getCategory();
-      setCategories(response.data || []);
+      console.log('分类接口响应:', response);
+
+      // 检查响应结构
+      if (!response || !response.data) {
+        console.error('分类接口响应结构异常:', response);
+        setCategories([]);
+        return;
+      }
+
+      // NavCategory 数组
+      const categoryList = response.data;
+      console.log('NavCategory 数组:', categoryList);
+
+      setCategories(categoryList);
+
     } catch (error) {
-      console.error('加载分类数据失败:', error);
+      console.error('分类接口调用失败:', error);
       setCategories([]);
     }
   };
 
   const loadSystemConfig = async () => {
     try {
-      // 使用WebController的站点信息接口 - GET /webs/site (无需token，适用于导航页面)
-      const response = await webApi.getSiteInfo();
-      const config = response.data;
-      console.log('导航页面加载的站点信息:', config);
+      console.log('=== 开始调用站点信息接口 ===');
 
-      if (config) {
-        setSystemConfig({
-          siteTitle: config.siteTitle || DEFAULT_SYSTEM_CONFIG.siteTitle,
-          siteLogo: config.siteLogo || DEFAULT_SYSTEM_CONFIG.siteLogo,
-          defaultOpenMode: config.defaultOpenMode === 1 ? 'newTab' : 'currentTab',
-          hideAdminEntry: config.hideAdminEntry === 1,
-          adminUsername: config.username || DEFAULT_SYSTEM_CONFIG.adminUsername,
-          adminPassword: config.password || DEFAULT_SYSTEM_CONFIG.adminPassword,
-        });
-      } else {
-        console.log('未获取到站点信息，使用默认配置');
+      const response = await webApi.getSiteInfo();
+      console.log('站点信息接口响应:', response);
+
+      // 检查响应结构
+      if (!response || !response.data) {
+        console.error('站点信息接口响应结构异常:', response);
         setSystemConfig(DEFAULT_SYSTEM_CONFIG);
+        return;
       }
+
+      // SiteInfo 对象
+      const siteInfo = response.data;
+      console.log('SiteInfo 对象:', siteInfo);
+
+      // 转换为 SystemConfig 格式
+      setSystemConfig({
+        siteTitle: siteInfo.siteTitle || DEFAULT_SYSTEM_CONFIG.siteTitle,
+        siteLogo: siteInfo.siteLogo || DEFAULT_SYSTEM_CONFIG.siteLogo,
+        defaultOpenMode: siteInfo.defaultOpenMode === 1 ? 'newTab' : 'currentTab',
+        hideAdminEntry: siteInfo.hideAdminEntry === 1,
+        adminUsername: DEFAULT_SYSTEM_CONFIG.adminUsername,
+        adminPassword: DEFAULT_SYSTEM_CONFIG.adminPassword,
+      });
+
     } catch (error) {
-      console.error('加载站点信息失败:', error);
+      console.error('站点信息接口调用失败:', error);
       setSystemConfig(DEFAULT_SYSTEM_CONFIG);
     }
   };
 
   const loadData = async () => {
-    // 防止重复调用
-    if (isLoadingRef.current || hasLoadedRef.current) {
-      console.log('数据已在加载中或已加载，跳过重复调用');
+    // 只防止并发调用，不阻止重新加载
+    if (isLoadingRef.current) {
+      console.log('数据正在加载中，跳过并发调用');
       return;
     }
 
@@ -106,7 +138,6 @@ export const useNavigation = () => {
         loadCategories(),
         loadSystemConfig(),
       ]);
-      hasLoadedRef.current = true;
       console.log('导航数据加载完成');
     } catch (error) {
       console.error('加载导航数据失败:', error);
@@ -117,24 +148,19 @@ export const useNavigation = () => {
   };
 
   useEffect(() => {
-    // 使用 AbortController 来避免内存泄漏和竞态条件
-    const abortController = new AbortController();
-
-    // 只在组件挂载时加载一次数据
+    console.log('useNavigation hook useEffect 执行');
     loadData();
 
     return () => {
-      // 清理函数，重置标志并取消所有正在进行的请求
+      // 清理函数，重置加载标志
       isLoadingRef.current = false;
-      hasLoadedRef.current = false;
-      abortController.abort();
       console.log('useNavigation hook 清理完成');
     };
   }, []); // 空依赖数组，确保只在组件挂载时执行一次
 
-  // 提供刷新功能，但会重置防重复标志
+  // 提供刷新功能
   const refresh = async () => {
-    hasLoadedRef.current = false; // 允许重新加载
+    console.log('手动刷新导航数据');
     await loadData();
   };
 
