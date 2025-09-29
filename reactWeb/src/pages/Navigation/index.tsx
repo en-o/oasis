@@ -1,0 +1,203 @@
+import React, { useState, useMemo } from 'react';
+import { Search, Grid, List, Settings } from 'lucide-react';
+import { useNavigation } from '@/hooks/useNavigation';
+import IconDisplay from '@/components/IconDisplay';
+import NavGrid from '@/components/NavGrid';
+import NavList from '@/components/NavList';
+import LoginModal from '@/components/LoginModal';
+
+interface Props {
+  onEnterAdmin: () => void;
+}
+
+const Navigation: React.FC<Props> = ({ onEnterAdmin }) => {
+  const { navItems, categories, systemConfig, loading } = useNavigation();
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState('全部');
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const [jumpMethod, setJumpMethod] = useState<'newTab' | 'currentTab'>(systemConfig.defaultOpenMode);
+  const [showLogin, setShowLogin] = useState(false);
+  const [accountMap, setAccountMap] = useState<Record<number, boolean>>({});
+  const [secret, setSecret] = useState('');
+
+  const allCategories = ['全部', ...categories.map(c => c.categoryName)];
+
+  const filteredItems = useMemo(() => {
+    return navItems
+      .filter(item => {
+        const matchesSearch =
+          item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          item.remark.toLowerCase().includes(searchTerm.toLowerCase());
+
+        const matchesCategory =
+          selectedCategory === '全部' || item.categoryName === selectedCategory;
+
+        return matchesSearch && matchesCategory;
+      })
+      .sort((a, b) => a.sort - b.sort);
+  }, [navItems, searchTerm, selectedCategory]);
+
+  const handleLogin = (username: string, password: string) => {
+    if (username === systemConfig.adminUsername && password === systemConfig.adminPassword) {
+      onEnterAdmin();
+      return true;
+    }
+    return false;
+  };
+
+  const handleNavigate = (item: { url: string }) => {
+    window.open(item.url, jumpMethod === 'currentTab' ? '_self' : '_blank');
+  };
+
+  const toggleAccount = (id: number) => {
+    if (secret === 'tan') {
+      setAccountMap(prev => ({ ...prev, [id]: !prev[id] }));
+    } else {
+      const input = prompt('请输入密钥查看账户信息（默认：tan）');
+      if (input === 'tan') {
+        setSecret('tan');
+        setAccountMap(prev => ({ ...prev, [id]: true }));
+      } else {
+        alert('密钥错误');
+      }
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-500 mx-auto"></div>
+          <p className="mt-4 text-gray-600">加载中...</p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="nav-container">
+      <header className="nav-header">
+        <div className="nav-header-content">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-3">
+              <IconDisplay
+                iconData={systemConfig.siteLogo}
+                title={systemConfig.siteTitle}
+                size="w-8 h-8"
+              />
+              <h1 className="text-2xl font-bold text-gray-800">
+                {systemConfig.siteTitle}
+              </h1>
+            </div>
+
+            {!systemConfig.hideAdminEntry && (
+              <div className="flex items-center space-x-4">
+                <div className="flex items-center space-x-2">
+                  <span className="text-sm text-gray-600">打开方式:</span>
+                  <select
+                    className="px-3 py-1 text-sm border border-gray-300 rounded-md"
+                    value={jumpMethod}
+                    onChange={(e) => setJumpMethod(e.target.value as 'newTab' | 'currentTab')}
+                  >
+                    <option value="newTab">新标签页</option>
+                    <option value="currentTab">当前标签页</option>
+                  </select>
+                </div>
+
+                <div className="flex items-center space-x-2">
+                  <span className="text-sm text-gray-600">视图:</span>
+                  <div className="view-toggle">
+                    <button
+                      className={`view-button ${viewMode === 'grid' ? 'active' : ''}`}
+                      onClick={() => setViewMode('grid')}
+                      title="网格视图"
+                    >
+                      <Grid className="w-4 h-4" />
+                    </button>
+                    <button
+                      className={`view-button ${viewMode === 'list' ? 'active' : ''}`}
+                      onClick={() => setViewMode('list')}
+                      title="列表视图"
+                    >
+                      <List className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
+
+                <button
+                  onClick={() => setShowLogin(true)}
+                  className="flex items-center space-x-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+                >
+                  <Settings className="w-4 h-4" />
+                  <span>管理后台</span>
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      </header>
+
+      <div className="nav-main">
+        <div className="search-section">
+          <div className="search-container">
+            <div className="flex flex-1 gap-4">
+              <div className="category-select-group">
+                <span className="category-label">分类:</span>
+                <select
+                  className="category-select"
+                  value={selectedCategory}
+                  onChange={(e) => setSelectedCategory(e.target.value)}
+                >
+                  {allCategories.map((category) => (
+                    <option key={category} value={category}>
+                      {category}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="search-input-group">
+                <Search className="search-icon" />
+                <input
+                  type="text"
+                  placeholder="搜索导航..."
+                  className="search-input"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {filteredItems.length === 0 ? (
+          <div className="text-center py-20">
+            <p className="text-gray-500 text-lg">暂无导航数据</p>
+          </div>
+        ) : viewMode === 'grid' ? (
+          <NavGrid
+            items={filteredItems}
+            onNavigate={handleNavigate}
+            accountMap={accountMap}
+            onToggleAccount={toggleAccount}
+          />
+        ) : (
+          <NavList
+            items={filteredItems}
+            onNavigate={handleNavigate}
+            accountMap={accountMap}
+            onToggleAccount={toggleAccount}
+          />
+        )}
+      </div>
+
+      <LoginModal
+        visible={showLogin}
+        onClose={() => setShowLogin(false)}
+        onLogin={handleLogin}
+      />
+    </div>
+  );
+};
+
+export default Navigation;

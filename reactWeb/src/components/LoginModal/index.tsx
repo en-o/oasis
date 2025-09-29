@@ -1,0 +1,93 @@
+import React, { useState } from 'react';
+import { Modal, Form, Input, Button, message } from 'antd';
+import { User, Lock } from 'lucide-react';
+
+interface Props {
+  visible: boolean;
+  onClose: () => void;
+  onLogin: (username: string, password: string) => boolean;
+}
+
+const LoginModal: React.FC<Props> = ({ visible, onClose, onLogin }) => {
+  const [form] = Form.useForm();
+  const [loading, setLoading] = useState(false);
+
+  const handleSubmit = async (values: { username: string; password: string }) => {
+    setLoading(true);
+    try {
+      const success = onLogin(values.username, values.password);
+      if (success) {
+        message.success('登录成功');
+        onClose();
+        form.resetFields();
+      } else {
+        message.error('用户名或密码错误');
+      }
+    } catch (error) {
+      message.error('登录失败');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleCancel = () => {
+    form.resetFields();
+    onClose();
+  };
+
+  return (
+    <Modal
+      title="管理员登录"
+      open={visible}
+      onCancel={handleCancel}
+      footer={null}
+      centered
+      width={400}
+    >
+      <Form
+        form={form}
+        layout="vertical"
+        onFinish={handleSubmit}
+        autoComplete="off"
+      >
+        <Form.Item
+          name="username"
+          label="用户名"
+          rules={[{ required: true, message: '请输入用户名' }]}
+        >
+          <Input
+            prefix={<User className="w-4 h-4 text-gray-400" />}
+            placeholder="请输入用户名"
+            size="large"
+          />
+        </Form.Item>
+
+        <Form.Item
+          name="password"
+          label="密码"
+          rules={[{ required: true, message: '请输入密码' }]}
+        >
+          <Input.Password
+            prefix={<Lock className="w-4 h-4 text-gray-400" />}
+            placeholder="请输入密码"
+            size="large"
+          />
+        </Form.Item>
+
+        <Form.Item className="mb-0">
+          <Button
+            type="primary"
+            htmlType="submit"
+            loading={loading}
+            size="large"
+            className="w-full"
+          >
+            登录
+          </Button>
+        </Form.Item>
+      </Form>
+    </Modal>
+  );
+};
+
+export default LoginModal;
