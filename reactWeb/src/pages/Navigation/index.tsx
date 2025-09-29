@@ -138,49 +138,49 @@ const Navigation: React.FC = () => {
               </h1>
             </div>
 
-            {!systemConfig.hideAdminEntry && (
-              <div className="flex items-center space-x-3">
-                {/* 打开方式切换 */}
-                <div className="flex items-center space-x-1">
-                  <div className="view-toggle">
-                    <button
-                      className={`view-button ${jumpMethod === 'newTab' ? 'active' : ''}`}
-                      onClick={() => setJumpMethod('newTab')}
-                      title="新标签页打开"
-                    >
-                      <ExternalLink className="w-4 h-4" />
-                    </button>
-                    <button
-                      className={`view-button ${jumpMethod === 'currentTab' ? 'active' : ''}`}
-                      onClick={() => setJumpMethod('currentTab')}
-                      title="当前标签页打开"
-                    >
-                      <Monitor className="w-4 h-4" />
-                    </button>
-                  </div>
+            <div className="flex items-center space-x-3">
+              {/* 打开方式切换 */}
+              <div className="flex items-center space-x-1">
+                <div className="view-toggle">
+                  <button
+                    className={`view-button ${jumpMethod === 'newTab' ? 'active' : ''}`}
+                    onClick={() => setJumpMethod('newTab')}
+                    title="新标签页打开"
+                  >
+                    <ExternalLink className="w-4 h-4" />
+                  </button>
+                  <button
+                    className={`view-button ${jumpMethod === 'currentTab' ? 'active' : ''}`}
+                    onClick={() => setJumpMethod('currentTab')}
+                    title="当前标签页打开"
+                  >
+                    <Monitor className="w-4 h-4" />
+                  </button>
                 </div>
+              </div>
 
-                {/* 视图切换 */}
-                <div className="flex items-center space-x-1">
-                  <div className="view-toggle">
-                    <button
-                      className={`view-button ${viewMode === 'grid' ? 'active' : ''}`}
-                      onClick={() => setViewMode('grid')}
-                      title="网格视图"
-                    >
-                      <Grid className="w-4 h-4" />
-                    </button>
-                    <button
-                      className={`view-button ${viewMode === 'list' ? 'active' : ''}`}
-                      onClick={() => setViewMode('list')}
-                      title="列表视图"
-                    >
-                      <List className="w-4 h-4" />
-                    </button>
-                  </div>
+              {/* 视图切换 */}
+              <div className="flex items-center space-x-1">
+                <div className="view-toggle">
+                  <button
+                    className={`view-button ${viewMode === 'grid' ? 'active' : ''}`}
+                    onClick={() => setViewMode('grid')}
+                    title="网格视图"
+                  >
+                    <Grid className="w-4 h-4" />
+                  </button>
+                  <button
+                    className={`view-button ${viewMode === 'list' ? 'active' : ''}`}
+                    onClick={() => setViewMode('list')}
+                    title="列表视图"
+                  >
+                    <List className="w-4 h-4" />
+                  </button>
                 </div>
+              </div>
 
-                {/* 管理后台按钮 */}
+              {/* 管理后台按钮 - 只有这个按钮受 hideAdminEntry 控制 */}
+              {!systemConfig.hideAdminEntry && (
                 <button
                   onClick={() => setShowLogin(true)}
                   className="admin-button"
@@ -189,8 +189,8 @@ const Navigation: React.FC = () => {
                   <Settings className="w-4 h-4" />
                   <span className="ml-2">管理</span>
                 </button>
-              </div>
-            )}
+              )}
+            </div>
           </div>
         </div>
       </header>
