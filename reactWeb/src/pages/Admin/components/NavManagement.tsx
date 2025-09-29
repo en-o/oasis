@@ -233,7 +233,7 @@ const NavManagement: React.FC = () => {
           </Form.Item>
 
           <Form.Item
-            name="categoryName"
+            name="category"
             label="分类"
             rules={[{ required: true, message: '请选择分类' }]}
           >

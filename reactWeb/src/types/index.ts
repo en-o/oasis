@@ -3,7 +3,7 @@ export interface NavItem {
   name: string;
   url: string;
   sort: number;
-  categoryName: string;
+  category: string;
   icon: string;
   remark: string;
   accountInfo?: {
