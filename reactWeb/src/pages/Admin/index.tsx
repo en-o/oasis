@@ -44,11 +44,11 @@ const Admin: React.FC<Props> = ({ onExit }) => {
       </header>
 
       <div className="admin-main">
-        <div className="flex gap-6">
-          <div className="admin-sidebar">
+        <div className="flex gap-6 h-full overflow-hidden">
+          <div className="admin-sidebar flex-shrink-0">
             <AdminSidebar currentAdminTab={currentTab} onChangeTab={setCurrentTab} />
           </div>
-          <div className="flex-1 admin-content">
+          <div className="flex-1 admin-content overflow-auto">
             {currentTab === 'nav-management' && <NavManagement />}
             {currentTab === 'category-management' && <CategoryManagement />}
             {currentTab === 'system-management' && <SystemManagement />}

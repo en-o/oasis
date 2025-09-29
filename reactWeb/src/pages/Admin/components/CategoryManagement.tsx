@@ -74,6 +74,8 @@ const CategoryManagement: React.FC = () => {
       title: '分类名称',
       dataIndex: 'categoryName',
       key: 'categoryName',
+      width: 200,
+      ellipsis: true,
     },
     {
       title: '排序',
@@ -85,12 +87,18 @@ const CategoryManagement: React.FC = () => {
       title: '备注',
       dataIndex: 'remark',
       key: 'remark',
-      ellipsis: true,
+      ellipsis: {
+        showTitle: false,
+      },
+      render: (text: string) => (
+        <span title={text}>{text}</span>
+      ),
     },
     {
       title: '操作',
       key: 'action',
       width: 120,
+      fixed: 'right' as const,
       render: (_: any, record: NavCategory) => (
         <Space>
           <Button
@@ -135,18 +143,21 @@ const CategoryManagement: React.FC = () => {
         </Button>
       </div>
 
-      <Table
-        columns={columns}
-        dataSource={categories}
-        loading={loading}
-        rowKey="id"
-        pagination={{
-          pageSize: 10,
-          showSizeChanger: true,
-          showQuickJumper: true,
-          showTotal: (total) => `共 ${total} 条`,
-        }}
-      />
+      <div className="overflow-hidden">
+        <Table
+          columns={columns}
+          dataSource={categories}
+          loading={loading}
+          rowKey="id"
+          scroll={{ x: 600, y: 400 }}
+          pagination={{
+            pageSize: 10,
+            showSizeChanger: true,
+            showQuickJumper: true,
+            showTotal: (total) => `共 ${total} 条`,
+          }}
+        />
+      </div>
 
       <Modal
         title={editingCategory ? '编辑分类' : '添加分类'}

@@ -91,13 +91,23 @@ const NavManagement: React.FC = () => {
       title: '名称',
       dataIndex: 'name',
       key: 'name',
+      width: 150,
+      ellipsis: true,
     },
     {
       title: 'URL',
       dataIndex: 'url',
       key: 'url',
+      width: 200,
+      ellipsis: true,
       render: (url: string) => (
-        <a href={url} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800">
+        <a
+          href={url}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-blue-600 hover:text-blue-800"
+          title={url}
+        >
           {url}
         </a>
       ),
@@ -106,6 +116,8 @@ const NavManagement: React.FC = () => {
       title: '分类',
       dataIndex: 'categoryName',
       key: 'categoryName',
+      width: 120,
+      ellipsis: true,
     },
     {
       title: '排序',
@@ -117,12 +129,18 @@ const NavManagement: React.FC = () => {
       title: '备注',
       dataIndex: 'remark',
       key: 'remark',
-      ellipsis: true,
+      ellipsis: {
+        showTitle: false,
+      },
+      render: (text: string) => (
+        <span title={text}>{text}</span>
+      ),
     },
     {
       title: '操作',
       key: 'action',
       width: 120,
+      fixed: 'right' as const,
       render: (_: any, record: NavItem) => (
         <Space>
           <Button
@@ -166,18 +184,21 @@ const NavManagement: React.FC = () => {
         </Button>
       </div>
 
-      <Table
-        columns={columns}
-        dataSource={navItems}
-        loading={loading}
-        rowKey="id"
-        pagination={{
-          pageSize: 10,
-          showSizeChanger: true,
-          showQuickJumper: true,
-          showTotal: (total) => `共 ${total} 条`,
-        }}
-      />
+      <div className="overflow-hidden">
+        <Table
+          columns={columns}
+          dataSource={navItems}
+          loading={loading}
+          rowKey="id"
+          scroll={{ x: 800, y: 400 }}
+          pagination={{
+            pageSize: 10,
+            showSizeChanger: true,
+            showQuickJumper: true,
+            showTotal: (total) => `共 ${total} 条`,
+          }}
+        />
+      </div>
 
       <Modal
         title={editingItem ? '编辑导航' : '添加导航'}

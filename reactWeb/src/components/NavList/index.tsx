@@ -26,9 +26,9 @@ const NavList: React.FC<Props> = ({ items, onNavigate, accountMap, onToggleAccou
                 size="w-8 h-8"
               />
               <div className="flex-1 min-w-0">
-                <h3 className="font-semibold text-gray-800">{item.name}</h3>
+                <h3 className="font-semibold text-gray-800 truncate">{item.name}</h3>
                 <div className="flex items-center space-x-4 text-sm text-gray-500">
-                  <span>{item.categoryName}</span>
+                  <span className="truncate">{item.categoryName}</span>
                   {item.remark && <span className="truncate">{item.remark}</span>}
                 </div>
               </div>

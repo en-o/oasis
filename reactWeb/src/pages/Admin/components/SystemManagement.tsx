@@ -161,44 +161,46 @@ const SystemManagement: React.FC = () => {
   };
 
   return (
-    <div className="bg-white rounded-lg p-6">
+    <div className="bg-white rounded-lg p-6 overflow-hidden">
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-xl font-semibold">系统配置</h2>
       </div>
 
-      <Card>
-        <Form
-          form={form}
-          layout="vertical"
-          onFinish={handleSubmit}
-        >
-          <Row gutter={16}>
-            {configFields.map((field) => (
-              <Col span={12} key={field.key}>
-                <Form.Item
-                  name={field.key}
-                  label={field.label}
-                  rules={field.required ? [{ required: true, message: `请输入${field.label}` }] : []}
-                  help={field.description}
-                >
-                  {renderField(field)}
-                </Form.Item>
-              </Col>
-            ))}
-          </Row>
+      <div className="overflow-auto max-h-[calc(100vh-200px)]">
+        <Card>
+          <Form
+            form={form}
+            layout="vertical"
+            onFinish={handleSubmit}
+          >
+            <Row gutter={16}>
+              {configFields.map((field) => (
+                <Col xs={24} md={12} key={field.key}>
+                  <Form.Item
+                    name={field.key}
+                    label={field.label}
+                    rules={field.required ? [{ required: true, message: `请输入${field.label}` }] : []}
+                    help={field.description}
+                  >
+                    {renderField(field)}
+                  </Form.Item>
+                </Col>
+              ))}
+            </Row>
 
-          <Form.Item className="mb-0 text-right">
-            <Button
-              type="primary"
-              htmlType="submit"
-              loading={loading}
-              icon={<Save className="w-4 h-4" />}
-            >
-              保存配置
-            </Button>
-          </Form.Item>
-        </Form>
-      </Card>
+            <Form.Item className="mb-0 text-right">
+              <Button
+                type="primary"
+                htmlType="submit"
+                loading={loading}
+                icon={<Save className="w-4 h-4" />}
+              >
+                保存配置
+              </Button>
+            </Form.Item>
+          </Form>
+        </Card>
+      </div>
     </div>
   );
 };
