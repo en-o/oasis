@@ -62,12 +62,6 @@ public class NavigationVO {
     private Boolean lookAccount;
 
     /**
-     * 导航登录信息查看密钥
-     */
-    @Schema(description = "导航登录信息查看密钥")
-    private String nvaAccessSecret;
-
-    /**
      * 状态；0、停用，1、启用，默认1
      */
     @Schema(description = "状态；0、停用，1、启用")

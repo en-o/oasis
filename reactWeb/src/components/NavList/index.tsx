@@ -8,11 +8,12 @@ interface Props {
   items: NavItem[];
   onNavigate: (item: NavItem) => void;
   accountMap: Record<number, boolean>;
+  accountDataMap: Record<number, { account: string; password: string }>;
   onToggleAccount: (id: number) => void;
   jumpMethod: 'newTab' | 'currentTab';
 }
 
-const NavList: React.FC<Props> = ({ items, onNavigate, accountMap, onToggleAccount, jumpMethod }) => {
+const NavList: React.FC<Props> = ({ items, onNavigate, accountMap, accountDataMap, onToggleAccount, jumpMethod }) => {
   const handleItemClick = (item: NavItem) => {
     window.open(item.url, jumpMethod === 'currentTab' ? '_self' : '_blank');
   };
@@ -38,7 +39,7 @@ const NavList: React.FC<Props> = ({ items, onNavigate, accountMap, onToggleAccou
             </div>
 
             <div className="nav-list-actions">
-              {item.accountInfo && (
+              {(item.account && item.password) && (
                 <button
                   onClick={() => onToggleAccount(item.id)}
                   className="nav-list-button"
@@ -62,16 +63,16 @@ const NavList: React.FC<Props> = ({ items, onNavigate, accountMap, onToggleAccou
             </div>
           </div>
 
-          {item.accountInfo && accountMap[item.id] && (
+          {(item.account && item.password) && accountMap[item.id] && accountDataMap[item.id] && (
             <div className="nav-list-account">
               <div className="nav-list-account-grid">
                 <div className="nav-list-account-item">
                   <div className="nav-list-account-key">账号</div>
-                  <div className="nav-list-account-value">{item.accountInfo.account}</div>
+                  <div className="nav-list-account-value">{accountDataMap[item.id].account}</div>
                 </div>
                 <div className="nav-list-account-item">
                   <div className="nav-list-account-key">密码</div>
-                  <div className="nav-list-account-value">{item.accountInfo.password}</div>
+                  <div className="nav-list-account-value">{accountDataMap[item.id].password}</div>
                 </div>
               </div>
             </div>

@@ -2,7 +2,7 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { Search, Grid, List, Settings, ExternalLink, Monitor } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useNavigation } from '@/hooks/useNavigation';
-import { authApi } from '@/services/api';
+import { authApi, webApi } from '@/services/api';
 import IconDisplay from '@/components/IconDisplay';
 import NavGrid from '@/components/NavGrid';
 import NavList from '@/components/NavList';
@@ -24,7 +24,7 @@ const Navigation: React.FC = () => {
   const [jumpMethod, setJumpMethod] = useState<'newTab' | 'currentTab'>('newTab'); // 初始默认值
   const [showLogin, setShowLogin] = useState(false);
   const [accountMap, setAccountMap] = useState<Record<number, boolean>>({});
-  const [secret, setSecret] = useState('');
+  const [accountDataMap, setAccountDataMap] = useState<Record<number, { account: string; password: string }>>({});
 
   // 当 systemConfig 加载完成后，更新 jumpMethod
   useEffect(() => {
@@ -97,7 +97,7 @@ const Navigation: React.FC = () => {
     window.open(item.url, jumpMethod === 'currentTab' ? '_self' : '_blank');
   };
 
-  const toggleAccount = (id: number) => {
+  const toggleAccount = async (id: number) => {
     const item = navItems.find(item => item.id === id);
     if (!item) return;
 
@@ -106,23 +106,44 @@ const Navigation: React.FC = () => {
       return;
     }
 
-    // 如果 lookAccount 为 true，直接显示账户信息
-    if (item.lookAccount) {
-      setAccountMap(prev => ({ ...prev, [id]: !prev[id] }));
+    // 如果已经显示了，就隐藏
+    if (accountMap[id]) {
+      setAccountMap(prev => ({ ...prev, [id]: false }));
       return;
     }
 
-    // 如果 lookAccount 为 false，需要密钥验证
-    if (secret === item.nvaAccessSecret) {
-      setAccountMap(prev => ({ ...prev, [id]: !prev[id] }));
-    } else {
-      const input = prompt(`请输入密钥查看账户信息（默认：${item.nvaAccessSecret}）`);
-      if (input === item.nvaAccessSecret) {
-        setSecret(item.nvaAccessSecret);
+    try {
+      let response;
+
+      // 如果 lookAccount 为 true，直接请求账户信息
+      if (item.lookAccount) {
+        response = await webApi.getNavAccess(id);
+      } else {
+        // 如果 lookAccount 为 false，需要密钥验证
+        const secret = prompt(`请输入密钥查看账户信息（默认：${item.nvaAccessSecret}）`);
+        if (!secret) {
+          return; // 用户取消
+        }
+
+        response = await webApi.getNavAccess(id, secret);
+      }
+
+      if (response.code === 200 && response.data) {
+        // 保存账户信息并显示
+        setAccountDataMap(prev => ({
+          ...prev,
+          [id]: {
+            account: response.data.account,
+            password: response.data.password
+          }
+        }));
         setAccountMap(prev => ({ ...prev, [id]: true }));
       } else {
-        alert('密钥错误');
+        alert(response.message || '获取账户信息失败');
       }
+    } catch (error: any) {
+      console.error('获取账户信息失败:', error);
+      alert(error.message || '获取账户信息失败，请检查密钥是否正确');
     }
   };
 
@@ -267,6 +288,7 @@ const Navigation: React.FC = () => {
                 items={filteredItems}
                 onNavigate={handleNavigate}
                 accountMap={accountMap}
+                accountDataMap={accountDataMap}
                 onToggleAccount={toggleAccount}
                 jumpMethod={jumpMethod}
               />
@@ -278,6 +300,7 @@ const Navigation: React.FC = () => {
                 items={filteredItems}
                 onNavigate={handleNavigate}
                 accountMap={accountMap}
+                accountDataMap={accountDataMap}
                 onToggleAccount={toggleAccount}
                 jumpMethod={jumpMethod}
               />

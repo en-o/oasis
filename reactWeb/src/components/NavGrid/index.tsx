@@ -8,11 +8,12 @@ interface Props {
   items: NavItem[];
   onNavigate: (item: NavItem) => void;
   accountMap: Record<number, boolean>;
+  accountDataMap: Record<number, { account: string; password: string }>;
   onToggleAccount: (id: number) => void;
   jumpMethod: 'newTab' | 'currentTab';
 }
 
-const NavGrid: React.FC<Props> = ({ items, onNavigate, accountMap, onToggleAccount, jumpMethod }) => {
+const NavGrid: React.FC<Props> = ({ items, onNavigate, accountMap, accountDataMap, onToggleAccount, jumpMethod }) => {
   const handleItemClick = (item: NavItem) => {
     window.open(item.url, jumpMethod === 'currentTab' ? '_self' : '_blank');
   };
@@ -46,7 +47,7 @@ const NavGrid: React.FC<Props> = ({ items, onNavigate, accountMap, onToggleAccou
             <p className="nav-grid-description">{item.remark}</p>
           )}
 
-          {item.accountInfo && (
+          {(item.account && item.password) && (
             <div className="nav-grid-account">
               <div className="nav-grid-account-header">
                 <span className="nav-grid-account-label">
@@ -63,15 +64,15 @@ const NavGrid: React.FC<Props> = ({ items, onNavigate, accountMap, onToggleAccou
                   )}
                 </button>
               </div>
-              {accountMap[item.id] && (
+              {accountMap[item.id] && accountDataMap[item.id] && (
                 <div className="nav-grid-account-info">
                   <div className="nav-grid-account-row">
                     <span className="nav-grid-account-key">账号</span>
-                    <span className="nav-grid-account-value">{item.accountInfo.account}</span>
+                    <span className="nav-grid-account-value">{accountDataMap[item.id].account}</span>
                   </div>
                   <div className="nav-grid-account-row">
                     <span className="nav-grid-account-key">密码</span>
-                    <span className="nav-grid-account-value">{item.accountInfo.password}</span>
+                    <span className="nav-grid-account-value">{accountDataMap[item.id].password}</span>
                   </div>
                 </div>
               )}
