@@ -53,15 +53,34 @@ export const useNavigation = () => {
       console.log('NavigationVO 数组:', navigationVOs);
 
       // 转换 NavigationVO 到 NavItem 格式
-      const convertedNavItems: NavItem[] = navigationVOs.map((nav: NavigationVO) => ({
-        id: nav.id,
-        name: nav.name,
-        url: nav.url,
-        sort: nav.sort,
-        category: nav.category, // NavigationVO 中就是 category 字段
-        icon: nav.icon,
-        remark: nav.remark
-      }));
+      const convertedNavItems: NavItem[] = navigationVOs
+        .filter((nav: NavigationVO) => nav.status === 1) // 只显示启用的导航项
+        .map((nav: NavigationVO) => {
+          const navItem: NavItem = {
+            id: nav.id,
+            name: nav.name,
+            url: nav.url,
+            sort: nav.sort,
+            category: nav.category,
+            icon: nav.icon,
+            remark: nav.remark,
+            account: nav.account,
+            password: nav.password,
+            lookAccount: nav.lookAccount,
+            nvaAccessSecret: nav.nvaAccessSecret,
+            status: nav.status,
+          };
+
+          // 为了向后兼容，如果有账户信息，添加 accountInfo 字段
+          if (nav.account && nav.password) {
+            navItem.accountInfo = {
+              account: nav.account,
+              password: nav.password,
+            };
+          }
+
+          return navItem;
+        });
 
       console.log('转换后的 NavItem 数组:', convertedNavItems);
       console.log('调用 setNavItems，数组长度:', convertedNavItems.length);

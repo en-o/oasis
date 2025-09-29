@@ -4,8 +4,14 @@ export interface NavItem {
   url: string;
   sort: number;
   category: string;
-  icon: string;
-  remark: string;
+  icon?: string;
+  remark?: string;
+  account?: string;
+  password?: string;
+  lookAccount: boolean;
+  nvaAccessSecret: string;
+  status: number; // 0=停用, 1=启用
+  // 为了向后兼容，保留 accountInfo 字段（从 account 和 password 字段计算得出）
   accountInfo?: {
     account: string;
     password: string;
@@ -83,12 +89,14 @@ export interface NavigationVO {
   name: string;
   url: string;
   sort: number;
-  category: string;    // 注意：这里是 category，不是 categoryName
-  icon: string;
-  remark: string;
+  category: string;
+  icon?: string;
+  remark?: string;
+  account?: string;
+  password?: string;
   lookAccount: boolean;
   nvaAccessSecret: string;
-  status: number;      // 0=停用, 1=启用
+  status: number; // 0=停用, 1=启用
 }
 
 export interface NavigationPageRequest {

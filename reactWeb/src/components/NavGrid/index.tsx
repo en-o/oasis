@@ -49,7 +49,9 @@ const NavGrid: React.FC<Props> = ({ items, onNavigate, accountMap, onToggleAccou
           {item.accountInfo && (
             <div className="nav-grid-account">
               <div className="nav-grid-account-header">
-                <span className="nav-grid-account-label">账户信息</span>
+                <span className="nav-grid-account-label">
+                  账户信息 {!item.lookAccount && '🔒'}
+                </span>
                 <button
                   onClick={() => onToggleAccount(item.id)}
                   className="nav-grid-account-toggle"

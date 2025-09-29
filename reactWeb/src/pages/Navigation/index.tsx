@@ -98,12 +98,27 @@ const Navigation: React.FC = () => {
   };
 
   const toggleAccount = (id: number) => {
-    if (secret === 'tan') {
+    const item = navItems.find(item => item.id === id);
+    if (!item) return;
+
+    // 如果没有账户信息，直接返回
+    if (!item.account || !item.password) {
+      return;
+    }
+
+    // 如果 lookAccount 为 true，直接显示账户信息
+    if (item.lookAccount) {
+      setAccountMap(prev => ({ ...prev, [id]: !prev[id] }));
+      return;
+    }
+
+    // 如果 lookAccount 为 false，需要密钥验证
+    if (secret === item.nvaAccessSecret) {
       setAccountMap(prev => ({ ...prev, [id]: !prev[id] }));
     } else {
-      const input = prompt('请输入密钥查看账户信息（默认：tan）');
-      if (input === 'tan') {
-        setSecret('tan');
+      const input = prompt(`请输入密钥查看账户信息（默认：${item.nvaAccessSecret}）`);
+      if (input === item.nvaAccessSecret) {
+        setSecret(item.nvaAccessSecret);
         setAccountMap(prev => ({ ...prev, [id]: true }));
       } else {
         alert('密钥错误');

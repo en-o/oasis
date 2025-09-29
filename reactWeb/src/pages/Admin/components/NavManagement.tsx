@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Table, Button, Modal, Form, Input, Select, InputNumber, message, Popconfirm, Space } from 'antd';
+import { Table, Button, Modal, Form, Input, Select, InputNumber, Switch, message, Popconfirm, Space } from 'antd';
 import { Plus, Edit, Trash2 } from 'lucide-react';
 import type { NavItem, NavCategory } from '@/types';
 import { navigationApi, categoryApi } from '@/services/api';
@@ -50,15 +50,30 @@ const NavManagement: React.FC = () => {
   const handleAdd = () => {
     setEditingItem(null);
     form.resetFields();
+    // 设置默认值
+    form.setFieldsValue({
+      sort: 1,
+      lookAccount: true,
+      nvaAccessSecret: 'tan',
+      status: true, // Switch 组件使用 true/false
+    });
     setModalVisible(true);
   };
 
   const handleEdit = (item: NavItem) => {
     setEditingItem(item);
     form.setFieldsValue({
-      ...item,
-      account: item.accountInfo?.account,
-      password: item.accountInfo?.password,
+      name: item.name,
+      url: item.url,
+      category: item.category,
+      sort: item.sort,
+      icon: item.icon,
+      remark: item.remark,
+      account: item.account,
+      password: item.password,
+      lookAccount: item.lookAccount,
+      nvaAccessSecret: item.nvaAccessSecret,
+      status: item.status === 1, // 转换为 boolean
     });
     setModalVisible(true);
   };
@@ -66,11 +81,17 @@ const NavManagement: React.FC = () => {
   const handleSubmit = async (values: any) => {
     try {
       const submitData: Partial<NavItem> = {
-        ...values,
-        accountInfo: values.account && values.password ? {
-          account: values.account,
-          password: values.password,
-        } : undefined,
+        name: values.name,
+        url: values.url,
+        category: values.category,
+        sort: values.sort,
+        icon: values.icon || '',
+        remark: values.remark || '',
+        account: values.account || '',
+        password: values.password || '',
+        lookAccount: values.lookAccount !== undefined ? values.lookAccount : true,
+        nvaAccessSecret: values.nvaAccessSecret || 'tan',
+        status: values.status ? 1 : 0, // 转换为数字
       };
 
       if (editingItem) {
@@ -140,6 +161,28 @@ const NavManagement: React.FC = () => {
       width: 60,
     },
     {
+      title: '状态',
+      dataIndex: 'status',
+      key: 'status',
+      width: 80,
+      render: (status: number) => (
+        <span className={status === 1 ? 'text-green-600' : 'text-red-600'}>
+          {status === 1 ? '启用' : '停用'}
+        </span>
+      ),
+    },
+    {
+      title: '账户权限',
+      dataIndex: 'lookAccount',
+      key: 'lookAccount',
+      width: 100,
+      render: (lookAccount: boolean) => (
+        <span className={lookAccount ? 'text-green-600' : 'text-orange-600'}>
+          {lookAccount ? '可查看' : '需密钥'}
+        </span>
+      ),
+    },
+    {
       title: '备注',
       dataIndex: 'remark',
       key: 'remark',
@@ -153,7 +196,7 @@ const NavManagement: React.FC = () => {
     {
       title: '操作',
       key: 'action',
-      width: 100,
+      width: 200,
       fixed: 'right' as const,
       render: (_: any, record: NavItem) => (
         <Space>
@@ -282,13 +325,48 @@ const NavManagement: React.FC = () => {
           <div className="border-t pt-4 mt-4">
             <h4 className="font-medium mb-3">账户信息（可选）</h4>
             <div className="grid grid-cols-2 gap-4">
-              <Form.Item name="account" label="账号">
-                <Input placeholder="账号" />
+              <Form.Item name="account" label="登录账号">
+                <Input placeholder="登录账号" />
               </Form.Item>
-              <Form.Item name="password" label="密码">
-                <Input.Password placeholder="密码" />
+              <Form.Item name="password" label="登录密码">
+                <Input.Password placeholder="登录密码" />
               </Form.Item>
             </div>
+            <div className="grid grid-cols-2 gap-4 mt-4">
+              <Form.Item
+                name="lookAccount"
+                label="账户信息查看权限"
+                valuePropName="checked"
+                tooltip="是否允许查看登录信息：开启=直接查看，关闭=需要密钥"
+              >
+                <Switch
+                  checkedChildren="可查看"
+                  unCheckedChildren="需密钥"
+                />
+              </Form.Item>
+              <Form.Item
+                name="nvaAccessSecret"
+                label="查看密钥"
+                tooltip="查看账户信息时需要的密钥，默认为 tan"
+              >
+                <Input placeholder="查看密钥（默认：tan）" />
+              </Form.Item>
+            </div>
+          </div>
+
+          <div className="border-t pt-4 mt-4">
+            <h4 className="font-medium mb-3">其他设置</h4>
+            <Form.Item
+              name="status"
+              label="状态"
+              valuePropName="checked"
+              tooltip="是否启用该导航项"
+            >
+              <Switch
+                checkedChildren="启用"
+                unCheckedChildren="停用"
+              />
+            </Form.Item>
           </div>
 
           <Form.Item className="mb-0 text-right">

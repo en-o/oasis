@@ -42,13 +42,14 @@ const NavList: React.FC<Props> = ({ items, onNavigate, accountMap, onToggleAccou
                 <button
                   onClick={() => onToggleAccount(item.id)}
                   className="nav-list-button"
-                  title={accountMap[item.id] ? '隐藏账户信息' : '显示账户信息'}
+                  title={`${accountMap[item.id] ? '隐藏' : '显示'}账户信息${!item.lookAccount ? ' (需密钥)' : ''}`}
                 >
                   {accountMap[item.id] ? (
                     <EyeOff className="w-4 h-4" />
                   ) : (
                     <Eye className="w-4 h-4" />
                   )}
+                  {!item.lookAccount && <span className="ml-1">🔒</span>}
                 </button>
               )}
               <button
