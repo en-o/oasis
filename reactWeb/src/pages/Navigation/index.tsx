@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { Search, Grid, List, Settings, ExternalLink, Monitor } from 'lucide-react';
 import { useNavigation } from '@/hooks/useNavigation';
 import { authApi } from '@/services/api';
@@ -18,23 +18,37 @@ const Navigation: React.FC<Props> = ({ onEnterAdmin }) => {
   console.log('navItems 内容:', navItems);
   console.log('categories 长度:', categories.length);
   console.log('loading 状态:', loading);
+  console.log('systemConfig:', systemConfig);
+
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('全部');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
-  const [jumpMethod, setJumpMethod] = useState<'newTab' | 'currentTab'>(systemConfig.defaultOpenMode);
+  const [jumpMethod, setJumpMethod] = useState<'newTab' | 'currentTab'>('newTab'); // 初始默认值
   const [showLogin, setShowLogin] = useState(false);
   const [accountMap, setAccountMap] = useState<Record<number, boolean>>({});
   const [secret, setSecret] = useState('');
+
+  // 当 systemConfig 加载完成后，更新 jumpMethod
+  useEffect(() => {
+    console.log('=== 更新 jumpMethod ===');
+    console.log('systemConfig.defaultOpenMode:', systemConfig.defaultOpenMode);
+    setJumpMethod(systemConfig.defaultOpenMode);
+  }, [systemConfig.defaultOpenMode]);
 
   const allCategories = ['全部', ...categories.map(c => c.categoryName)];
 
   const filteredItems = useMemo(() => {
     console.log('=== filteredItems 计算 ===');
-    console.log('输入数据:', {
-      navItemsCount: navItems.length,
-      searchTerm,
-      selectedCategory
-    });
+    console.log('原始 navItems:', navItems);
+    console.log('navItems 长度:', navItems.length);
+    console.log('searchTerm:', searchTerm);
+    console.log('selectedCategory:', selectedCategory);
+    console.log('categories:', categories);
+
+    if (navItems.length === 0) {
+      console.warn('navItems 为空，返回空数组');
+      return [];
+    }
 
     const result = navItems
       .filter(item => {
@@ -45,11 +59,19 @@ const Navigation: React.FC<Props> = ({ onEnterAdmin }) => {
         const matchesCategory =
           selectedCategory === '全部' || item.category === selectedCategory;
 
+        console.log(`筛选项目 "${item.name}":`, {
+          matchesSearch,
+          matchesCategory,
+          itemCategory: item.category,
+          selectedCategory
+        });
+
         return matchesSearch && matchesCategory;
       })
       .sort((a, b) => a.sort - b.sort);
 
-    console.log('筛选结果:', result.length, result);
+    console.log('筛选结果长度:', result.length);
+    console.log('筛选结果:', result);
     return result;
   }, [navItems, searchTerm, selectedCategory]);
 
@@ -208,25 +230,45 @@ const Navigation: React.FC<Props> = ({ onEnterAdmin }) => {
           </div>
         </div>
 
-        {filteredItems.length === 0 ? (
-          <div className="text-center py-20">
-            <p className="text-gray-500 text-lg">暂无导航数据</p>
-          </div>
-        ) : viewMode === 'grid' ? (
-          <NavGrid
-            items={filteredItems}
-            onNavigate={handleNavigate}
-            accountMap={accountMap}
-            onToggleAccount={toggleAccount}
-          />
-        ) : (
-          <NavList
-            items={filteredItems}
-            onNavigate={handleNavigate}
-            accountMap={accountMap}
-            onToggleAccount={toggleAccount}
-          />
-        )}
+        {(() => {
+          console.log('=== 渲染决策 ===');
+          console.log('filteredItems.length:', filteredItems.length);
+          console.log('viewMode:', viewMode);
+
+          if (filteredItems.length === 0) {
+            console.log('显示：暂无导航数据');
+            return (
+              <div className="text-center py-20">
+                <p className="text-gray-500 text-lg">暂无导航数据</p>
+                <p className="text-gray-400 text-sm mt-2">
+                  navItems: {navItems.length},
+                  categories: {categories.length},
+                  loading: {loading.toString()}
+                </p>
+              </div>
+            );
+          } else if (viewMode === 'grid') {
+            console.log('显示：网格视图');
+            return (
+              <NavGrid
+                items={filteredItems}
+                onNavigate={handleNavigate}
+                accountMap={accountMap}
+                onToggleAccount={toggleAccount}
+              />
+            );
+          } else {
+            console.log('显示：列表视图');
+            return (
+              <NavList
+                items={filteredItems}
+                onNavigate={handleNavigate}
+                accountMap={accountMap}
+                onToggleAccount={toggleAccount}
+              />
+            );
+          }
+        })()}
       </div>
 
       <LoginModal

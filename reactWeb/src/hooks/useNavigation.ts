@@ -109,7 +109,7 @@ export const useNavigation = () => {
       setSystemConfig({
         siteTitle: siteInfo.siteTitle || DEFAULT_SYSTEM_CONFIG.siteTitle,
         siteLogo: siteInfo.siteLogo || DEFAULT_SYSTEM_CONFIG.siteLogo,
-        defaultOpenMode: siteInfo.defaultOpenMode === 1 ? 'newTab' : 'currentTab',
+        defaultOpenMode: siteInfo.defaultOpenMode === 0 ? 'currentTab' : 'newTab',
         hideAdminEntry: siteInfo.hideAdminEntry === 1,
         adminUsername: DEFAULT_SYSTEM_CONFIG.adminUsername,
         adminPassword: DEFAULT_SYSTEM_CONFIG.adminPassword,
@@ -131,20 +131,30 @@ export const useNavigation = () => {
     isLoadingRef.current = true;
     setLoading(true);
 
+    console.log('开始加载导航数据...');
+
+    // 独立调用三个接口，避免相互影响
     try {
-      console.log('开始加载导航数据...');
-      await Promise.all([
-        loadNavItems(),
-        loadCategories(),
-        loadSystemConfig(),
-      ]);
-      console.log('导航数据加载完成');
+      await loadNavItems();
     } catch (error) {
-      console.error('加载导航数据失败:', error);
-    } finally {
-      isLoadingRef.current = false;
-      setLoading(false);
+      console.error('loadNavItems 失败:', error);
     }
+
+    try {
+      await loadCategories();
+    } catch (error) {
+      console.error('loadCategories 失败:', error);
+    }
+
+    try {
+      await loadSystemConfig();
+    } catch (error) {
+      console.error('loadSystemConfig 失败:', error);
+    }
+
+    console.log('导航数据加载完成');
+    isLoadingRef.current = false;
+    setLoading(false);
   };
 
   useEffect(() => {
