@@ -10,6 +10,10 @@ import type {
   NavAccessInfo,
   ResultVO,
   ResultPageVO,
+  BackupConfig,
+  BackupConfigAdd,
+  BackupStatus,
+  DatabaseConfig,
 } from '@/types';
 
 // Navigation APIs - 对应 NavigationController
@@ -78,4 +82,35 @@ export const authApi = {
 
   // 初始化系统配置 - GET /init
   initSysConfig: () => request.get<ResultVO<boolean>>('/init'),
+};
+
+// Backup APIs - 对应 DataBackupController
+export const backupApi = {
+  // 保存备份配置 - POST /data/config
+  saveConfig: (data: BackupConfigAdd) => request.post<ResultVO<string>>('/data/config', data),
+
+  // 获取备份配置 - GET /data/config
+  getConfig: () => request.get<ResultVO<BackupConfig>>('/data/config'),
+
+  // 启动定时备份 - POST /data/start
+  start: () => request.post<ResultVO<string>>('/data/start'),
+
+  // 停止定时备份 - POST /data/stop
+  stop: () => request.post<ResultVO<string>>('/data/stop'),
+
+  // 立即执行一次备份 - POST /data/execute
+  executeOnce: () => request.post<ResultVO<string>>('/data/execute'),
+
+  // 获取备份状态 - GET /data/status
+  getStatus: () => request.get<ResultVO<BackupStatus>>('/data/status'),
+
+  // 测试数据库连接 - POST /data/test-connection
+  testConnection: (config: DatabaseConfig) => request.post<ResultVO<string>>('/data/test-connection', config),
+
+  // 验证Cron表达式 - GET /data/validate-cron
+  validateCron: (cronExpression: string) =>
+    request.get<ResultVO<string>>('/data/validate-cron', { params: { cronExpression } }),
+
+  // 从MySQL恢复数据到H2 - POST /data/restore
+  restore: () => request.post<ResultVO<string>>('/data/restore'),
 };

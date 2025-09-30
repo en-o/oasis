@@ -10,6 +10,7 @@ const tabs = [
   { id: 'nav-management', label: '导航页面管理' },
   { id: 'category-management', label: '分类管理' },
   { id: 'system-management', label: '系统管理' },
+  { id: 'backup-management', label: '备份管理' },
 ];
 
 const AdminSidebar: React.FC<Props> = ({ currentAdminTab, onChangeTab }) => (

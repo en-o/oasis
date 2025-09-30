@@ -103,3 +103,40 @@ export interface NavAccessInfo {
   account: string;
   password: string;
 }
+
+// 备份管理相关类型定义
+export interface BackupConfig {
+  id?: number;
+  url: string;
+  username: string;
+  password: string;
+  driverClassName?: string;
+  schedule?: string;
+  enabled?: boolean;
+  description?: string;
+  lastBackupTime?: string;
+  backupCount?: number;
+}
+
+export interface BackupConfigAdd {
+  url: string;
+  username: string;
+  password: string;
+  schedule?: string;
+  enabled?: boolean;
+  description?: string;
+}
+
+export interface BackupStatus {
+  isRunning: boolean;
+  currentTime: string;
+  schedule?: string;
+  targetUrl?: string;
+}
+
+export interface DatabaseConfig {
+  url: string;
+  username: string;
+  password: string;
+  driverClassName: string;
+}

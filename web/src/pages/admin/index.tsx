@@ -3,6 +3,7 @@ import AdminSidebar from '@/components/AdminSidebar';
 import NavManagement from './components/NavManagement';
 import CategoryManagement from './components/CategoryManagement';
 import SystemManagement from './components/SystemManagement';
+import BackupManagement from './components/BackupManagement';
 import { useNavigation } from '@/hooks/useNavigation';
 import './index.css';
 
@@ -12,7 +13,7 @@ interface Props {
 
 const Admin: React.FC<Props> = ({ onExit }) => {
   const [currentTab, setCurrentTab] = useState<
-    'nav-management' | 'category-management' | 'system-management'
+    'nav-management' | 'category-management' | 'system-management' | 'backup-management'
   >('nav-management');
   const { navItems, setNavItems, categories, setCategories, systemConfig, setSystemConfig } =
     useNavigation();
@@ -50,6 +51,7 @@ const Admin: React.FC<Props> = ({ onExit }) => {
             {currentTab === 'nav-management' && <NavManagement />}
             {currentTab === 'category-management' && <CategoryManagement />}
             {currentTab === 'system-management' && <SystemManagement />}
+            {currentTab === 'backup-management' && <BackupManagement />}
           </div>
         </div>
       </div>

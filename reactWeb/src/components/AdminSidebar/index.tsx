@@ -1,10 +1,10 @@
 import React from 'react';
 import { Menu } from 'antd';
-import { Navigation, Bookmark, Settings } from 'lucide-react';
+import { Navigation, Bookmark, Settings, Database } from 'lucide-react';
 
 interface Props {
-  currentAdminTab: 'nav-management' | 'category-management' | 'system-management';
-  onChangeTab: (tab: 'nav-management' | 'category-management' | 'system-management') => void;
+  currentAdminTab: 'nav-management' | 'category-management' | 'system-management' | 'backup-management';
+  onChangeTab: (tab: 'nav-management' | 'category-management' | 'system-management' | 'backup-management') => void;
 }
 
 const AdminSidebar: React.FC<Props> = ({ currentAdminTab, onChangeTab }) => {
@@ -23,6 +23,11 @@ const AdminSidebar: React.FC<Props> = ({ currentAdminTab, onChangeTab }) => {
       key: 'system-management',
       icon: <Settings className="w-4 h-4" />,
       label: '系统配置',
+    },
+    {
+      key: 'backup-management',
+      icon: <Database className="w-4 h-4" />,
+      label: '备份管理',
     },
   ];
 
