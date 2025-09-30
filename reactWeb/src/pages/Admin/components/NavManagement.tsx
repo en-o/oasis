@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Table, Button, Modal, Form, Input, Select, InputNumber, Switch, message, Popconfirm, Space } from 'antd';
-import { Plus, Edit, Trash2 } from 'lucide-react';
+import { Table, Button, Modal, Form, Input, Select, InputNumber, Switch, message, Popconfirm, Space, Radio, Upload } from 'antd';
+import { Plus, Edit, Trash2, UploadCloud } from 'lucide-react';
+import type { UploadFile } from 'antd/es/upload/interface';
 import type { NavItem, NavCategory } from '@/types';
 import { navigationApi, categoryApi } from '@/services/api';
 
@@ -10,6 +11,8 @@ const NavManagement: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   const [editingItem, setEditingItem] = useState<NavItem | null>(null);
+  const [iconType, setIconType] = useState<'url' | 'upload' | 'none'>('none');
+  const [iconPreview, setIconPreview] = useState<string>('');
   const [form] = Form.useForm();
 
   const loadData = async () => {
@@ -50,6 +53,8 @@ const NavManagement: React.FC = () => {
   const handleAdd = () => {
     setEditingItem(null);
     form.resetFields();
+    setIconType('none');
+    setIconPreview('');
     // 设置默认值
     form.setFieldsValue({
       sort: 1,
@@ -62,12 +67,26 @@ const NavManagement: React.FC = () => {
 
   const handleEdit = (item: NavItem) => {
     setEditingItem(item);
+
+    // 判断图标类型
+    let type: 'url' | 'upload' | 'none' = 'none';
+    if (item.icon) {
+      if (item.icon.startsWith('data:image')) {
+        type = 'upload';
+      } else if (item.icon.startsWith('http://') || item.icon.startsWith('https://')) {
+        type = 'url';
+      }
+      setIconPreview(item.icon);
+    }
+    setIconType(type);
+
     form.setFieldsValue({
       name: item.name,
       url: item.url,
       category: item.category,
       sort: item.sort,
       icon: item.icon,
+      iconUrl: type === 'url' ? item.icon : '',
       remark: item.remark,
       account: item.account,
       password: item.password,
@@ -78,14 +97,73 @@ const NavManagement: React.FC = () => {
     setModalVisible(true);
   };
 
+  // 将文件转换为 base64
+  const fileToBase64 = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = (error) => reject(error);
+    });
+  };
+
+  // 处理图片上传
+  const handleImageUpload = async (file: File) => {
+    // 验证文件类型
+    const isValidImage = ['image/jpeg', 'image/png', 'image/jpg', 'image/gif', 'image/webp'].includes(file.type);
+    if (!isValidImage) {
+      message.error('只支持 JPG/PNG 格式的图片！不支持 SVG');
+      return false;
+    }
+
+    // 验证文件大小（限制 2MB）
+    const isLt2M = file.size / 1024 / 1024 < 2;
+    if (!isLt2M) {
+      message.error('图片大小不能超过 2MB！');
+      return false;
+    }
+
+    try {
+      const base64 = await fileToBase64(file);
+      setIconPreview(base64);
+      form.setFieldValue('icon', base64);
+    } catch (error) {
+      message.error('图片转换失败');
+    }
+
+    return false; // 阻止自动上传
+  };
+
+  // 处理图标类型切换
+  const handleIconTypeChange = (type: 'url' | 'upload' | 'none') => {
+    setIconType(type);
+    setIconPreview('');
+    form.setFieldValue('icon', '');
+    form.setFieldValue('iconUrl', '');
+  };
+
   const handleSubmit = async (values: any) => {
     try {
+      // 根据图标类型确定最终的图标值
+      let finalIcon = '';
+      if (iconType === 'url') {
+        finalIcon = values.iconUrl || '';
+        // 验证 URL 必须是 https
+        if (finalIcon && !finalIcon.startsWith('https://')) {
+          message.error('图标 URL 必须是 HTTPS 地址');
+          return;
+        }
+      } else if (iconType === 'upload') {
+        finalIcon = iconPreview || '';
+      }
+      // iconType === 'none' 时 finalIcon 为空字符串
+
       const submitData: Partial<NavItem> = {
         name: values.name,
         url: values.url,
         category: values.category,
         sort: values.sort,
-        icon: values.icon || '',
+        icon: finalIcon,
         remark: values.remark || '',
         account: values.account || '',
         password: values.password || '',
@@ -310,12 +388,88 @@ const NavManagement: React.FC = () => {
             <InputNumber min={0} placeholder="排序值，数字越小越靠前" className="w-full" />
           </Form.Item>
 
-          <Form.Item
-            name="icon"
-            label="图标"
-            tooltip="支持URL链接或base64编码的图片"
-          >
-            <Input placeholder="图标URL或base64编码" />
+          <Form.Item label="图标">
+            <Space direction="vertical" style={{ width: '100%' }}>
+              <Radio.Group
+                value={iconType}
+                onChange={(e) => handleIconTypeChange(e.target.value)}
+              >
+                <Radio value="none">无图标</Radio>
+                <Radio value="url">使用 HTTPS 地址</Radio>
+                <Radio value="upload">上传图片</Radio>
+              </Radio.Group>
+
+              {iconType === 'url' && (
+                <Form.Item
+                  name="iconUrl"
+                  noStyle
+                  rules={[
+                    {
+                      pattern: /^https:\/\/.+/,
+                      message: '请输入有效的 HTTPS 地址'
+                    }
+                  ]}
+                >
+                  <Input
+                    placeholder="https://example.com/icon.png"
+                    onChange={(e) => setIconPreview(e.target.value)}
+                  />
+                </Form.Item>
+              )}
+
+              {iconType === 'upload' && (
+                <Upload
+                  accept="image/png,image/jpeg,image/jpg,image/gif,image/webp"
+                  showUploadList={false}
+                  beforeUpload={handleImageUpload}
+                  maxCount={1}
+                >
+                  <Button icon={<UploadCloud className="w-4 h-4" />}>
+                    选择图片 (JPG/PNG/GIF/WEBP，不支持SVG)
+                  </Button>
+                </Upload>
+              )}
+
+              {iconPreview && (
+                <div className="flex items-center gap-3 p-3 bg-gray-50 rounded border">
+                  <img
+                    src={iconPreview}
+                    alt="预览"
+                    className="w-12 h-12 object-contain rounded"
+                    onError={(e) => {
+                      e.currentTarget.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDgiIGhlaWdodD0iNDgiIHZpZXdCb3g9IjAgMCA0OCA0OCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iNDgiIGhlaWdodD0iNDgiIGZpbGw9IiNFNUU3RUIiLz48cGF0aCBkPSJNMTYgMTZMMzIgMzJNMzIgMTZMMTYgMzIiIHN0cm9rZT0iIzlDQTNCQSIgc3Ryb2tlLXdpZHRoPSIyIi8+PC9zdmc+';
+                    }}
+                  />
+                  <div className="flex-1">
+                    <div className="text-sm text-gray-600">图标预览</div>
+                    <div className="text-xs text-gray-400 mt-1 break-all">
+                      {iconType === 'url' ? '外部链接' : `Base64 (${Math.round(iconPreview.length / 1024)}KB)`}
+                    </div>
+                  </div>
+                  <Button
+                    size="small"
+                    danger
+                    onClick={() => {
+                      setIconPreview('');
+                      form.setFieldValue('icon', '');
+                      form.setFieldValue('iconUrl', '');
+                    }}
+                  >
+                    清除
+                  </Button>
+                </div>
+              )}
+
+              <div className="text-xs text-gray-500">
+                • 支持上传常规图片格式（不支持 SVG）<br />
+                • 支持使用 HTTPS 图片地址<br />
+                • 图标可为空，将显示默认样式
+              </div>
+            </Space>
+          </Form.Item>
+
+          <Form.Item name="icon" hidden>
+            <Input />
           </Form.Item>
 
           <Form.Item name="remark" label="备注">
