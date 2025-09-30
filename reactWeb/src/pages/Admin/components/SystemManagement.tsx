@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Form, Input, Select, Button, Card, Row, Col, Alert, App } from 'antd';
-import { Save, RefreshCw } from 'lucide-react';
+import { Form, Input, Select, Button, Card, Row, Col, Alert, App, Radio, Upload, Space } from 'antd';
+import { Save, RefreshCw, UploadCloud } from 'lucide-react';
 import type { SysConfig } from '@/types';
 import { sysConfigApi } from '@/services/api';
 
@@ -8,11 +8,13 @@ const SystemManagement: React.FC = () => {
   const { message } = App.useApp();
   const [config, setConfig] = useState<SysConfig | null>(null);
   const [loading, setLoading] = useState(false);
+  const [logoType, setLogoType] = useState<'url' | 'upload' | 'none'>('none');
+  const [logoPreview, setLogoPreview] = useState<string>('');
   const [form] = Form.useForm();
 
   const configFields = [
     { key: 'siteTitle', label: '网站标题', type: 'text', required: true },
-    { key: 'siteLogo', label: '网站Logo', type: 'textarea', required: false, description: '支持Base64编码图片、HTTP/HTTPS链接或留空使用默认图标' },
+    { key: 'siteLogo', label: '网站Logo', type: 'logo', required: false },
     { key: 'defaultOpenMode', label: '默认打开方式', type: 'select', required: true, options: [
       { label: '新标签页', value: 1 },
       { label: '当前标签页', value: 0 },
@@ -25,15 +27,60 @@ const SystemManagement: React.FC = () => {
     { key: 'password', label: '管理员密码', type: 'password', required: true },
   ];
 
+  // 将文件转换为 base64
+  const fileToBase64 = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = (error) => reject(error);
+    });
+  };
+
+  // 处理图片上传
+  const handleImageUpload = async (file: File) => {
+    // 验证文件类型
+    const isValidImage = ['image/jpeg', 'image/png', 'image/jpg', 'image/svg', "image/svg+xml"].includes(file.type);
+    if (!isValidImage) {
+      message.error('只支持 JPG/PNG/SVG 格式的图片！ ');
+      return false;
+    }
+
+    // 验证文件大小（限制 2MB）
+    const isLt2M = file.size / 1024 / 1024 < 2;
+    if (!isLt2M) {
+      message.error('图片大小不能超过 2MB！');
+      return false;
+    }
+
+    try {
+      const base64 = await fileToBase64(file);
+      setLogoPreview(base64);
+      form.setFieldValue('siteLogo', base64);
+    } catch (error) {
+      message.error('图片转换失败');
+    }
+
+    return false; // 阻止自动上传
+  };
+
+  // 处理 Logo 类型切换
+  const handleLogoTypeChange = (type: 'url' | 'upload' | 'none') => {
+    setLogoType(type);
+    setLogoPreview('');
+    form.setFieldValue('siteLogo', '');
+    form.setFieldValue('logoUrl', '');
+  };
+
   // Logo格式检测函数
   const detectLogoFormat = (value: string) => {
     if (!value || value.trim() === '') {
-      return 'empty';
+      return 'none';
     }
 
     // Base64格式检测
     if (value.startsWith('data:image/')) {
-      return 'base64';
+      return 'upload';
     }
 
     // URL格式检测
@@ -41,23 +88,7 @@ const SystemManagement: React.FC = () => {
       return 'url';
     }
 
-    return 'invalid';
-  };
-
-  // 获取格式描述
-  const getFormatDescription = (format: string) => {
-    switch (format) {
-      case 'base64':
-        return 'Base64 编码图片';
-      case 'url':
-        return 'HTTP/HTTPS 链接';
-      case 'empty':
-        return '空值 (将显示默认图标)';
-      case 'invalid':
-        return '无效格式';
-      default:
-        return '未知';
-    }
+    return 'none';
   };
 
   const loadData = async () => {
@@ -68,10 +99,19 @@ const SystemManagement: React.FC = () => {
       console.log('管理页面加载的系统配置数据:', configData);
       setConfig(configData);
       if (configData) {
+        // 检测 Logo 类型并设置预览
+        const siteLogo = configData.siteLogo || '';
+        const detectedType = detectLogoFormat(siteLogo);
+        setLogoType(detectedType);
+        if (siteLogo) {
+          setLogoPreview(siteLogo);
+        }
+
         // 确保表单回显正确的值
         const formValues = {
           siteTitle: configData.siteTitle,
           siteLogo: configData.siteLogo,
+          logoUrl: detectedType === 'url' ? configData.siteLogo : '',
           defaultOpenMode: configData.defaultOpenMode,
           hideAdminEntry: configData.hideAdminEntry,
           username: configData.username,
@@ -93,8 +133,27 @@ const SystemManagement: React.FC = () => {
   const handleSubmit = async (values: any) => {
     try {
       setLoading(true);
+
+      // 根据 Logo 类型确定最终的值
+      let finalLogo = '';
+      if (logoType === 'url') {
+        finalLogo = values.logoUrl || '';
+        // 验证 URL 必须是 https
+        if (finalLogo && !finalLogo.startsWith('https://')) {
+          message.error('Logo URL 必须是 HTTPS 地址');
+          return;
+        }
+      } else if (logoType === 'upload') {
+        finalLogo = logoPreview || '';
+      }
+      // logoType === 'none' 时 finalLogo 为空字符串
+
       if (config) {
-        await sysConfigApi.update({ ...config, ...values });
+        await sysConfigApi.update({
+          ...config,
+          ...values,
+          siteLogo: finalLogo
+        });
         message.success('更新成功');
       }
       loadData();
@@ -109,33 +168,83 @@ const SystemManagement: React.FC = () => {
   const renderField = (field: any) => {
     if (field.key === 'siteLogo') {
       return (
-        <div>
-          <Input.TextArea
-            rows={3}
-            placeholder={`请输入${field.label}`}
-            onChange={(e) => {
-              const format = detectLogoFormat(e.target.value);
-              // 可以在这里添加实时验证逻辑
-            }}
-          />
-          <Form.Item noStyle shouldUpdate={(prevValues, curValues) => prevValues.siteLogo !== curValues.siteLogo}>
-            {({ getFieldValue }) => {
-              const logoValue = getFieldValue('siteLogo');
-              const format = detectLogoFormat(logoValue || '');
-              const description = getFormatDescription(format);
-              const isValid = format !== 'invalid';
+        <Space direction="vertical" style={{ width: '100%' }}>
+          <Radio.Group
+            value={logoType}
+            onChange={(e) => handleLogoTypeChange(e.target.value)}
+          >
+            <Radio value="none">无Logo</Radio>
+            <Radio value="url">使用 HTTPS 地址</Radio>
+            <Radio value="upload">上传图片</Radio>
+          </Radio.Group>
 
-              return logoValue ? (
-                <Alert
-                  message={`检测到格式: ${description}`}
-                  type={isValid ? 'success' : 'error'}
-                  size="small"
-                  style={{ marginTop: 8 }}
-                />
-              ) : null;
-            }}
-          </Form.Item>
-        </div>
+          {logoType === 'url' && (
+            <Form.Item
+              name="logoUrl"
+              noStyle
+              rules={[
+                {
+                  pattern: /^https:\/\/.+/,
+                  message: '请输入有效的 HTTPS 地址'
+                }
+              ]}
+            >
+              <Input
+                placeholder="https://example.com/logo.png"
+                onChange={(e) => setLogoPreview(e.target.value)}
+              />
+            </Form.Item>
+          )}
+
+          {logoType === 'upload' && (
+            <Upload
+              accept="image/png,image/jpeg,image/jpg,image/svg,image/svg+xml"
+              showUploadList={false}
+              beforeUpload={handleImageUpload}
+              maxCount={1}
+            >
+              <Button icon={<UploadCloud className="w-4 h-4" />}>
+                选择图片 (JPG/PNG/SVG)
+              </Button>
+            </Upload>
+          )}
+
+          {logoPreview && (
+            <div className="flex items-center gap-3 p-3 bg-gray-50 rounded border">
+              <img
+                src={logoPreview}
+                alt="预览"
+                className="w-12 h-12 object-contain rounded"
+                onError={(e) => {
+                  e.currentTarget.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDgiIGhlaWdodD0iNDgiIHZpZXdCb3g9IjAgMCA0OCA0OCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iNDgiIGhlaWdodD0iNDgiIGZpbGw9IiNFNUU3RUIiLz48cGF0aCBkPSJNMTYgMTZMMzIgMzJNMzIgMTZMMTYgMzIiIHN0cm9rZT0iIzlDQTNCQSIgc3Ryb2tlLXdpZHRoPSIyIi8+PC9zdmc+';
+                }}
+              />
+              <div className="flex-1">
+                <div className="text-sm text-gray-600">Logo 预览</div>
+                <div className="text-xs text-gray-400 mt-1 break-all">
+                  {logoType === 'url' ? '外部链接' : `Base64 (${Math.round(logoPreview.length / 1024)}KB)`}
+                </div>
+              </div>
+              <Button
+                size="small"
+                danger
+                onClick={() => {
+                  setLogoPreview('');
+                  form.setFieldValue('siteLogo', '');
+                  form.setFieldValue('logoUrl', '');
+                }}
+              >
+                清除
+              </Button>
+            </div>
+          )}
+
+          <div className="text-xs text-gray-500">
+            • 支持上传常规图片格式<br />
+            • 支持使用 HTTPS 图片地址<br />
+            • Logo 可为空，将显示默认样式
+          </div>
+        </Space>
       );
     }
 
@@ -197,7 +306,7 @@ const SystemManagement: React.FC = () => {
             >
               <Row gutter={16}>
                 {configFields.map((field) => (
-                  <Col xs={24} md={12} key={field.key}>
+                  <Col xs={24} md={field.key === 'siteLogo' ? 24 : 12} key={field.key}>
                     <Form.Item
                       name={field.key}
                       label={field.label}
@@ -209,6 +318,11 @@ const SystemManagement: React.FC = () => {
                   </Col>
                 ))}
               </Row>
+
+              {/* 隐藏字段用于存储 siteLogo */}
+              <Form.Item name="siteLogo" hidden>
+                <Input />
+              </Form.Item>
 
               <Form.Item className="mb-0 text-right">
                 <Button
