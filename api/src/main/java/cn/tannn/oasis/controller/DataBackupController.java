@@ -100,6 +100,9 @@ public class DataBackupController {
     public ResultVO<String> stop() {
         try {
             scheduler.stop();
+            BackupConfig config = backupConfigService.getEnabledConfig();
+            config.setEnabled(false);
+            backupConfigService.saveOrUpdate(config);
             log.info("定时备份任务停止成功");
             return ResultVO.success("定时备份已停止");
         } catch (Exception e) {

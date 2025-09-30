@@ -45,32 +45,36 @@ api.interceptors.response.use(
     if (error.response) {
       const { status, data } = error.response;
 
-      // 如果响应中包含后端返回的错误信息，优先使用
-      if (data && data.message) {
-        errorMessage = data.message;
-      } else {
-        switch (status) {
-          case 401:
-            errorMessage = '登录已过期，请重新登录';
-            localStorage.removeItem('token');
-            // 避免在登录页面重复跳转
-            if (window.location.pathname !== '/admin') {
-              window.location.href = '/';
-            }
-            break;
-          case 403:
-            errorMessage = '权限不足';
-            break;
-          case 404:
-            errorMessage = '请求的资源不存在';
-            break;
-          case 500:
-            // 500 错误时，如果后端返回了详细信息，已经在上面处理了
-            errorMessage = data?.message || '服务器内部错误';
-            break;
-          default:
-            errorMessage = `请求失败 (${status})`;
-        }
+      // 如果响应数据包含标准的后端错误格式，优先使用
+      if (data && typeof data === 'object' && 'message' in data) {
+        errorMessage = data.message || '请求失败';
+        message.error(errorMessage);
+        // 返回统一格式的错误，让调用方可以处理
+        return Promise.reject(data);
+      }
+
+      // 否则根据 HTTP 状态码处理
+      switch (status) {
+        case 401:
+          errorMessage = '登录已过期，请重新登录';
+          localStorage.removeItem('token');
+          // 避免在登录页面重复跳转
+          if (window.location.pathname !== '/admin') {
+            window.location.href = '/';
+          }
+          break;
+        case 403:
+          errorMessage = '权限不足';
+          break;
+        case 404:
+          errorMessage = '请求的资源不存在';
+          break;
+        case 500:
+          errorMessage = data?.message || '服务器内部错误';
+          break;
+        default:
+          errorMessage = data?.message
+          // errorMessage = `请求失败 (${status})`;
       }
     } else if (error.request) {
       errorMessage = '网络连接失败，请检查网络';
