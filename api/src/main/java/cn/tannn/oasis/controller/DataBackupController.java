@@ -44,6 +44,19 @@ public class DataBackupController {
     @Autowired
     private ConfigurableEnvironment environment;
 
+    public void init() {
+        try {
+            BackupConfig config = backupConfigService.getEnabledConfig();
+            if(config==null){
+              log.error("init Backup 未找到启用的备份配置");
+            }
+
+            scheduler.start(config, DatabaseConfig.fromEnvironmentH2(environment));
+            log.info("定时备份任务启动成功");
+        } catch (Exception e) {
+            log.error("启动定时备份失败", e);
+        }
+    }
 
     @Operation(summary = "保存备份配置")
     @PostMapping("/config")
@@ -85,10 +98,9 @@ public class DataBackupController {
             if(config.getEnabled()){
                 return ResultVO.success("定时备份已启动");
             }
-
-            scheduler.start(config, DatabaseConfig.fromEnvironmentH2(environment));
             config.setEnabled(true);
             backupConfigService.saveOrUpdate(config);
+            scheduler.start(config, DatabaseConfig.fromEnvironmentH2(environment));
             log.info("定时备份任务启动成功");
             return ResultVO.success("定时备份已启动");
         } catch (Exception e) {
@@ -96,6 +108,9 @@ public class DataBackupController {
             return ResultVO.failMessage("启动失败: " + e.getMessage());
         }
     }
+
+
+
 
     @Operation(summary = "停止定时备份")
     @PostMapping("/stop")

@@ -23,6 +23,6 @@ public class ApiApplication  implements ApplicationRunner {
     public void run(ApplicationArguments args) throws Exception {
         // 启动检查定时备份任务
         log.info("启动检查定时备份任务");
-        dataBackupController.start();
+        dataBackupController.init();
     }
 }
