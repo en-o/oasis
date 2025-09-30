@@ -87,6 +87,8 @@ public class DataBackupController {
             }
 
             scheduler.start(config, DatabaseConfig.fromEnvironmentH2(environment));
+            config.setEnabled(true);
+            backupConfigService.saveOrUpdate(config);
             log.info("定时备份任务启动成功");
             return ResultVO.success("定时备份已启动");
         } catch (Exception e) {
