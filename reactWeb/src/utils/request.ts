@@ -34,7 +34,6 @@ api.interceptors.response.use(
       // 业务错误，显示后端返回的错误信息
       const errorMessage = data.message || '请求失败';
       message.error(errorMessage);
-
       // 返回原始数据而不是抛出错误，让调用方可以处理
       return Promise.reject(data);
     }
@@ -66,10 +65,10 @@ api.interceptors.response.use(
               errorMessage = '请求的资源不存在';
               break;
             case 500:
-              errorMessage = data?.message || '服务器内部错误';
+              errorMessage =  '服务器内部错误';
               break;
             default:
-              errorMessage = data?.message || `请求失败 (${status})`;
+              errorMessage = `请求失败 (${status})`;
           }
         }
       } else if (error.request) {
