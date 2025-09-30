@@ -362,7 +362,7 @@ const BackupManagement: React.FC = () => {
               icon={<PlayCircleOutlined />}
               onClick={handleStart}
               loading={loading}
-              disabled={!config?.enabled || status?.isRunning}
+              disabled={status?.isRunning}
             >
               启动定时备份
             </Button>

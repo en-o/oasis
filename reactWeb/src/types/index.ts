@@ -6,8 +6,11 @@ export interface NavItem {
   category: string;
   icon?: string;
   remark?: string;
+  account?: string; // 登录账号
+  password?: string; // 登录密码
   lookAccount: boolean;
   hasAccount: boolean; // 是否有账户信息（从后端安全返回）
+  nvaAccessSecret?: string; // 查看密钥
   status: number; // 0=停用, 1=启用
 }
 
