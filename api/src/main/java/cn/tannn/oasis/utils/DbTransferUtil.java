@@ -834,7 +834,19 @@ public class DbTransferUtil {
                 case "TEXT":
                     return "TEXT";
                 case "CHARACTER VARYING":
-                    return "LONGTEXT";
+                    // CHARACTER VARYING就是VARCHAR的SQL标准名称
+                    // 保留原始的列大小
+                    if (columnSize > 16777215) {
+                        // 超过MEDIUMTEXT的最大长度，使用LONGTEXT
+                        return "LONGTEXT";
+                    } else if (columnSize > 65535) {
+                        return "TEXT";
+                    } else if (columnSize > 0) {
+                        return String.format("VARCHAR(%d)", columnSize);
+                    } else {
+                        // 如果没有size信息，使用默认值
+                        return "VARCHAR(255)";
+                    }
                 case "BLOB":
                     return "BLOB";
                 case "DATE":
