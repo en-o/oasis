@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { Table, Button, Modal, Form, Input, Select, InputNumber, Switch, message, Popconfirm, Space, Radio, Upload } from 'antd';
+import { Table, Button, Modal, Form, Input, Select, InputNumber, Switch, Popconfirm, Space, Radio, Upload, App } from 'antd';
 import { Plus, Edit, Trash2, UploadCloud } from 'lucide-react';
 import type { UploadFile } from 'antd/es/upload/interface';
 import type { NavItem, NavCategory } from '@/types';
 import { navigationApi, categoryApi } from '@/services/api';
 
 const NavManagement: React.FC = () => {
+  const { message } = App.useApp();
   const [navItems, setNavItems] = useState<NavItem[]>([]);
   const [categories, setCategories] = useState<NavCategory[]>([]);
   const [loading, setLoading] = useState(false);

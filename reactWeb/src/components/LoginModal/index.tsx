@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Modal, Form, Input, Button, message } from 'antd';
+import { Modal, Form, Input, Button, App } from 'antd';
 import { User, Lock } from 'lucide-react';
 
 interface Props {
@@ -9,6 +9,7 @@ interface Props {
 }
 
 const LoginModal: React.FC<Props> = ({ visible, onClose, onLogin }) => {
+  const { message } = App.useApp();
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
 

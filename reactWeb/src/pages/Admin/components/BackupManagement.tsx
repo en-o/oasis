@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Card, Form, Input, Button, Switch, message, Space, Tag, Descriptions, Modal, Select, Radio } from 'antd';
+import { Card, Form, Input, Button, Switch, Space, Tag, Descriptions, Modal, Select, Radio, App } from 'antd';
 import { SaveOutlined, SyncOutlined, PlayCircleOutlined, PauseCircleOutlined, ThunderboltOutlined, RollbackOutlined, CheckCircleOutlined } from '@ant-design/icons';
 import { backupApi } from '@/services/api';
 import type { BackupConfig, BackupStatus } from '@/types';
@@ -19,6 +19,7 @@ const CRON_PRESETS = [
 ];
 
 const BackupManagement: React.FC = () => {
+  const { message } = App.useApp();
   const [form] = Form.useForm();
   const [config, setConfig] = useState<BackupConfig | null>(null);
   const [status, setStatus] = useState<BackupStatus | null>(null);
@@ -100,9 +101,7 @@ const BackupManagement: React.FC = () => {
       });
       message.success(response.message || '连接测试成功');
     } catch (error: any) {
-      if (error.errorFields) {
-        message.error('请先填写数据库连接信息');
-      }
+      message.error(error.message );
     } finally {
       setTestLoading(false);
     }
@@ -118,7 +117,7 @@ const BackupManagement: React.FC = () => {
       setCronValidating(true);
       const response = await backupApi.validateCron(schedule);
       message.success(response.data || 'Cron表达式格式正确');
-    } catch (error) {
+    } catch (error: any) {
       message.error(error.message);
       // 错误已由拦截器处理
     } finally {

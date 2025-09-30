@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { Table, Button, Modal, Form, Input, InputNumber, message, Popconfirm, Space } from 'antd';
+import { Table, Button, Modal, Form, Input, InputNumber, Popconfirm, Space, App } from 'antd';
 import { Plus, Edit, Trash2 } from 'lucide-react';
 import type { NavCategory } from '@/types';
 import { categoryApi } from '@/services/api';
 
 const CategoryManagement: React.FC = () => {
+  const { message } = App.useApp();
   const [categories, setCategories] = useState<NavCategory[]>([]);
   const [loading, setLoading] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);

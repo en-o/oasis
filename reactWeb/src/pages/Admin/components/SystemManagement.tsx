@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { Form, Input, Select, message, Button, Card, Row, Col, Alert } from 'antd';
+import { Form, Input, Select, Button, Card, Row, Col, Alert, App } from 'antd';
 import { Save, RefreshCw } from 'lucide-react';
 import type { SysConfig } from '@/types';
 import { sysConfigApi } from '@/services/api';
 
 const SystemManagement: React.FC = () => {
+  const { message } = App.useApp();
   const [config, setConfig] = useState<SysConfig | null>(null);
   const [loading, setLoading] = useState(false);
   const [form] = Form.useForm();
