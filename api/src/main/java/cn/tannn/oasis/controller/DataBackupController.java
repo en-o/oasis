@@ -81,9 +81,9 @@ public class DataBackupController {
     @PostMapping("/start")
     public ResultVO<String> start() {
         try {
-            BackupConfig config = backupConfigService.getEnabledConfig();
-            if (config == null) {
-                return ResultVO.failMessage("未找到启用的备份配置");
+            BackupConfig config = backupConfigService.getConfig();
+            if(config.getEnabled()){
+                return ResultVO.success("定时备份已启动");
             }
 
             scheduler.start(config, DatabaseConfig.fromEnvironmentH2(environment));

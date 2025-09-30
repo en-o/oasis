@@ -600,11 +600,16 @@ public class DbTransferUtil {
             }
         }
 
-        // 默认值 - 改进处理逻辑
+        // 默认值 - 改进处理逻辑，MySQL的BLOB/TEXT/GEOMETRY/JSON类型不能有默认值
         if (column.defaultValue != null && !column.autoIncrement) {
-            String processedDefault = processDefaultValue(column.defaultValue, column.dataType, isMySQL, isH2);
-            if (processedDefault != null && !processedDefault.trim().isEmpty()) {
-                def.append(" DEFAULT ").append(processedDefault);
+            // MySQL特殊检查：BLOB, TEXT, GEOMETRY, JSON类型不能有默认值
+            if (isMySQL && isLargeObjectType(column.dataType)) {
+                log.debug("跳过MySQL BLOB/TEXT/GEOMETRY/JSON类型的默认值: {} - {}", column.columnName, column.dataType);
+            } else {
+                String processedDefault = processDefaultValue(column.defaultValue, column.dataType, isMySQL, isH2);
+                if (processedDefault != null && !processedDefault.trim().isEmpty()) {
+                    def.append(" DEFAULT ").append(processedDefault);
+                }
             }
         }
 
@@ -615,6 +620,24 @@ public class DbTransferUtil {
         }
 
         return def.toString();
+    }
+
+
+    /**
+     * 判断是否为MySQL不允许设置默认值的大对象类型
+     */
+    private static boolean isLargeObjectType(String dataType) {
+        String upperType = dataType.toUpperCase();
+        return upperType.contains("BLOB") ||
+                upperType.contains("TEXT") ||
+                upperType.equals("GEOMETRY") ||
+                upperType.equals("JSON") ||
+                upperType.equals("LONGTEXT") ||
+                upperType.equals("MEDIUMTEXT") ||
+                upperType.equals("TINYTEXT") ||
+                upperType.equals("LONGBLOB") ||
+                upperType.equals("MEDIUMBLOB") ||
+                upperType.equals("TINYBLOB");
     }
 
     /**
