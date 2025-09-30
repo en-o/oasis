@@ -731,7 +731,7 @@ public class DbTransferUtil {
     private static String convertDataType(String originalType, int columnSize, int decimalDigits, boolean isMySQL, boolean isH2) {
         String upperType = originalType.toUpperCase();
 
-        // MySQL 到 H2 的转换
+        // 其他数据库（如 MySQL）转换到 H2
         if (isH2) {
             switch (upperType) {
                 case "TINYINT":
@@ -756,10 +756,12 @@ public class DbTransferUtil {
                     return String.format("CHAR(%d)", columnSize);
                 case "VARCHAR":
                     return String.format("VARCHAR(%d)", columnSize);
-                case "TEXT":
-                case "LONGTEXT":
                 case "MEDIUMTEXT":
                     return "TEXT";
+                case "TEXT":
+                case "LONGTEXT":
+                    // MySQL LONGTEXT 转为 H2 CHARACTER VARYING
+                    return "CHARACTER VARYING";
                 case "BLOB":
                 case "LONGBLOB":
                 case "MEDIUMBLOB":
@@ -781,7 +783,7 @@ public class DbTransferUtil {
             }
         }
 
-        // H2 到 MySQL 的转换
+        // 其他数据库（如 H2）转换到 MySQL
         if (isMySQL) {
             switch (upperType) {
                 case "TINYINT":
@@ -808,6 +810,8 @@ public class DbTransferUtil {
                 case "CLOB":
                 case "TEXT":
                     return "TEXT";
+                case "CHARACTER VARYING":
+                    return "LONGTEXT";
                 case "BLOB":
                     return "BLOB";
                 case "DATE":

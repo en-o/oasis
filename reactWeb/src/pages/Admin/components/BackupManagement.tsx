@@ -1,8 +1,22 @@
 import React, { useState, useEffect } from 'react';
-import { Card, Form, Input, Button, Switch, message, Space, Tag, Descriptions, Modal } from 'antd';
+import { Card, Form, Input, Button, Switch, message, Space, Tag, Descriptions, Modal, Select, Radio } from 'antd';
 import { SaveOutlined, SyncOutlined, PlayCircleOutlined, PauseCircleOutlined, ThunderboltOutlined, RollbackOutlined, CheckCircleOutlined } from '@ant-design/icons';
 import { backupApi } from '@/services/api';
 import type { BackupConfig, BackupStatus } from '@/types';
+
+// 常用定时表达式预设
+const CRON_PRESETS = [
+  { label: '每天凌晨2点', value: '0 0 2 * * ?' },
+  { label: '每天凌晨3点', value: '0 0 3 * * ?' },
+  { label: '每天中午12点', value: '0 0 12 * * ?' },
+  { label: '每天晚上8点', value: '0 0 20 * * ?' },
+  { label: '每12小时', value: '0 0 */12 * * ?' },
+  { label: '每6小时', value: '0 0 */6 * * ?' },
+  { label: '每小时', value: '0 0 * * * ?' },
+  { label: '每周日凌晨2点', value: '0 0 2 ? * SUN' },
+  { label: '每月1号凌晨2点', value: '0 0 2 1 * ?' },
+  { label: '自定义', value: 'custom' },
+];
 
 const BackupManagement: React.FC = () => {
   const [form] = Form.useForm();
@@ -11,6 +25,8 @@ const BackupManagement: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [testLoading, setTestLoading] = useState(false);
   const [cronValidating, setCronValidating] = useState(false);
+  const [cronMode, setCronMode] = useState<'preset' | 'custom'>('preset');
+  const [selectedPreset, setSelectedPreset] = useState<string>('0 0 2 * * ?');
 
   // 加载配置和状态
   useEffect(() => {
@@ -27,6 +43,16 @@ const BackupManagement: React.FC = () => {
       if (response.code === 200 && response.data) {
         setConfig(response.data);
         form.setFieldsValue(response.data);
+        // 检查是否是预设的cron表达式
+        if (response.data.schedule) {
+          const preset = CRON_PRESETS.find(p => p.value === response.data.schedule);
+          if (preset && preset.value !== 'custom') {
+            setCronMode('preset');
+            setSelectedPreset(preset.value);
+          } else {
+            setCronMode('custom');
+          }
+        }
       }
     } catch (error) {
       console.error('加载配置失败:', error);
@@ -272,18 +298,52 @@ const BackupManagement: React.FC = () => {
           <Form.Item
             label="定时表达式"
             name="schedule"
-            extra="支持Cron表达式，例如: 0 0 2 * * ? (每天凌晨2点执行)"
           >
-            <Space.Compact style={{ width: '100%' }}>
-              <Input placeholder="0 0 2 * * ?" />
-              <Button
-                type="primary"
-                onClick={handleValidateCron}
-                loading={cronValidating}
+            <Space direction="vertical" style={{ width: '100%' }}>
+              <Radio.Group
+                value={cronMode}
+                onChange={(e) => {
+                  const mode = e.target.value;
+                  setCronMode(mode);
+                  if (mode === 'preset') {
+                    form.setFieldValue('schedule', selectedPreset);
+                  }
+                }}
               >
-                验证
-              </Button>
-            </Space.Compact>
+                <Radio value="preset">使用预设</Radio>
+                <Radio value="custom">自定义</Radio>
+              </Radio.Group>
+
+              {cronMode === 'preset' ? (
+                <Select
+                  value={selectedPreset}
+                  onChange={(value) => {
+                    setSelectedPreset(value);
+                    form.setFieldValue('schedule', value);
+                  }}
+                  style={{ width: '100%' }}
+                  options={CRON_PRESETS.filter(p => p.value !== 'custom').map(p => ({
+                    label: `${p.label} (${p.value})`,
+                    value: p.value,
+                  }))}
+                />
+              ) : (
+                <Space.Compact style={{ width: '100%' }}>
+                  <Input placeholder="0 0 2 * * ?" />
+                  <Button
+                    type="primary"
+                    onClick={handleValidateCron}
+                    loading={cronValidating}
+                  >
+                    验证
+                  </Button>
+                </Space.Compact>
+              )}
+
+              <div className="text-xs text-gray-500">
+                支持Cron表达式，例如: 0 0 2 * * ? (每天凌晨2点执行)
+              </div>
+            </Space>
           </Form.Item>
 
           <Form.Item
