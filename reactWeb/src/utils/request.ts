@@ -39,52 +39,48 @@ api.interceptors.response.use(
       return Promise.reject(data);
     }
   },
-  (error) => {
-    let errorMessage = '网络错误，请稍后重试';
+    (error) => {
+      let errorMessage = '网络错误，请稍后重试';
 
-    if (error.response) {
-      const { status, data } = error.response;
+      if (error.response) {
+        const { status, data } = error.response;
 
-      // 如果响应数据包含标准的后端错误格式，优先使用
-      if (data && typeof data === 'object' && 'message' in data) {
-        errorMessage = data.message || '请求失败';
-        message.error(errorMessage);
-        // 返回统一格式的错误，让调用方可以处理
-        return Promise.reject(data);
-      }
-
-      // 否则根据 HTTP 状态码处理
-      switch (status) {
-        case 401:
-          errorMessage = '登录已过期，请重新登录';
-          localStorage.removeItem('token');
-          // 避免在登录页面重复跳转
-          if (window.location.pathname !== '/admin') {
-            window.location.href = '/';
+        // 如果响应数据包含标准的后端错误格式，优先使用
+        if (data && typeof data === 'object' && 'message' in data) {
+          errorMessage = data.message || '请求失败';
+        } else {
+          // 否则根据 HTTP 状态码处理
+          switch (status) {
+            case 401:
+              errorMessage = '登录已过期，请重新登录';
+              localStorage.removeItem('token');
+              // 避免在登录页面重复跳转
+              if (window.location.pathname !== '/admin') {
+                window.location.href = '/';
+              }
+              break;
+            case 403:
+              errorMessage = '权限不足';
+              break;
+            case 404:
+              errorMessage = '请求的资源不存在';
+              break;
+            case 500:
+              errorMessage = data?.message || '服务器内部错误';
+              break;
+            default:
+              errorMessage = data?.message || `请求失败 (${status})`;
           }
-          break;
-        case 403:
-          errorMessage = '权限不足';
-          break;
-        case 404:
-          errorMessage = '请求的资源不存在';
-          break;
-        case 500:
-          errorMessage = data?.message || '服务器内部错误';
-          break;
-        default:
-          errorMessage = data?.message
-          // errorMessage = `请求失败 (${status})`;
+        }
+      } else if (error.request) {
+        errorMessage = '网络连接失败，请检查网络';
+      } else if (error.message) {
+        errorMessage = error.message;
       }
-    } else if (error.request) {
-      errorMessage = '网络连接失败，请检查网络';
-    } else if (error.message) {
-      errorMessage = error.message;
-    }
 
-    message.error(errorMessage);
-    return Promise.reject(error);
-  }
+      message.error(errorMessage);
+      return Promise.reject(error.response?.data || error);
+    }
 );
 
 export default api;
