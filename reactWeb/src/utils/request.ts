@@ -23,15 +23,20 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response) => {
     const { data } = response;
-    // 后端返回格式: {code: 200, message: string, data: {...}}
-    // 成功的判断条件：code为200
-    if (data.code === 200) {
+
+    // 后端返回格式: {code: number, message: string, data: any, success: boolean}
+    // 优先使用 success 字段判断，如果没有则用 code === 200 判断
+    const isSuccess = data.success !== undefined ? data.success : data.code === 200;
+
+    if (isSuccess) {
       return data;
     } else {
       // 业务错误，显示后端返回的错误信息
       const errorMessage = data.message || '请求失败';
       message.error(errorMessage);
-      throw new Error(errorMessage);
+
+      // 返回原始数据而不是抛出错误，让调用方可以处理
+      return Promise.reject(data);
     }
   },
   (error) => {
@@ -39,29 +44,38 @@ api.interceptors.response.use(
 
     if (error.response) {
       const { status, data } = error.response;
-      switch (status) {
-        case 401:
-          errorMessage = '登录已过期，请重新登录';
-          localStorage.removeItem('token');
-          // 避免在登录页面重复跳转
-          if (window.location.pathname !== '/') {
-            window.location.href = '/';
-          }
-          break;
-        case 403:
-          errorMessage = '权限不足';
-          break;
-        case 404:
-          errorMessage = '请求的资源不存在';
-          break;
-        case 500:
-          errorMessage = '服务器内部错误';
-          break;
-        default:
-          errorMessage = data?.message || `请求失败 (${status})`;
+
+      // 如果响应中包含后端返回的错误信息，优先使用
+      if (data && data.message) {
+        errorMessage = data.message;
+      } else {
+        switch (status) {
+          case 401:
+            errorMessage = '登录已过期，请重新登录';
+            localStorage.removeItem('token');
+            // 避免在登录页面重复跳转
+            if (window.location.pathname !== '/admin') {
+              window.location.href = '/';
+            }
+            break;
+          case 403:
+            errorMessage = '权限不足';
+            break;
+          case 404:
+            errorMessage = '请求的资源不存在';
+            break;
+          case 500:
+            // 500 错误时，如果后端返回了详细信息，已经在上面处理了
+            errorMessage = data?.message || '服务器内部错误';
+            break;
+          default:
+            errorMessage = `请求失败 (${status})`;
+        }
       }
     } else if (error.request) {
       errorMessage = '网络连接失败，请检查网络';
+    } else if (error.message) {
+      errorMessage = error.message;
     }
 
     message.error(errorMessage);
