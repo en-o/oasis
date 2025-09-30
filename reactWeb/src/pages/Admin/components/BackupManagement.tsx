@@ -76,19 +76,14 @@ const BackupManagement: React.FC = () => {
       const values = form.getFieldsValue();
       setLoading(true);
       const response = await backupApi.saveConfig(values);
-      if (response.code === 200) {
-        message.success(response.message || '配置保存成功');
-        await loadConfig();
-        await loadStatus();
-      } else {
-        message.error(response.message || '配置保存失败');
-      }
+      message.success(response.message || '配置保存成功');
+      await loadConfig();
+      await loadStatus();
     } catch (error: any) {
       if (error.errorFields) {
         message.error('请检查表单填写');
-      } else {
-        message.error(error.message || '配置保存失败');
       }
+      // 网络错误已由拦截器处理，不需要额外处理
     } finally {
       setLoading(false);
     }
@@ -103,16 +98,10 @@ const BackupManagement: React.FC = () => {
         ...values,
         driverClassName: 'com.mysql.cj.jdbc.Driver',
       });
-      if (response.code === 200) {
-        message.success(response.message || '连接测试成功');
-      } else {
-        message.error(response.message || '连接测试失败');
-      }
+      message.success(response.message || '连接测试成功');
     } catch (error: any) {
       if (error.errorFields) {
         message.error('请先填写数据库连接信息');
-      } else {
-        message.error(error.message || '连接测试失败');
       }
     } finally {
       setTestLoading(false);
@@ -128,13 +117,9 @@ const BackupManagement: React.FC = () => {
       }
       setCronValidating(true);
       const response = await backupApi.validateCron(schedule);
-      if (response.code === 200) {
-        message.success(response.data || 'Cron表达式格式正确');
-      } else {
-        message.error(response.message || 'Cron表达式格式错误');
-      }
-    } catch (error: any) {
-      message.error(error.message || 'Cron表达式验证失败');
+      message.success(response.data || 'Cron表达式格式正确');
+    } catch (error) {
+      // 错误已由拦截器处理
     } finally {
       setCronValidating(false);
     }
@@ -144,14 +129,10 @@ const BackupManagement: React.FC = () => {
     setLoading(true);
     try {
       const response = await backupApi.start();
-      if (response.code === 200) {
-        message.success(response.message || '定时备份已启动');
-        await loadStatus();
-      } else {
-        message.error(response.message || '启动失败');
-      }
-    } catch (error: any) {
-      message.error(error.message || '启动失败');
+      message.success(response.message || '定时备份已启动');
+      await loadStatus();
+    } catch (error) {
+      // 错误已由拦截器处理
     } finally {
       setLoading(false);
     }
@@ -161,14 +142,10 @@ const BackupManagement: React.FC = () => {
     setLoading(true);
     try {
       const response = await backupApi.stop();
-      if (response.code === 200) {
-        message.success(response.message || '定时备份已停止');
-        await loadStatus();
-      } else {
-        message.error(response.message || '停止失败');
-      }
-    } catch (error: any) {
-      message.error(error.message || '停止失败');
+      message.success(response.message || '定时备份已停止');
+      await loadStatus();
+    } catch (error) {
+      // 错误已由拦截器处理
     } finally {
       setLoading(false);
     }
@@ -178,17 +155,13 @@ const BackupManagement: React.FC = () => {
     setLoading(true);
     try {
       const response = await backupApi.executeOnce();
-      if (response.code === 200) {
-        message.success(response.message || '备份任务已开始执行');
-        setTimeout(() => {
-          loadConfig();
-          loadStatus();
-        }, 2000);
-      } else {
-        message.error(response.message || '执行失败');
-      }
-    } catch (error: any) {
-      message.error(error.message || '执行失败');
+      message.success(response.message || '备份任务已开始执行');
+      setTimeout(() => {
+        loadConfig();
+        loadStatus();
+      }, 2000);
+    } catch (error) {
+      // 错误已由拦截器处理
     } finally {
       setLoading(false);
     }
@@ -205,13 +178,9 @@ const BackupManagement: React.FC = () => {
         setLoading(true);
         try {
           const response = await backupApi.restore();
-          if (response.code === 200) {
-            message.success(response.message || '数据恢复任务完成');
-          } else {
-            message.error(response.message || '恢复失败');
-          }
-        } catch (error: any) {
-          message.error(error.message || '恢复失败');
+          message.success(response.message || '数据恢复任务完成');
+        } catch (error) {
+          // 错误已由拦截器处理
         } finally {
           setLoading(false);
         }
