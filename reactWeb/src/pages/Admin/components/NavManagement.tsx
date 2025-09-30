@@ -204,12 +204,15 @@ const NavManagement: React.FC = () => {
       title: '图标',
       dataIndex: 'icon',
       key: 'icon',
-      width: 60,
+      width: 65,
       align: 'center' as const,
       render: (icon: string, record: NavItem) => {
         if (!icon) {
           return (
-            <div className="w-6 h-6 mx-auto flex items-center justify-center bg-gradient-to-br from-blue-500 to-purple-600 text-white rounded font-bold text-xs">
+            <div
+              className="mx-auto flex items-center justify-center bg-gradient-to-br from-blue-500 to-purple-600 text-white rounded font-bold text-sm"
+              style={{ width: '32px', height: '32px' }}
+            >
               {record.name.slice(0, 1)}
             </div>
           );
@@ -218,14 +221,17 @@ const NavManagement: React.FC = () => {
           <img
             src={icon}
             alt={record.name}
-            className="w-6 h-6 mx-auto object-contain rounded"
+            className="mx-auto object-contain rounded"
+            style={{ width: '32px', height: '32px' }}
             onError={(e) => {
               // 图片加载失败时显示文字
               e.currentTarget.style.display = 'none';
               const parent = e.currentTarget.parentElement;
               if (parent && !parent.querySelector('.fallback-icon')) {
                 const fallback = document.createElement('div');
-                fallback.className = 'fallback-icon w-6 h-6 mx-auto flex items-center justify-center bg-gradient-to-br from-blue-500 to-purple-600 text-white rounded font-bold text-xs';
+                fallback.className = 'fallback-icon mx-auto flex items-center justify-center bg-gradient-to-br from-blue-500 to-purple-600 text-white rounded font-bold text-sm';
+                fallback.style.width = '32px';
+                fallback.style.height = '32px';
                 fallback.textContent = record.name.slice(0, 1);
                 parent.appendChild(fallback);
               }
