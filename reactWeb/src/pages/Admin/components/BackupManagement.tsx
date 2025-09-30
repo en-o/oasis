@@ -119,6 +119,7 @@ const BackupManagement: React.FC = () => {
       const response = await backupApi.validateCron(schedule);
       message.success(response.data || 'Cron表达式格式正确');
     } catch (error) {
+      message.error(error.message);
       // 错误已由拦截器处理
     } finally {
       setCronValidating(false);
