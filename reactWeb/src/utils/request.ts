@@ -1,8 +1,17 @@
 import axios from 'axios';
 import { message } from 'antd';
 
+// 获取 API 基础路径
+// 开发环境：通过 Vite 代理转发到后端
+// 生产环境-合并部署：直接调用同域名下的接口（无需前缀）
+// 生产环境-单独部署：使用 /api 前缀
+const getBaseURL = () => {
+  const apiBaseUrl = import.meta.env.VITE_API_BASE_URL;
+  return apiBaseUrl || '/api';
+};
+
 const api = axios.create({
-  baseURL: '/api',
+  baseURL: getBaseURL(),
   timeout: 10000,
 });
 
