@@ -7,6 +7,13 @@ export default defineConfig(({ mode }) => {
   // 加载环境变量
   const env = loadEnv(mode, process.cwd(), '')
   const apiBaseUrl = env.VITE_API_BASE_URL || '/api';
+
+  // 合并部署模式：输出到 Spring Boot 静态资源目录
+  const isMergedMode = mode === 'production';
+  const outDir = isMergedMode
+    ? path.resolve(__dirname, '../api/src/main/resources/static')
+    : 'dist';
+
   return {
     // 设置基础路径
     base: env.VITE_BASE_PATH || '/',
@@ -21,7 +28,7 @@ export default defineConfig(({ mode }) => {
 
     build: {
       // 输出目录
-      outDir: 'dist',
+      outDir: outDir,
       // 静态资源目录
       assetsDir: 'assets',
       // 启用/禁用 CSS 代码拆分
