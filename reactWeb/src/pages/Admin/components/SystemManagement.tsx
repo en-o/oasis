@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Form, Input, Select, Button, Card, Row, Col, Alert, App, Radio, Upload, Space } from 'antd';
+import React, { useState } from 'react';
+import { Form, Input, Select, Button, Card, Row, Col, App, Radio, Upload, Space } from 'antd';
 import { Save, RefreshCw, UploadCloud } from 'lucide-react';
 import type { SysConfig } from '@/types';
 import { sysConfigApi } from '@/services/api';
@@ -12,7 +12,14 @@ const SystemManagement: React.FC = () => {
   const [logoPreview, setLogoPreview] = useState<string>('');
   const [form] = Form.useForm();
 
-  const configFields = [
+  const configFields: Array<{
+    key: string;
+    label: string;
+    type: string;
+    required: boolean;
+    options?: Array<{ label: string; value: number }>;
+    description?: string;
+  }> = [
     { key: 'siteTitle', label: '网站标题', type: 'text', required: true },
     { key: 'siteLogo', label: '网站Logo', type: 'logo', required: false },
     { key: 'defaultOpenMode', label: '默认打开方式', type: 'select', required: true, options: [

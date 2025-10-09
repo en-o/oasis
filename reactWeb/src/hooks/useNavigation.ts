@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import type { NavItem, NavCategory, SystemConfig, NavigationVO, ResultPageVO, ResultVO, SiteInfo } from '@/types';
+import type { NavItem, NavCategory, SystemConfig, NavigationVO } from '@/types';
 import { webApi } from '@/services/api';
 
 const DEFAULT_SYSTEM_CONFIG: SystemConfig = {
@@ -31,7 +31,7 @@ export const useNavigation = () => {
     try {
       console.log('=== 开始调用导航接口 ===');
 
-      const response: ResultPageVO<NavigationVO> = await webApi.getNavsPage({
+      const response = await webApi.getNavsPage({
         page: { pageNum: 1, pageSize: 100 }
       });
 
@@ -78,7 +78,7 @@ export const useNavigation = () => {
     try {
       console.log('=== 开始调用分类接口 ===');
 
-      const response: ResultVO<NavCategory[]> = await webApi.getCategory();
+      const response = await webApi.getCategory();
 
       // 检查响应结构
       if (!response || response.code !== 200 || !response.data) {
@@ -102,7 +102,7 @@ export const useNavigation = () => {
     try {
       console.log('=== 开始调用站点信息接口 ===');
 
-      const response: ResultVO<SiteInfo> = await webApi.getSiteInfo();
+      const response = await webApi.getSiteInfo();
 
       // 检查响应结构
       if (!response || response.code !== 200 || !response.data) {

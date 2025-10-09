@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axios, { type AxiosInstance, type AxiosRequestConfig } from 'axios';
 import { message } from 'antd';
 
 // 获取 API 基础路径
@@ -10,10 +10,19 @@ const getBaseURL = () => {
   return apiBaseUrl || '/api';
 };
 
+// 创建自定义的 axios 实例接口，重写返回类型
+interface CustomAxiosInstance extends Omit<AxiosInstance, 'get' | 'post' | 'put' | 'delete' | 'patch'> {
+  get<T = any>(url: string, config?: AxiosRequestConfig): Promise<T>;
+  post<T = any>(url: string, data?: any, config?: AxiosRequestConfig): Promise<T>;
+  put<T = any>(url: string, data?: any, config?: AxiosRequestConfig): Promise<T>;
+  delete<T = any>(url: string, config?: AxiosRequestConfig): Promise<T>;
+  patch<T = any>(url: string, data?: any, config?: AxiosRequestConfig): Promise<T>;
+}
+
 const api = axios.create({
   baseURL: getBaseURL(),
   timeout: 10000,
-});
+}) as CustomAxiosInstance;
 
 api.interceptors.request.use(
   (config) => {

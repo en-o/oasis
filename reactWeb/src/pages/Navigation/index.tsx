@@ -41,7 +41,7 @@ const Navigation: React.FC = () => {
       .filter(item => {
         const matchesSearch =
           item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          item.remark.toLowerCase().includes(searchTerm.toLowerCase());
+          (item.remark?.toLowerCase() || '').includes(searchTerm.toLowerCase());
 
         const matchesCategory =
           selectedCategory === '全部' || item.category === selectedCategory;

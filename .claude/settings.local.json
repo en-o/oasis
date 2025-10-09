@@ -6,7 +6,8 @@
       "Bash(npm run dev:*)",
       "Bash(cat:*)",
       "Bash(pkill:*)",
-      "Bash(grep:*)"
+      "Bash(grep:*)",
+      "Bash(npm run build:merged)"
     ],
     "deny": [],
     "ask": []

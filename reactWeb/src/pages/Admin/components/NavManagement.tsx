@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Table, Button, Modal, Form, Input, Select, InputNumber, Switch, Popconfirm, Space, Radio, Upload, App } from 'antd';
 import { Plus, Edit, Trash2, UploadCloud } from 'lucide-react';
-import type { UploadFile } from 'antd/es/upload/interface';
 import type { NavItem, NavCategory } from '@/types';
 import { navigationApi, categoryApi } from '@/services/api';
 
