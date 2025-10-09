@@ -19,7 +19,8 @@ const LoginModal: React.FC<Props> = ({ visible, onClose, onLogin }) => {
       const success = await onLogin(values.username, values.password);
       if (success) {
         message.success('登录成功');
-        onClose();
+        // 登录成功后不调用 onClose，由父组件自己处理
+        // onClose() 只用于取消登录时调用
         form.resetFields();
       } else {
         message.error('用户名或密码错误');

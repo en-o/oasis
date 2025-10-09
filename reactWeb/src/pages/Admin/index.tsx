@@ -20,12 +20,29 @@ const Admin: React.FC = () => {
 
   // 检查是否已登录
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (token) {
-      setIsAuthenticated(true);
-    } else {
-      setShowLogin(true);
-    }
+    const checkAuth = () => {
+      const token = localStorage.getItem('token');
+      if (token) {
+        setIsAuthenticated(true);
+      } else {
+        setIsAuthenticated(false);
+        setShowLogin(true);
+      }
+    };
+
+    // 初始检查
+    checkAuth();
+
+    // 监听 storage 事件，以便在其他标签页登录/退出时同步状态
+    window.addEventListener('storage', checkAuth);
+
+    // 定期检查 token 是否存在（防止在其他地方被删除）
+    const interval = setInterval(checkAuth, 1000);
+
+    return () => {
+      window.removeEventListener('storage', checkAuth);
+      clearInterval(interval);
+    };
   }, []);
 
   const handleLogin = async (username: string, password: string) => {
@@ -36,6 +53,7 @@ const Admin: React.FC = () => {
         localStorage.setItem('token', response.data);
         setIsAuthenticated(true);
         setShowLogin(false);
+        // 登录成功后不需要跳转，因为已经在 /admin 页面了
         return true;
       } else {
         console.error('登录失败:', response.message || '未返回 token');
@@ -54,6 +72,12 @@ const Admin: React.FC = () => {
   const handleLogout = () => {
     localStorage.removeItem('token');
     setIsAuthenticated(false);
+    navigate('/');
+  };
+
+  const handleLoginCancel = () => {
+    // 用户取消登录，返回首页
+    setShowLogin(false);
     navigate('/');
   };
 
@@ -76,7 +100,7 @@ const Admin: React.FC = () => {
 
         <LoginModal
           visible={showLogin}
-          onClose={() => navigate('/')}
+          onClose={handleLoginCancel}
           onLogin={handleLogin}
         />
       </div>
