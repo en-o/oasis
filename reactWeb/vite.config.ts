@@ -6,10 +6,7 @@ import path from 'path'
 export default defineConfig(({ mode }) => {
   // 加载环境变量
   const env = loadEnv(mode, process.cwd(), '')
-
-  // 判断是否为合并部署模式
-  const isMergedDeploy = env.VITE_DEPLOY_MODE === 'merged'
-
+  const apiBaseUrl = env.VITE_API_BASE_URL || '/api';
   return {
     // 设置基础路径
     base: env.VITE_BASE_PATH || '/',
@@ -46,10 +43,10 @@ export default defineConfig(({ mode }) => {
     server: {
       port: 3000,
       proxy: {
-        '/api': {
+        [apiBaseUrl]: {
           target: 'http://localhost:1249',
           changeOrigin: true,
-          rewrite: (path) => path.replace(/^\/api/, ''),
+          rewrite: (path) => path.replace(new RegExp(`^${apiBaseUrl}`), ''),
         },
       },
       historyApiFallback: true,
