@@ -11,12 +11,7 @@ import LoginModal from '@/components/LoginModal';
 const Navigation: React.FC = () => {
   const navigate = useNavigate();
   const { navItems, categories, systemConfig, loading } = useNavigation();
-  console.log('=== Navigation 组件状态 ===');
-  console.log('navItems 长度:', navItems.length);
-  console.log('navItems 内容:', navItems);
-  console.log('categories 长度:', categories.length);
-  console.log('loading 状态:', loading);
-  console.log('systemConfig:', systemConfig);
+
 
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('全部');
@@ -36,12 +31,6 @@ const Navigation: React.FC = () => {
   const allCategories = ['全部', ...categories.map(c => c.categoryName)];
 
   const filteredItems = useMemo(() => {
-    console.log('=== filteredItems 计算 ===');
-    console.log('原始 navItems:', navItems);
-    console.log('navItems 长度:', navItems.length);
-    console.log('searchTerm:', searchTerm);
-    console.log('selectedCategory:', selectedCategory);
-    console.log('categories:', categories);
 
     if (navItems.length === 0) {
       console.warn('navItems 为空，返回空数组');
@@ -57,19 +46,10 @@ const Navigation: React.FC = () => {
         const matchesCategory =
           selectedCategory === '全部' || item.category === selectedCategory;
 
-        console.log(`筛选项目 "${item.name}":`, {
-          matchesSearch,
-          matchesCategory,
-          itemCategory: item.category,
-          selectedCategory
-        });
-
         return matchesSearch && matchesCategory;
       })
       .sort((a, b) => a.sort - b.sort);
 
-    console.log('筛选结果长度:', result.length);
-    console.log('筛选结果:', result);
     return result;
   }, [navItems, searchTerm, selectedCategory]);
 
@@ -261,9 +241,6 @@ const Navigation: React.FC = () => {
         </div>
 
         {(() => {
-          console.log('=== 渲染决策 ===');
-          console.log('filteredItems.length:', filteredItems.length);
-          console.log('viewMode:', viewMode);
 
           if (filteredItems.length === 0) {
             console.log('显示：暂无导航数据');
@@ -278,7 +255,6 @@ const Navigation: React.FC = () => {
               </div>
             );
           } else if (viewMode === 'grid') {
-            console.log('显示：网格视图');
             return (
               <NavGrid
                 items={filteredItems}
