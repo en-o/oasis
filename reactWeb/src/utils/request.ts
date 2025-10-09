@@ -61,12 +61,14 @@ api.interceptors.response.use(
           switch (status) {
             case 401:
               errorMessage = '登录已过期，请重新登录';
-              localStorage.removeItem('token');
-              // 避免在登录页面重复跳转
-              if (window.location.pathname !== '/admin') {
-                window.location.href = '/';
-              }
-              break;
+                localStorage.removeItem('token');
+                // 避免在登录页面重复跳转
+                localStorage.removeItem('token');
+                // 避免在登录页面重复跳转
+                if (!window.location.pathname.endsWith('/admin')) {
+                    window.location.href = '/';
+                }
+                break;
             case 403:
               errorMessage = '权限不足';
               break;
