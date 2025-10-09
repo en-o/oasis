@@ -264,10 +264,7 @@ const BackupManagement: React.FC = () => {
             <Input.Password placeholder="请输入数据库密码" />
           </Form.Item>
 
-          <Form.Item
-            label="定时表达式"
-            name="schedule"
-          >
+          <Form.Item label="定时表达式">
             <Space direction="vertical" style={{ width: '100%' }}>
               <Radio.Group
                 value={cronMode}
@@ -284,21 +281,25 @@ const BackupManagement: React.FC = () => {
               </Radio.Group>
 
               {cronMode === 'preset' ? (
-                <Select
-                  value={selectedPreset}
-                  onChange={(value) => {
-                    setSelectedPreset(value);
-                    form.setFieldValue('schedule', value);
-                  }}
-                  style={{ width: '100%' }}
-                  options={CRON_PRESETS.filter(p => p.value !== 'custom').map(p => ({
-                    label: `${p.label} (${p.value})`,
-                    value: p.value,
-                  }))}
-                />
+                <Form.Item name="schedule" noStyle>
+                  <Select
+                    value={selectedPreset}
+                    onChange={(value) => {
+                      setSelectedPreset(value);
+                      form.setFieldValue('schedule', value);
+                    }}
+                    style={{ width: '100%' }}
+                    options={CRON_PRESETS.filter(p => p.value !== 'custom').map(p => ({
+                      label: `${p.label} (${p.value})`,
+                      value: p.value,
+                    }))}
+                  />
+                </Form.Item>
               ) : (
                 <Space.Compact style={{ width: '100%' }}>
-                  <Input placeholder="0 0 2 * * ?" />
+                  <Form.Item name="schedule" noStyle>
+                    <Input placeholder="0 0 2 * * ?" />
+                  </Form.Item>
                   <Button
                     type="primary"
                     onClick={handleValidateCron}

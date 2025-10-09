@@ -7,7 +7,9 @@ import { message } from 'antd';
 // 生产环境-单独部署：使用 /api 前缀
 const getBaseURL = () => {
   const apiBaseUrl = import.meta.env.VITE_API_BASE_URL;
-  return apiBaseUrl || '/api';
+  // 只有当 apiBaseUrl 为 undefined 时才使用默认值 '/api'
+  // 如果 apiBaseUrl 是空字符串（合并部署模式），则返回空字符串
+  return apiBaseUrl !== undefined ? apiBaseUrl : '/api';
 };
 
 // 创建自定义的 axios 实例接口，重写返回类型
