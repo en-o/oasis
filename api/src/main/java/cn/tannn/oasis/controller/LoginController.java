@@ -51,10 +51,12 @@ public class LoginController {
     public ResultVO<Boolean> initSysConfig()  {
         Optional<SysConfigs> configs = sysConfigsService.findOnly("configKey", "MAIN");
         if(configs.isPresent()){
-            return ResultVO.success("已存在数据不允许初始哈",false);
+            log.info("系统配置已存在不允许初始化");
+            return ResultVO.success("系统配置已存在不允许初始化",false);
         }else {
             SysConfigs bean = SysConfigs.newInstance(defaultSysConfig);
             sysConfigsService.saveOne(bean);
+            log.info("完成系统配置初始化");
             return ResultVO.success("完成初始化",true);
         }
 
