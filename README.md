@@ -10,7 +10,10 @@ JDBC URL：jdbc:h2:file:./api/db/db_oasis
 
 # web
 > reactWeb
-
+```bash
+npm install
+npm run dev
+```
 admin: http://localhost:3000/admin
 nva: http://localhost:3000
 
