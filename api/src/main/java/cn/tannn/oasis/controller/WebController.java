@@ -6,6 +6,7 @@ import cn.tannn.jdevelops.jpa.request.Sorteds;
 import cn.tannn.jdevelops.jpa.result.JpaPageResult;
 import cn.tannn.jdevelops.result.response.ResultPageVO;
 import cn.tannn.jdevelops.result.response.ResultVO;
+import cn.tannn.oasis.config.DefaultSysConfig;
 import cn.tannn.oasis.controller.dto.NavigationPage;
 import cn.tannn.oasis.controller.vo.NavAccessInfo;
 import cn.tannn.oasis.controller.vo.NavigationVO;
@@ -44,12 +45,14 @@ public class WebController {
 
     private final NavigationService navigationService;
     private final SysConfigsService sysConfigsService;
+    private final DefaultSysConfig defaultSysConfig;
     private final NavCategoryService navCategoryService;
 
     @ApiMapping(value = "/site",checkToken = false,method = RequestMethod.GET)
     @Operation(summary = "站点信息", description = "详情")
     public ResultVO<SiteInfo> siteInfo() {
-        SysConfigs bean = sysConfigsService.findOnly("configKey", "MAIN").orElse(SysConfigs.newInstance());
+        SysConfigs bean = sysConfigsService.findOnly("configKey", "MAIN")
+                .orElse(SysConfigs.newInstance(defaultSysConfig));
         return ResultVO.success(SiteInfo.to(bean));
     }
 
