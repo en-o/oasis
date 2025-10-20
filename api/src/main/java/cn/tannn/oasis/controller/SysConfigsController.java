@@ -5,6 +5,7 @@ import cn.tannn.jdevelops.annotations.web.authentication.ApiMapping;
 import cn.tannn.jdevelops.annotations.web.mapping.PathRestController;
 import cn.tannn.jdevelops.jpa.constant.SQLOperator;
 import cn.tannn.jdevelops.result.response.ResultVO;
+import cn.tannn.oasis.config.DefaultSysConfig;
 import cn.tannn.oasis.controller.dto.LoginPassword;
 import cn.tannn.oasis.controller.dto.SysConfigsEdit;
 import cn.tannn.oasis.controller.vo.SiteInfo;
@@ -33,13 +34,14 @@ import java.util.Optional;
 @Tag(name = "系统配置")
 @RequiredArgsConstructor
 public class  SysConfigsController {
-
+    private final DefaultSysConfig defaultSysConfig;
     private final SysConfigsService sysConfigsService;
 
     @GetMapping("/")
     @Operation(summary = "查询系统配置", description = "详情")
     public ResultVO<SysConfigs> info() {
-        SysConfigs bean = sysConfigsService.findOnly("configKey", "MAIN").orElse(SysConfigs.newInstance());
+        SysConfigs bean = sysConfigsService.findOnly("configKey", "MAIN")
+                .orElse(SysConfigs.newInstance(defaultSysConfig));
         return ResultVO.success(bean);
     }
 

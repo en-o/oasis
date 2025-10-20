@@ -6,6 +6,7 @@ import cn.tannn.jdevelops.jwt.standalone.pojo.TokenSign;
 import cn.tannn.jdevelops.jwt.standalone.service.LoginService;
 import cn.tannn.jdevelops.result.response.ResultVO;
 import cn.tannn.jdevelops.utils.jwt.module.SignEntity;
+import cn.tannn.oasis.config.DefaultSysConfig;
 import cn.tannn.oasis.controller.dto.LoginPassword;
 import cn.tannn.oasis.entity.SysConfigs;
 import cn.tannn.oasis.service.SysConfigsService;
@@ -36,6 +37,7 @@ public class LoginController {
 
     private final SysConfigsService sysConfigsService;
     private final LoginService loginService;
+    private final DefaultSysConfig defaultSysConfig;
 
     @Operation(summary = "登录")
     @ApiMapping(value = "/login",checkToken = false,method = RequestMethod.POST)
@@ -53,7 +55,7 @@ public class LoginController {
         if(configs.isPresent()){
             return ResultVO.success("已存在数据不允许初始哈",false);
         }else {
-            SysConfigs bean = SysConfigs.newInstance();
+            SysConfigs bean = SysConfigs.newInstance(defaultSysConfig);
             sysConfigsService.saveOne(bean);
             return ResultVO.success("完成初始化",true);
         }
