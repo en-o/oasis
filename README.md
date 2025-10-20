@@ -9,7 +9,7 @@ JDBC URL：jdbc:h2:file:./api/db/db_oasis
 
 
 # web
-> reactWeb  
+> reactWeb
 
 admin: http://localhost:3000/admin
 nva: http://localhost:3000
@@ -43,3 +43,4 @@ mvn clean package
 🚀 运行方式
 cd api/target/output
 java -jar api-0.0.1-SNAPSHOT.jar
+访问：http://127.0.0.1:1249
