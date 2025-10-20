@@ -303,10 +303,10 @@ server {
 
 ```bash
 # 从项目根目录构建
-docker build -t tannnn/oasis-api:latest -f api/Dockerfile .
+docker build -t tannnn/oasis:latest -f api/Dockerfile .
 
 # 运行容器
-docker run -d -p 1249:1249 --name oasis-api tannnn/oasis-api:latest
+docker run -d -p 1249:1249 --name oasis tannnn/oasis:latest
 
 # 或使用 Docker Compose
 docker-compose up -d

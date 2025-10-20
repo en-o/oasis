@@ -5,8 +5,8 @@ services:
     build:
       context: .
       dockerfile: api/Dockerfile
-    container_name: oasis-api
-    image: tannnn/oasis-api:latest
+    container_name: oasis
+    image: tannnn/oasis:latest
     ports:
       - "1249:1249"
     environment:

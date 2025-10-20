@@ -29,7 +29,7 @@ docker-compose up -d --build
 
 ```bash
 # 构建镜像（重要：必须从项目根目录执行）
-docker build -t tannnn/oasis-api:latest -f api/Dockerfile .
+docker build -t tannnn/oasis:latest -f api/Dockerfile .
 
 # 运行容器
 docker run -d \
@@ -39,10 +39,10 @@ docker run -d \
   -e OASIS_DEF_PWD=123 \
   -e OASIS_DEF_SITE_TITLE=Oasis \
   -v $(pwd)/api/db:/app/db \
-  tannnn/oasis-api:latest
+  tannnn/oasis:latest
 
 # 查看日志
-docker logs -f oasis-api
+docker logs -f oasis
 
 # 进入容器
 docker exec -it oasis-api sh
@@ -51,10 +51,10 @@ docker exec -it oasis-api sh
 docker stop oasis-api
 
 # 删除容器
-docker rm oasis-api
+docker rm oasis
 
 # 删除镜像
-docker rmi tannnn/oasis-api:latest
+docker rmi tannnn/oasis:latest
 ```
 
 ## 环境变量说明
@@ -150,11 +150,11 @@ ports:
 ```bash
 # 正确 ✓
 cd /path/to/oasis
-docker build -t tannnn/oasis-api:latest -f api/Dockerfile .
+docker build -t tannnn/oasis:latest -f api/Dockerfile .
 
 # 错误 ✗
 cd /path/to/oasis/api
-docker build -t tannnn/oasis-api:latest .
+docker build -t tannnn/oasis:latest .
 ```
 
 ### 3. 数据库初始化
@@ -169,7 +169,7 @@ docker exec -it oasis-api ls -la /app/resources/static
 ### 5. 查看构建日志
 ```bash
 # 构建时查看详细日志
-docker build --progress=plain -t tannnn/oasis-api:latest -f api/Dockerfile .
+docker build --progress=plain -t tannnn/oasis:latest -f api/Dockerfile .
 ```
 
 ## 高级配置
@@ -264,7 +264,7 @@ docker system df
 
 - **作者**: tannnn
 - **项目**: Oasis Navigation System
-- **镜像**: tannnn/oasis-api
+- **镜像**: tannnn/oasis
 - **仓库**: [GitHub](https://github.com/yourusername/oasis)
 
 ## 许可证
