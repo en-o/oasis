@@ -43,3 +43,4 @@ mvn clean package
 🚀 运行方式
 cd api/target/output
 java -jar api-0.0.1-SNAPSHOT.jar
+> 启动完毕之后调用：`curl -X GET -H  "Accept:*/*" -H  "Content-Type:application/x-www-form-urlencoded" "http://127.0.0.1:1249/init"` 完成数据初始化
