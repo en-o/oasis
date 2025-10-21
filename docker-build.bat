@@ -1,3 +1,4 @@
+chcp 65001 >nul
 @echo off
 REM Docker 镜像构建脚本 - Windows
 REM 执行完整的构建流程：本地 Maven 打包 + Docker 镜像构建
