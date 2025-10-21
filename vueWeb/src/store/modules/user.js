@@ -9,7 +9,9 @@ const getDefaultState = () => {
     loginName: '',
     avatar: '',
     roles: [],
-    data: {}
+    data: {},
+    viewWay: 1,
+    newTab: true
   }
 }
 
@@ -36,10 +38,30 @@ const mutations = {
   },
   SET_DATA: (state, data) => {
     state.data = data
+  },
+  SET_VIEW_WAY: (state, viewWay) => {
+    state.viewWay = viewWay
+  },
+  SET_NEW_TAB: (state, newTab) => {
+    state.newTab = newTab
   }
 }
 
 const actions = {
+  // 视图切换
+  changeView({ commit }, key) {
+    return new Promise(resolve => {
+      commit('SET_VIEW_WAY', key)
+      resolve()
+    })
+  },
+  // 新标签页
+  changeTab({ commit }, flag) {
+    return new Promise(resolve => {
+      commit('SET_NEW_TAB', flag)
+      resolve()
+    })
+  },
   // user login
   login({ commit }, userInfo) {
     const { username, password } = userInfo
