@@ -2,10 +2,18 @@ chcp 65001 >nul
 @echo off
 REM Docker 镜像构建脚本 - Windows
 REM 执行完整的构建流程：本地 Maven 打包 + Docker 镜像构建
+REM 用法: docker-build.bat [版本号]
+REM 示例: docker-build.bat v1.0.0
+REM       docker-build.bat        (默认使用 latest)
 
 setlocal enabledelayedexpansion
 
+REM 获取版本号参数，默认为 latest
+set VERSION=%1
+if "%VERSION%"=="" set VERSION=latest
+
 echo === Oasis Docker 完整构建脚本 (Windows) ===
+echo 构建版本: %VERSION%
 echo.
 
 REM 检查是否在项目根目录
@@ -123,10 +131,10 @@ echo 步骤 4/5: 构建 Docker 镜像
 echo ==========================================
 echo.
 
-echo 执行命令: docker build -t tannnn/oasis:latest -f api/Dockerfile .
+echo 执行命令: docker build -t tannnn/oasis:%VERSION% -f api/Dockerfile .
 echo.
 
-docker build -t tannnn/oasis:latest -f api/Dockerfile .
+docker build -t tannnn/oasis:%VERSION% -f api/Dockerfile .
 
 if %errorlevel% neq 0 (
     echo.
@@ -151,7 +159,7 @@ echo 下一步操作：
 echo ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 echo.
 echo 1️⃣  直接运行容器:
-echo    docker run -d -p 1249:1249 --name oasis tannnn/oasis:latest
+echo    docker run -d -p 1249:1249 --name oasis tannnn/oasis:%VERSION%
 echo.
 echo 2️⃣  使用 Docker Compose (推荐):
 echo    docker-compose up -d

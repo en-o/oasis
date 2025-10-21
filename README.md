@@ -51,8 +51,8 @@ java -jar api-0.0.1-SNAPSHOT.jar
 
 # docker build 
 ##  一键构建
-./docker-build.sh        # Linux/Mac
-docker-build.bat         # Windows
+./docker-build.sh [版本号]        # Linux/Mac
+docker-build.bat  [版本号]        # Windows
 
 ## 分步构建
 1. 本地打包 `./build-local.sh`
@@ -60,6 +60,7 @@ docker-build.bat         # Windows
 2. Docker 镜像构建 `docker build -t tannnn/oasis:latest -f api/Dockerfile .`
 
 ## 运行 
+> dockerhub:  https://hub.docker.com/r/tannnn/oasis
 ```yaml
 docker run -d \
   --name oasis \

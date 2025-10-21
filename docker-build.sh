@@ -2,10 +2,17 @@
 
 # Docker 镜像构建脚本 - Linux/Mac
 # 执行完整的构建流程：本地 Maven 打包 + Docker 镜像构建
+# 用法: ./docker-build.sh [版本号]
+# 示例: ./docker-build.sh v1.0.0
+#       ./docker-build.sh        (默认使用 latest)
 
 set -e  # 遇到错误立即退出
 
+# 获取版本号参数，默认为 latest
+VERSION=${1:-latest}
+
 echo "=== Oasis Docker 完整构建脚本 (Linux/Mac) ==="
+echo "构建版本: $VERSION"
 echo ""
 
 # 检查是否在项目根目录
@@ -110,10 +117,10 @@ echo "步骤 4/5: 构建 Docker 镜像"
 echo "=========================================="
 echo ""
 
-echo "执行命令: docker build -t tannnn/oasis:latest -f api/Dockerfile ."
+echo "执行命令: docker build -t tannnn/oasis:$VERSION -f api/Dockerfile ."
 echo ""
 
-docker build -t tannnn/oasis:latest -f api/Dockerfile .
+docker build -t tannnn/oasis:$VERSION -f api/Dockerfile .
 
 if [ $? -ne 0 ]; then
     echo ""
@@ -138,7 +145,7 @@ echo "下一步操作："
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo ""
 echo "1️⃣  直接运行容器:"
-echo "   docker run -d -p 1249:1249 --name oasis tannnn/oasis:latest"
+echo "   docker run -d -p 1249:1249 --name oasis tannnn/oasis:$VERSION"
 echo ""
 echo "2️⃣  使用 Docker Compose (推荐):"
 echo "   docker-compose up -d"
