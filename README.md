@@ -19,6 +19,9 @@ nva: http://localhost:3000
 
 
 # build
+注意h2控制台我没关，接口文件地址我也没关
+
+## JAR
 ```shell
 cd api
 mvn clean package
@@ -49,17 +52,17 @@ java -jar api-0.0.1-SNAPSHOT.jar
 访问：http://127.0.0.1:1249
 
 
-# docker build 
-##  一键构建
+## docker build 
+###  一键构建
 ./docker-build.sh [版本号]        # Linux/Mac
 docker-build.bat  [版本号]        # Windows
 
-## 分步构建
+### 分步构建
 1. 本地打包 `./build-local.sh`
 
 2. Docker 镜像构建 `docker build -t tannnn/oasis:latest -f api/Dockerfile .`
 
-## 运行 
+### 运行 
 > dockerhub:  https://hub.docker.com/r/tannnn/oasis
 ```yaml
 docker run -d \
