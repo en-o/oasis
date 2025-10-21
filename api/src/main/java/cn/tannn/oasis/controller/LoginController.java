@@ -6,6 +6,7 @@ import cn.tannn.jdevelops.jwt.standalone.pojo.TokenSign;
 import cn.tannn.jdevelops.jwt.standalone.service.LoginService;
 import cn.tannn.jdevelops.result.response.ResultVO;
 import cn.tannn.jdevelops.utils.jwt.module.SignEntity;
+import cn.tannn.oasis.config.DefaultSysConfig;
 import cn.tannn.oasis.controller.dto.LoginPassword;
 import cn.tannn.oasis.entity.SysConfigs;
 import cn.tannn.oasis.service.SysConfigsService;
@@ -14,8 +15,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMethod;
 
@@ -36,6 +35,7 @@ public class LoginController {
 
     private final SysConfigsService sysConfigsService;
     private final LoginService loginService;
+    private final DefaultSysConfig defaultSysConfig;
 
     @Operation(summary = "登录")
     @ApiMapping(value = "/login",checkToken = false,method = RequestMethod.POST)
@@ -51,10 +51,12 @@ public class LoginController {
     public ResultVO<Boolean> initSysConfig()  {
         Optional<SysConfigs> configs = sysConfigsService.findOnly("configKey", "MAIN");
         if(configs.isPresent()){
-            return ResultVO.success("已存在数据不允许初始哈",false);
+            log.info("系统配置已存在不允许初始化");
+            return ResultVO.success("系统配置已存在不允许初始化",false);
         }else {
-            SysConfigs bean = SysConfigs.newInstance();
+            SysConfigs bean = SysConfigs.newInstance(defaultSysConfig);
             sysConfigsService.saveOne(bean);
+            log.info("完成系统配置初始化");
             return ResultVO.success("完成初始化",true);
         }
 

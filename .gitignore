@@ -89,3 +89,5 @@ __MACOSX
 .shire
 .txt
 /api/Cworktoolmavenrepo/
+/reactWeb/node/
+/api/src/main/resources/static/

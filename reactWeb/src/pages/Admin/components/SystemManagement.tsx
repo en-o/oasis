@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Form, Input, Select, Button, Card, Row, Col, Alert, App, Radio, Upload, Space } from 'antd';
+import React, { useState } from 'react';
+import { Form, Input, Select, Button, Card, Row, Col, App, Radio, Upload, Space } from 'antd';
 import { Save, RefreshCw, UploadCloud } from 'lucide-react';
 import type { SysConfig } from '@/types';
 import { sysConfigApi } from '@/services/api';
@@ -12,7 +12,14 @@ const SystemManagement: React.FC = () => {
   const [logoPreview, setLogoPreview] = useState<string>('');
   const [form] = Form.useForm();
 
-  const configFields = [
+  const configFields: Array<{
+    key: string;
+    label: string;
+    type: string;
+    required: boolean;
+    options?: Array<{ label: string; value: number }>;
+    description?: string;
+  }> = [
     { key: 'siteTitle', label: '网站标题', type: 'text', required: true },
     { key: 'siteLogo', label: '网站Logo', type: 'logo', required: false },
     { key: 'defaultOpenMode', label: '默认打开方式', type: 'select', required: true, options: [
@@ -138,9 +145,9 @@ const SystemManagement: React.FC = () => {
       let finalLogo = '';
       if (logoType === 'url') {
         finalLogo = values.logoUrl || '';
-        // 验证 URL 必须是 https
-        if (finalLogo && !finalLogo.startsWith('https://')) {
-          message.error('Logo URL 必须是 HTTPS 地址');
+        // 验证 URL 必须是 http 或 https
+        if (finalLogo && !finalLogo.startsWith('http://') && !finalLogo.startsWith('https://')) {
+          message.error('Logo URL 必须是 HTTP 或 HTTPS 地址');
           return;
         }
       } else if (logoType === 'upload') {
@@ -174,7 +181,7 @@ const SystemManagement: React.FC = () => {
             onChange={(e) => handleLogoTypeChange(e.target.value)}
           >
             <Radio value="none">无Logo</Radio>
-            <Radio value="url">使用 HTTPS 地址</Radio>
+            <Radio value="url">使用 URL 地址</Radio>
             <Radio value="upload">上传图片</Radio>
           </Radio.Group>
 
@@ -184,13 +191,13 @@ const SystemManagement: React.FC = () => {
               noStyle
               rules={[
                 {
-                  pattern: /^https:\/\/.+/,
-                  message: '请输入有效的 HTTPS 地址'
+                  pattern: /^https?:\/\/.+/,
+                  message: '请输入有效的 HTTP 或 HTTPS 地址'
                 }
               ]}
             >
               <Input
-                placeholder="https://example.com/logo.png"
+                placeholder="http://example.com/logo.png 或 https://example.com/logo.png"
                 onChange={(e) => setLogoPreview(e.target.value)}
               />
             </Form.Item>
@@ -241,7 +248,7 @@ const SystemManagement: React.FC = () => {
 
           <div className="text-xs text-gray-500">
             • 支持上传常规图片格式<br />
-            • 支持使用 HTTPS 图片地址<br />
+            • 支持使用 HTTP/HTTPS 图片地址<br />
             • Logo 可为空，将显示默认样式
           </div>
         </Space>

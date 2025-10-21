@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import type { NavItem, NavCategory, SystemConfig, NavigationVO, ResultPageVO, ResultVO, SiteInfo } from '@/types';
+import type { NavItem, NavCategory, SystemConfig, NavigationVO } from '@/types';
 import { webApi } from '@/services/api';
 
 const DEFAULT_SYSTEM_CONFIG: SystemConfig = {
@@ -24,10 +24,6 @@ export const useNavigation = () => {
   // 添加调试：监听 navItems 状态变化
   useEffect(() => {
     console.log('=== navItems 状态变化 ===');
-    console.log('上一次 navItems 长度:', prevNavItemsRef.current.length);
-    console.log('新的 navItems 长度:', navItems.length);
-    console.log('新的 navItems 内容:', navItems);
-    console.log('状态是否真的发生了变化:', navItems !== prevNavItemsRef.current);
     prevNavItemsRef.current = navItems;
   }, [navItems]);
 
@@ -35,11 +31,10 @@ export const useNavigation = () => {
     try {
       console.log('=== 开始调用导航接口 ===');
 
-      const response: ResultPageVO<NavigationVO> = await webApi.getNavsPage({
+      const response = await webApi.getNavsPage({
         page: { pageNum: 1, pageSize: 100 }
       });
 
-      console.log('导航接口响应:', response);
 
       // 检查响应结构
       if (!response || response.code !== 200 || !response.data || !response.data.rows) {
@@ -50,7 +45,6 @@ export const useNavigation = () => {
 
       // NavigationVO 数组
       const navigationVOs = response.data.rows;
-      console.log('NavigationVO 数组:', navigationVOs);
 
       // 转换 NavigationVO 到 NavItem 格式
       const convertedNavItems: NavItem[] = navigationVOs
@@ -72,8 +66,6 @@ export const useNavigation = () => {
           return navItem;
         });
 
-      console.log('转换后的 NavItem 数组:', convertedNavItems);
-      console.log('调用 setNavItems，数组长度:', convertedNavItems.length);
       setNavItems(convertedNavItems);
 
     } catch (error) {
@@ -86,8 +78,7 @@ export const useNavigation = () => {
     try {
       console.log('=== 开始调用分类接口 ===');
 
-      const response: ResultVO<NavCategory[]> = await webApi.getCategory();
-      console.log('分类接口响应:', response);
+      const response = await webApi.getCategory();
 
       // 检查响应结构
       if (!response || response.code !== 200 || !response.data) {
@@ -98,7 +89,6 @@ export const useNavigation = () => {
 
       // NavCategory 数组
       const categoryList = response.data;
-      console.log('NavCategory 数组:', categoryList);
 
       setCategories(categoryList);
 
@@ -112,19 +102,16 @@ export const useNavigation = () => {
     try {
       console.log('=== 开始调用站点信息接口 ===');
 
-      const response: ResultVO<SiteInfo> = await webApi.getSiteInfo();
-      console.log('站点信息接口响应:', response);
+      const response = await webApi.getSiteInfo();
 
       // 检查响应结构
       if (!response || response.code !== 200 || !response.data) {
-        console.error('站点信息接口响应结构异常:', response);
         setSystemConfig(DEFAULT_SYSTEM_CONFIG);
         return;
       }
 
       // SiteInfo 对象
       const siteInfo = response.data;
-      console.log('SiteInfo 对象:', siteInfo);
 
       // 转换为 SystemConfig 格式
       setSystemConfig({

@@ -1,6 +1,7 @@
 package cn.tannn.oasis.entity;
 
 import cn.tannn.jdevelops.result.bean.SerializableBean;
+import cn.tannn.oasis.config.DefaultSysConfig;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -97,14 +98,14 @@ public class SysConfigs extends SerializableBean<SysConfigs> {
     @Schema(description = "管理员密码")
     private String password;
 
-    public static SysConfigs newInstance(){
+    public static SysConfigs newInstance(DefaultSysConfig defaultSysConfig){
         SysConfigs sysConfigs = new SysConfigs();
         sysConfigs.setConfigKey("MAIN");
-        sysConfigs.setSiteTitle("Oasis");
+        sysConfigs.setSiteTitle(defaultSysConfig.getDefSiteTitle());
         sysConfigs.setDefaultOpenMode(1);
         sysConfigs.setHideAdminEntry(0);
-        sysConfigs.setUsername("tan");
-        sysConfigs.setPassword("123");
+        sysConfigs.setUsername(defaultSysConfig.getDefUsername());
+        sysConfigs.setPassword(defaultSysConfig.getDefPassword());
         return sysConfigs;
     }
 

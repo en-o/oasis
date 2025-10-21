@@ -1,0 +1,192 @@
+# ============================================
+# Docker 构建上下文忽略规则
+# ============================================
+# 用于减少 Docker 构建上下文大小，加快构建速度
+#
+# 新的构建流程说明：
+# 1. 本地执行 Maven 打包，生成 api/target/output/
+# 2. Docker 构建时只需要：
+#    - reactWeb/ 源码（用于前端构建）
+#    - api/target/output/ 构建产物（后端运行文件）
+# 3. 其他文件都应该被忽略
+# ============================================
+
+# ============================================
+# Node.js 相关文件（优先级最高）
+# ============================================
+# 说明：node_modules 体积巨大，必须排除
+**/node_modules/
+node_modules/
+reactWeb/node_modules/
+vueWeb/node_modules/
+web/node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+.npm
+.yarn
+.pnpm-store
+package-lock.json.bak
+yarn.lock.bak
+
+# ============================================
+# 前端构建产物
+# ============================================
+# 说明：本地 dist 目录不需要，Docker 会重新构建前端
+dist/
+build/
+**/dist/
+**/build/
+reactWeb/dist/
+vueWeb/dist/
+web/dist/
+
+# ============================================
+# Maven 构建产物
+# ============================================
+# 说明：保留 api/target/output/ 目录（包含本地构建的产物）
+#      排除其他 target 子目录
+api/target/classes/
+api/target/generated-sources/
+api/target/maven-status/
+api/target/maven-archiver/
+api/target/*.jar
+api/target/*.war
+!api/target/output/
+
+# 保留 Maven wrapper
+!.mvn/wrapper/maven-wrapper.jar
+
+# ============================================
+# 不需要的前端项目
+# ============================================
+# 说明：如果只使用 reactWeb，可以排除其他前端项目
+vueWeb/
+web/
+
+# ============================================
+# IDE 和编辑器文件
+# ============================================
+.idea/
+*.iws
+*.iml
+*.ipr
+.vscode/
+.DS_Store
+*.swp
+*~
+.project
+.classpath
+.settings/
+*.sublime-*
+.eclipse/
+
+# ============================================
+# Git 相关
+# ============================================
+.git/
+.gitignore
+.gitattributes
+.github/
+
+# ============================================
+# 日志文件
+# ============================================
+*.log
+logs/
+*.log.*
+log/
+
+# ============================================
+# 数据库文件
+# ============================================
+# 说明：构建镜像时不需要本地数据库
+*.db
+*.mv.db
+*.trace.db
+api/db/
+db/
+
+# ============================================
+# 临时文件和缓存
+# ============================================
+*.tmp
+*.bak
+*.swp
+.cache
+.temp
+tmp/
+temp/
+
+# ============================================
+# 文档文件
+# ============================================
+# 说明：文档不需要包含在镜像中
+docs/
+*.md
+!README.md
+
+# ============================================
+# Docker 相关
+# ============================================
+.dockerignore
+Dockerfile
+docker-compose*.yml
+.docker/
+
+# ============================================
+# 测试和覆盖率
+# ============================================
+coverage/
+.nyc_output/
+*.test.js
+*.test.ts
+*.spec.js
+*.spec.ts
+*.test.jsx
+*.test.tsx
+*.spec.jsx
+*.spec.tsx
+__tests__/
+test/
+tests/
+
+# ============================================
+# 环境变量文件
+# ============================================
+# 说明：保留 .env.production，其他本地配置不需要
+.env
+.env.local
+.env.*.local
+.env.development
+.env.test
+!.env.production
+!.env.example
+
+# ============================================
+# CI/CD 文件
+# ============================================
+.gitlab-ci.yml
+.travis.yml
+.circleci/
+.github/
+Jenkinsfile
+azure-pipelines.yml
+
+# ============================================
+# 其他构建脚本
+# ============================================
+# 说明：构建脚本在宿主机运行，不需要包含在镜像中
+build-local.sh
+build-local.bat
+docker-build.sh
+docker-build.bat
+
+# ============================================
+# 备份文件
+# ============================================
+*.backup
+backup/
+backups/
+.m2/

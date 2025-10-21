@@ -1,10 +1,30 @@
-import axios from 'axios';
+import axios, { type AxiosInstance, type AxiosRequestConfig } from 'axios';
 import { message } from 'antd';
 
+// 获取 API 基础路径
+// 开发环境：通过 Vite 代理转发到后端
+// 生产环境-合并部署：直接调用同域名下的接口（无需前缀）
+// 生产环境-单独部署：使用 /api 前缀
+const getBaseURL = () => {
+  const apiBaseUrl = import.meta.env.VITE_API_BASE_URL;
+  // 只有当 apiBaseUrl 为 undefined 时才使用默认值 '/api'
+  // 如果 apiBaseUrl 是空字符串（合并部署模式），则返回空字符串
+  return apiBaseUrl !== undefined ? apiBaseUrl : '/api';
+};
+
+// 创建自定义的 axios 实例接口，重写返回类型
+interface CustomAxiosInstance extends Omit<AxiosInstance, 'get' | 'post' | 'put' | 'delete' | 'patch'> {
+  get<T = any>(url: string, config?: AxiosRequestConfig): Promise<T>;
+  post<T = any>(url: string, data?: any, config?: AxiosRequestConfig): Promise<T>;
+  put<T = any>(url: string, data?: any, config?: AxiosRequestConfig): Promise<T>;
+  delete<T = any>(url: string, config?: AxiosRequestConfig): Promise<T>;
+  patch<T = any>(url: string, data?: any, config?: AxiosRequestConfig): Promise<T>;
+}
+
 const api = axios.create({
-  baseURL: '/api',
+  baseURL: getBaseURL(),
   timeout: 10000,
-});
+}) as CustomAxiosInstance;
 
 api.interceptors.request.use(
   (config) => {
@@ -53,8 +73,9 @@ api.interceptors.response.use(
             case 401:
               errorMessage = '登录已过期，请重新登录';
               localStorage.removeItem('token');
-              // 避免在登录页面重复跳转
-              if (window.location.pathname !== '/admin') {
+              // 如果在管理页面，不跳转，让 Admin 组件自己处理登录状态
+              // 如果在其他页面，跳转到首页
+              if (!window.location.pathname.startsWith('/admin')) {
                 window.location.href = '/';
               }
               break;

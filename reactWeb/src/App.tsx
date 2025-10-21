@@ -12,11 +12,18 @@ message.config({
   maxCount: 3,
 });
 
+// 获取基础路径
+const getBasename = () => {
+  const basePath = import.meta.env.VITE_BASE_PATH || '/';
+  // 移除尾部的斜杠（除非是根路径 "/"）
+  return basePath === '/' ? '' : basePath.replace(/\/$/, '');
+};
+
 const App: React.FC = () => {
   return (
     <ConfigProvider locale={zhCN}>
       <AntdApp>
-        <Router>
+        <Router basename={getBasename()}>
           <div className="app">
             <Routes>
               <Route path="/" element={<Navigation />} />

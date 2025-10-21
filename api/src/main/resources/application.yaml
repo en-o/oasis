@@ -30,3 +30,8 @@ knife4j:
     custom-code: 500
     enable-footer-custom: false
     enable-dynamic-parameter: true
+oasis:
+  config:
+    def-password: ${OASIS_DEF_PWD:123}
+    def-username: ${OASIS_DEF_UNAME:tan}
+    def-site-title: ${OASIS_DEF_SITE_TITLE:Oasis}

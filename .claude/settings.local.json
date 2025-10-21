@@ -6,7 +6,11 @@
       "Bash(npm run dev:*)",
       "Bash(cat:*)",
       "Bash(pkill:*)",
-      "Bash(grep:*)"
+      "Bash(grep:*)",
+      "Bash(npm run build:merged)",
+      "Bash(find:*)",
+      "Bash(chmod:*)",
+      "Read(//mnt/c/Users/**)"
     ],
     "deny": [],
     "ask": []

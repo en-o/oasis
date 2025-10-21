@@ -1,6 +1,7 @@
 package cn.tannn.oasis;
 
 import cn.tannn.oasis.controller.DataBackupController;
+import cn.tannn.oasis.controller.LoginController;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
@@ -15,6 +16,9 @@ public class ApiApplication  implements ApplicationRunner {
     @Autowired
     private DataBackupController dataBackupController;
 
+    @Autowired
+    private LoginController loginController;
+
     public static void main(String[] args) {
         SpringApplication.run(ApiApplication.class, args);
     }
@@ -24,5 +28,8 @@ public class ApiApplication  implements ApplicationRunner {
         // 启动检查定时备份任务
         log.info("启动检查定时备份任务");
         dataBackupController.init();
+
+        log.info("初始化数据");
+        loginController.initSysConfig();
     }
 }
