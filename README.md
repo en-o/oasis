@@ -3,6 +3,8 @@
 
 # 未完成项目
 - mysql 同步到 h2
+- 启动参数控制：h2控制台，swagger接口文档
+
 
 # H2
 浏览器访问 http://localhost:1249/h2
