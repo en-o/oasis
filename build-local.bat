@@ -1,3 +1,4 @@
+chcp 65001 >nul
 @echo off
 REM 本地构建脚本 - Windows
 REM 在本地环境中执行 Maven 打包，用于后续 Docker 镜像构建
