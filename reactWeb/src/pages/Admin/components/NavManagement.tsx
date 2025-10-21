@@ -148,9 +148,9 @@ const NavManagement: React.FC = () => {
       let finalIcon = '';
       if (iconType === 'url') {
         finalIcon = values.iconUrl || '';
-        // 验证 URL 必须是 https
-        if (finalIcon && !finalIcon.startsWith('https://')) {
-          message.error('图标 URL 必须是 HTTPS 地址');
+        // 验证 URL 必须是 http 或 https
+        if (finalIcon && !finalIcon.startsWith('http://') && !finalIcon.startsWith('https://')) {
+          message.error('图标 URL 必须是 HTTP 或 HTTPS 地址');
           return;
         }
       } else if (iconType === 'upload') {
@@ -400,10 +400,13 @@ const NavManagement: React.FC = () => {
             label="URL"
             rules={[
               { required: true, message: '请输入URL' },
-              { type: 'url', message: '请输入有效的URL' },
+              {
+                pattern: /^https?:\/\/.+/,
+                message: '请输入有效的 HTTP 或 HTTPS 地址'
+              }
             ]}
           >
-            <Input placeholder="https://example.com" />
+            <Input placeholder="http://example.com 或 https://example.com" />
           </Form.Item>
 
           <Form.Item
@@ -435,7 +438,7 @@ const NavManagement: React.FC = () => {
                 onChange={(e) => handleIconTypeChange(e.target.value)}
               >
                 <Radio value="none">无图标</Radio>
-                <Radio value="url">使用 HTTPS 地址</Radio>
+                <Radio value="url">使用 URL 地址</Radio>
                 <Radio value="upload">上传图片</Radio>
               </Radio.Group>
 
@@ -445,13 +448,13 @@ const NavManagement: React.FC = () => {
                   noStyle
                   rules={[
                     {
-                      pattern: /^https:\/\/.+/,
-                      message: '请输入有效的 HTTPS 地址'
+                      pattern: /^https?:\/\/.+/,
+                      message: '请输入有效的 HTTP 或 HTTPS 地址'
                     }
                   ]}
                 >
                   <Input
-                    placeholder="https://example.com/icon.png"
+                    placeholder="http://example.com/icon.png 或 https://example.com/icon.png"
                     onChange={(e) => setIconPreview(e.target.value)}
                   />
                 </Form.Item>
@@ -502,7 +505,7 @@ const NavManagement: React.FC = () => {
 
               <div className="text-xs text-gray-500">
                 • 支持上传常规图片格式（不支持 SVG）<br />
-                • 支持使用 HTTPS 图片地址<br />
+                • 支持使用 HTTP/HTTPS 图片地址<br />
                 • 图标可为空，将显示默认样式
               </div>
             </Space>
