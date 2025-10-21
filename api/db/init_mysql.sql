@@ -15,3 +15,4 @@ INSERT INTO `system_config` (`ID`, `CONFIG_KEY`, `DEFAULT_OPEN_MODE`, `HIDE_ADMI
 
 
 INSERT INTO `nav_item` (`ID`, `ACCOUNT`, `CATEGORY`, `ICON`, `LOOK_ACCOUNT`, `NAME`, `NVA_ACCESS_SECRET`, `PASSWORD`, `REMARK`, `SORT`, `STATUS`, `URL`) VALUES (1, 'tan', '工具', 'https://192.168.1.141:6412/admin/assets/favicon-5021e58a.svg', 0, '原来的导航', 'tan', '123456', '原来的导航网站，管理端在后面加上/admin进行访问', 1, 1, 'http://192.168.1.141:6412/');
+INSERT INTO `nav_item` (`ID`, `ACCOUNT`, `CATEGORY`, `ICON`, `LOOK_ACCOUNT`, `NAME`, `NVA_ACCESS_SECRET`, `PASSWORD`, `REMARK`, `SORT`, `STATUS`, `URL`) VALUES (2, '', '工具', 'https://pairdrop.net/images/favicon-96x96.png', 1, '跨平台传输文件', 'tan', '', '实现跨平台文件传输。无需安装，无需注册。', 1, 1, 'https://pairdrop.net/');
