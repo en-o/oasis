@@ -47,3 +47,28 @@ mvn clean package
 cd api/target/output
 java -jar api-0.0.1-SNAPSHOT.jar
 访问：http://127.0.0.1:1249
+
+
+# docker build 
+##  一键构建
+./docker-build.sh        # Linux/Mac
+docker-build.bat         # Windows
+
+## 分步构建
+1. 本地打包 `./build-local.sh`
+
+2. Docker 镜像构建 `docker build -t tannnn/oasis:latest -f api/Dockerfile .`
+
+## 运行 
+```yaml
+docker run -d \
+  --name oasis \
+  -p 1249:1249 \
+  -e OASIS_DEF_UNAME=admin \
+  -e OASIS_DEF_PWD=123 \
+  -e OASIS_DEF_SITE_TITLE="OASIS" \
+  -v $(pwd)/api/db:/app/db \
+  -v $(pwd)/logs:/app/logs \
+  --restart unless-stopped \
+  tannnn/oasis:latest
+```
