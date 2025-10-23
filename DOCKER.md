@@ -253,13 +253,18 @@ vim .env
 
 ### 环境变量列表
 
-| 环境变量 | 说明 | 默认值 | 示例 |
-|---------|------|--------|------|
-| `OASIS_DEF_UNAME` | 默认管理员用户名 | `tan` | `admin` |
-| `OASIS_DEF_PWD` | 默认管理员密码 | `123` | `admin123` |
-| `OASIS_DEF_SITE_TITLE` | 网站标题 | `Oasis` | `我的导航` |
-| `FILE_MAX_SIZE` | 单个文件上传大小限制 | `500MB` | `100MB` |
-| `FILE_MAX_REQUEST` | 请求总大小限制 | `500MB` | `500MB` |
+| 环境变量 | 说明         | 默认值     | 示例         |
+|---------|------------|---------|------------|
+| `OASIS_DEF_UNAME` | 默认管理员用户名   | `tan`   | `admin`    |
+| `OASIS_DEF_PWD` | 默认管理员密码    | `123`   | `admin123` |
+| `OASIS_DEF_SITE_TITLE` | 网站标题       | `Oasis` | `我的导航`     |
+| `FILE_MAX_SIZE` | 单个文件上传大小限制 | `500MB` | `100MB`    |
+| `FILE_MAX_REQUEST` | 请求总大小限制    | `500MB` | `500MB`    |
+| `DB_USERNAME` | 数据库账户      | `sa`    | `sa`    |
+| `DB_PASSWORD` | 数据库密码      | `sa`    | `sa`    |
+| `H2_CONSOLE_ENABLED` | h2控制台      | `true`  | `false`    |
+| `DOC_PASSWORD` | swagger密码  | `tan`   | `tan`    |
+| `DOC_USERNAME` | swagger账户  | `tan`  | `tan`    |
 
 ### 运行时覆盖环境变量
 
