@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Table, Button, Modal, Form, Input, Select, InputNumber, Switch, Popconfirm, Space, Radio, Upload, App } from 'antd';
+import { Table, Button, Modal, Form, Input, Select, InputNumber, Switch, Popconfirm, Space, Radio, Upload, App, Tag } from 'antd';
 import { Plus, Edit, Trash2, UploadCloud } from 'lucide-react';
 import type { NavItem, NavCategory } from '@/types';
 import { navigationApi, categoryApi } from '@/services/api';
@@ -277,11 +277,18 @@ const NavManagement: React.FC = () => {
       title: '分类',
       dataIndex: 'category',
       key: 'category',
-      width: 120,
-      ellipsis: true,
+      width: 150,
       render: (category: string) => {
         const categories = category ? category.split(',').map(c => c.trim()).filter(c => c) : [];
-        return categories.length > 0 ? categories.join(', ') : category;
+        return (
+          <Space size={[0, 4]} wrap>
+            {categories.map((cat, index) => (
+              <Tag key={index} color="blue">
+                {cat}
+              </Tag>
+            ))}
+          </Space>
+        );
       },
     },
     {

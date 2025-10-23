@@ -17,32 +17,43 @@ const NavList: React.FC<Props> = ({ items, accountMap, accountDataMap, onToggleA
     window.open(item.url, jumpMethod === 'currentTab' ? '_self' : '_blank');
   };
 
-  // 格式化分类显示
-  const formatCategories = (categoryStr: string) => {
-    if (!categoryStr) return '';
-    const categories = categoryStr.split(',').map(c => c.trim()).filter(c => c);
-    return categories.join(' · ');
+  // 解析分类为数组
+  const parseCategories = (categoryStr: string): string[] => {
+    if (!categoryStr) return [];
+    return categoryStr.split(',').map(c => c.trim()).filter(c => c);
   };
 
   return (
     <div className="nav-list">
-      {items.map((item) => (
-        <div key={item.id} className="nav-list-item">
-          <div className="nav-list-main">
-            <div className="nav-list-info">
-              <IconDisplay
-                iconData={item.icon}
-                title={item.name}
-                size="nav-list-icon"
-              />
-              <div className="nav-list-details">
-                <h3 className="nav-list-title">{item.name}</h3>
-                <div className="nav-list-meta">
-                  <span className="nav-list-category">{formatCategories(item.category)}</span>
-                  {item.remark && <span className="nav-list-description">{item.remark}</span>}
+      {items.map((item) => {
+        const categories = parseCategories(item.category);
+
+        return (
+          <div key={item.id} className="nav-list-item">
+            <div className="nav-list-main">
+              <div className="nav-list-info">
+                <IconDisplay
+                  iconData={item.icon}
+                  title={item.name}
+                  size="nav-list-icon"
+                />
+                <div className="nav-list-details">
+                  <h3 className="nav-list-title">{item.name}</h3>
+                  <div className="nav-list-meta">
+                    <div className="flex flex-wrap gap-1">
+                      {categories.map((category, index) => (
+                        <span
+                          key={index}
+                          className="inline-block px-2 py-0.5 text-xs rounded-full bg-blue-100 text-blue-700 border border-blue-200"
+                        >
+                          {category}
+                        </span>
+                      ))}
+                    </div>
+                    {item.remark && <span className="nav-list-description">{item.remark}</span>}
+                  </div>
                 </div>
               </div>
-            </div>
 
             <div className="nav-list-actions">
               {item.hasAccount && (
@@ -84,7 +95,8 @@ const NavList: React.FC<Props> = ({ items, accountMap, accountDataMap, onToggleA
             </div>
           )}
         </div>
-      ))}
+        );
+      })}
     </div>
   );
 };

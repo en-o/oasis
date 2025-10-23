@@ -17,37 +17,48 @@ const NavGrid: React.FC<Props> = ({ items, accountMap, accountDataMap, onToggleA
     window.open(item.url, jumpMethod === 'currentTab' ? '_self' : '_blank');
   };
 
-  // 格式化分类显示
-  const formatCategories = (categoryStr: string) => {
-    if (!categoryStr) return '';
-    const categories = categoryStr.split(',').map(c => c.trim()).filter(c => c);
-    return categories.join(' · ');
+  // 解析分类为数组
+  const parseCategories = (categoryStr: string): string[] => {
+    if (!categoryStr) return [];
+    return categoryStr.split(',').map(c => c.trim()).filter(c => c);
   };
 
   return (
     <div className="nav-grid">
-      {items.map((item) => (
-        <div key={item.id} className="nav-grid-item">
-          <div className="nav-grid-header">
-            <div className="nav-grid-info">
-              <IconDisplay
-                iconData={item.icon}
-                title={item.name}
-                size="nav-grid-icon"
-              />
-              <div className="nav-grid-details">
-                <h3 className="nav-grid-title">{item.name}</h3>
-                <span className="nav-grid-category">{formatCategories(item.category)}</span>
+      {items.map((item) => {
+        const categories = parseCategories(item.category);
+
+        return (
+          <div key={item.id} className="nav-grid-item">
+            <div className="nav-grid-header">
+              <div className="nav-grid-info">
+                <IconDisplay
+                  iconData={item.icon}
+                  title={item.name}
+                  size="nav-grid-icon"
+                />
+                <div className="nav-grid-details">
+                  <h3 className="nav-grid-title">{item.name}</h3>
+                  <div className="flex flex-wrap gap-1 mt-1">
+                    {categories.map((category, index) => (
+                      <span
+                        key={index}
+                        className="inline-block px-2 py-0.5 text-xs rounded-full bg-blue-100 text-blue-700 border border-blue-200"
+                      >
+                        {category}
+                      </span>
+                    ))}
+                  </div>
+                </div>
               </div>
+              <button
+                onClick={() => handleItemClick(item)}
+                className="nav-grid-link-button"
+                title="访问网站"
+              >
+                <ExternalLink className="w-4 h-4" />
+              </button>
             </div>
-            <button
-              onClick={() => handleItemClick(item)}
-              className="nav-grid-link-button"
-              title="访问网站"
-            >
-              <ExternalLink className="w-4 h-4" />
-            </button>
-          </div>
 
           {item.hasAccount ? (
             <>
@@ -92,7 +103,8 @@ const NavGrid: React.FC<Props> = ({ items, accountMap, accountDataMap, onToggleA
             )
           )}
         </div>
-      ))}
+        );
+      })}
     </div>
   );
 };
