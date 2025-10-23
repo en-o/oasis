@@ -220,7 +220,8 @@ const NavManagement: React.FC = () => {
       loadData();
     } catch (error) {
       console.error('导航操作失败:', error);
-      message.error(error.message);
+      const errorMessage = error instanceof Error ? error.message : '操作失败';
+      message.error(errorMessage);
       // 全局错误已在request.ts中处理，此处不需要再显示
     }
   };
