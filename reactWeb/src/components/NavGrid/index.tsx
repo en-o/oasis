@@ -1,5 +1,5 @@
 import React from 'react';
-import { Tag, Space } from 'antd';
+import { Tag, Space, Tooltip } from 'antd';
 import type { NavItem } from '@/types';
 import IconDisplay from '../IconDisplay';
 import { ExternalLink, Eye, EyeOff } from 'lucide-react';
@@ -63,7 +63,9 @@ const NavGrid: React.FC<Props> = ({ items, accountMap, accountDataMap, onToggleA
           {item.hasAccount ? (
             <>
               {item.remark && (
-                <p className="nav-grid-description">{item.remark}</p>
+                <Tooltip title={item.remark} placement="top">
+                  <p className="nav-grid-description">{item.remark}</p>
+                </Tooltip>
               )}
               <div className="nav-grid-account">
                 <div className="nav-grid-account-header">
@@ -98,7 +100,9 @@ const NavGrid: React.FC<Props> = ({ items, accountMap, accountDataMap, onToggleA
           ) : (
             item.remark && (
               <div className="nav-grid-description-only">
-                <p className="nav-grid-description">{item.remark}</p>
+                <Tooltip title={item.remark} placement="top">
+                  <p className="nav-grid-description">{item.remark}</p>
+                </Tooltip>
               </div>
             )
           )}

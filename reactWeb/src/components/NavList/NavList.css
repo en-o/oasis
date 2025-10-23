@@ -104,6 +104,7 @@
   text-overflow: ellipsis;
   white-space: nowrap;
   max-width: 300px;
+  cursor: help; /* 添加帮助光标提示用户可以查看完整内容 */
 }
 
 .nav-list-actions {

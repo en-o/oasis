@@ -1,5 +1,5 @@
 import React from 'react';
-import { Tag, Space } from 'antd';
+import { Tag, Space, Tooltip } from 'antd';
 import type { NavItem } from '@/types';
 import IconDisplay from '../IconDisplay';
 import { ExternalLink, Eye, EyeOff } from 'lucide-react';
@@ -48,7 +48,11 @@ const NavList: React.FC<Props> = ({ items, accountMap, accountDataMap, onToggleA
                         </Tag>
                       ))}
                     </Space>
-                    {item.remark && <span className="nav-list-description">{item.remark}</span>}
+                    {item.remark && (
+                      <Tooltip title={item.remark} placement="top">
+                        <span className="nav-list-description">{item.remark}</span>
+                      </Tooltip>
+                    )}
                   </div>
                 </div>
               </div>

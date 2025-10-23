@@ -15,6 +15,9 @@
   transition: all 0.3s ease;
   position: relative;
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  min-height: 200px; /* 设置最小高度确保卡片整齐 */
 }
 
 .nav-grid-item:hover {
@@ -44,7 +47,7 @@
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  margin-bottom: 1rem;
+  margin-bottom: 0; /* 移除底部margin，改用flex布局控制间距 */
 }
 
 .nav-grid-info {
@@ -114,18 +117,20 @@
   color: #6b7280;
   font-size: 0.875rem;
   line-height: 1.4;
-  margin: 0.75rem 0;
+  margin: 0.75rem 0 0 0; /* 只保留上边距 */
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
+  min-height: 2.45rem; /* 固定2行文本的最小高度 (0.875rem * 1.4 * 2) */
+  cursor: help; /* 添加帮助光标提示用户可以查看完整内容 */
 }
 
 /* 当没有账户信息时，备注单独显示的样式 */
 .nav-grid-description-only {
   border-top: 1px solid rgba(0, 0, 0, 0.06);
   padding-top: 1rem;
-  margin-top: 1rem;
+  margin-top: auto; /* 使用 auto 将备注推到底部 */
 }
 
 .nav-grid-description-only .nav-grid-description {
@@ -133,13 +138,14 @@
   line-height: 1.6;
   -webkit-line-clamp: 3;
   color: #4b5563;
+  min-height: 0; /* 单独显示的备注不需要固定高度 */
 }
 
 
 .nav-grid-account {
   border-top: 1px solid rgba(0, 0, 0, 0.06);
   padding-top: 1rem;
-  margin-top: 1rem;
+  margin-top: auto; /* 使用 auto 将账户信息推到底部 */
 }
 
 .nav-grid-account-header {
