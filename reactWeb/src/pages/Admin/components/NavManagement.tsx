@@ -6,17 +6,17 @@ import { navigationApi, categoryApi } from '@/services/api';
 
 // 定义7种浅色系背景颜色（不包括黑色，以文字为重点）
 const pastelColors = [
-  'from-blue-100 to-blue-200 text-blue-700',      // 浅蓝色
-  'from-green-100 to-green-200 text-green-700',    // 浅绿色
-  'from-purple-100 to-purple-200 text-purple-700',  // 浅紫色
-  'from-pink-100 to-pink-200 text-pink-700',      // 浅粉色
-  'from-orange-100 to-orange-200 text-orange-700',  // 浅橙色
-  'from-cyan-100 to-cyan-200 text-cyan-700',      // 浅青色
-  'from-indigo-100 to-indigo-200 text-indigo-700',  // 浅靛蓝色
+  { bg: '#DBEAFE', text: '#1D4ED8' },  // 浅蓝色
+  { bg: '#D1FAE5', text: '#047857' },  // 浅绿色
+  { bg: '#E9D5FF', text: '#7C3AED' },  // 浅紫色
+  { bg: '#FCE7F3', text: '#BE185D' },  // 浅粉色
+  { bg: '#FED7AA', text: '#C2410C' },  // 浅橙色
+  { bg: '#CFFAFE', text: '#0E7490' },  // 浅青色
+  { bg: '#E0E7FF', text: '#4338CA' },  // 浅靛蓝色
 ];
 
 // 根据标题生成固定的颜色索引
-const getColorByTitle = (title: string): string => {
+const getColorByTitle = (title: string): { bg: string; text: string } => {
   let hash = 0;
   for (let i = 0; i < title.length; i++) {
     hash = title.charCodeAt(i) + ((hash << 5) - hash);
@@ -244,14 +244,14 @@ const NavManagement: React.FC = () => {
       width: 65,
       align: 'center' as const,
       render: (icon: string, record: NavItem) => {
-        const colorClass = getColorByTitle(record.name);
+        const color = getColorByTitle(record.name);
         const abbr = getTitleAbbr(record.name);
 
         if (!icon) {
           return (
             <div
-              className={`mx-auto flex items-center justify-center bg-gradient-to-br ${colorClass} rounded font-bold text-sm`}
-              style={{ width: '32px', height: '32px' }}
+              className="mx-auto flex items-center justify-center rounded font-bold text-sm"
+              style={{ width: '32px', height: '32px', backgroundColor: color.bg, color: color.text }}
             >
               {abbr}
             </div>
@@ -269,9 +269,11 @@ const NavManagement: React.FC = () => {
               const parent = e.currentTarget.parentElement;
               if (parent && !parent.querySelector('.fallback-icon')) {
                 const fallback = document.createElement('div');
-                fallback.className = `fallback-icon mx-auto flex items-center justify-center bg-gradient-to-br ${colorClass} rounded font-bold text-sm`;
+                fallback.className = 'fallback-icon mx-auto flex items-center justify-center rounded font-bold text-sm';
                 fallback.style.width = '32px';
                 fallback.style.height = '32px';
+                fallback.style.backgroundColor = color.bg;
+                fallback.style.color = color.text;
                 fallback.textContent = abbr;
                 parent.appendChild(fallback);
               }
