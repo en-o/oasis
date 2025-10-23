@@ -1,6 +1,27 @@
 import React, { useState, useEffect } from 'react';
-import { Card, Form, Input, Button, Switch, Space, Tag, Descriptions, Modal, Select, Radio, App } from 'antd';
-import { SaveOutlined, SyncOutlined, PlayCircleOutlined, PauseCircleOutlined, ThunderboltOutlined, RollbackOutlined, CheckCircleOutlined } from '@ant-design/icons';
+import {
+  Card,
+  Form,
+  Input,
+  Button,
+  Switch,
+  Space,
+  Tag,
+  Descriptions,
+  Modal,
+  Select,
+  Radio,
+  App,
+} from 'antd';
+import {
+  SaveOutlined,
+  SyncOutlined,
+  PlayCircleOutlined,
+  PauseCircleOutlined,
+  ThunderboltOutlined,
+  RollbackOutlined,
+  CheckCircleOutlined,
+} from '@ant-design/icons';
 import { backupApi } from '@/services/api';
 import type { BackupConfig, BackupStatus } from '@/types';
 
@@ -19,7 +40,7 @@ const CRON_PRESETS = [
 ];
 
 const BackupManagement: React.FC = () => {
-  const { message } = App.useApp();
+  const { message, modal } = App.useApp();
   const [form] = Form.useForm();
   const [config, setConfig] = useState<BackupConfig | null>(null);
   const [status, setStatus] = useState<BackupStatus | null>(null);
@@ -46,7 +67,9 @@ const BackupManagement: React.FC = () => {
         form.setFieldsValue(response.data);
         // 检查是否是预设的cron表达式
         if (response.data.schedule) {
-          const preset = CRON_PRESETS.find(p => p.value === response.data.schedule);
+          const preset = CRON_PRESETS.find(
+            (p) => p.value === response.data.schedule
+          );
           if (preset && preset.value !== 'custom') {
             setCronMode('preset');
             setSelectedPreset(preset.value);
@@ -101,7 +124,7 @@ const BackupManagement: React.FC = () => {
       });
       message.success(response.message || '连接测试成功');
     } catch (error: any) {
-      message.error(error.message );
+      message.error(error.message);
     } finally {
       setTestLoading(false);
     }
@@ -168,7 +191,7 @@ const BackupManagement: React.FC = () => {
   };
 
   const handleRestore = () => {
-    Modal.confirm({
+    modal.confirm({
       title: '确认恢复数据',
       content: '确定要从MySQL恢复数据到H2吗？这将覆盖当前数据！',
       okText: '确认恢复',
@@ -191,12 +214,21 @@ const BackupManagement: React.FC = () => {
   return (
     <div className="space-y-6">
       {/* 备份状态卡片 */}
-      <Card title="备份状态" extra={<Button icon={<SyncOutlined />} onClick={loadStatus}>刷新</Button>}>
+      <Card
+        title="备份状态"
+        extra={
+          <Button icon={<SyncOutlined />} onClick={loadStatus}>
+            刷新
+          </Button>
+        }
+      >
         {status && (
           <Descriptions column={2} bordered>
             <Descriptions.Item label="运行状态">
               {status.isRunning ? (
-                <Tag color="success" icon={<CheckCircleOutlined />}>运行中</Tag>
+                <Tag color="success" icon={<CheckCircleOutlined />}>
+                  运行中
+                </Tag>
               ) : (
                 <Tag color="default">已停止</Tag>
               )}
@@ -206,12 +238,16 @@ const BackupManagement: React.FC = () => {
             </Descriptions.Item>
             {status.schedule && (
               <Descriptions.Item label="定时表达式" span={2}>
-                <code className="bg-gray-100 px-2 py-1 rounded">{status.schedule}</code>
+                <code className="bg-gray-100 px-2 py-1 rounded">
+                  {status.schedule}
+                </code>
               </Descriptions.Item>
             )}
             {status.targetUrl && (
               <Descriptions.Item label="目标地址" span={2}>
-                <code className="bg-gray-100 px-2 py-1 rounded text-xs">{status.targetUrl}</code>
+                <code className="bg-gray-100 px-2 py-1 rounded text-xs">
+                  {status.targetUrl}
+                </code>
               </Descriptions.Item>
             )}
             {config?.lastBackupTime && (
@@ -289,7 +325,9 @@ const BackupManagement: React.FC = () => {
                       form.setFieldValue('schedule', value);
                     }}
                     style={{ width: '100%' }}
-                    options={CRON_PRESETS.filter(p => p.value !== 'custom').map(p => ({
+                    options={CRON_PRESETS.filter(
+                      (p) => p.value !== 'custom'
+                    ).map((p) => ({
                       label: `${p.label} (${p.value})`,
                       value: p.value,
                     }))}
@@ -316,10 +354,7 @@ const BackupManagement: React.FC = () => {
             </Space>
           </Form.Item>
 
-          <Form.Item
-            label="配置描述"
-            name="description"
-          >
+          <Form.Item label="配置描述" name="description">
             <Input placeholder="数据备份到MySQL" />
           </Form.Item>
 
@@ -397,9 +432,16 @@ const BackupManagement: React.FC = () => {
           </Space>
 
           <div className="text-sm text-gray-500 mt-4 space-y-1">
-            <p>• <strong>启动定时备份:</strong> 按照配置的定时表达式自动执行备份</p>
-            <p>• <strong>立即执行备份:</strong> 立即执行一次H2到MySQL的数据备份</p>
-            <p>• <strong>从MySQL恢复数据:</strong> 将MySQL中的数据恢复到H2数据库 (谨慎操作)</p>
+            <p>
+              • <strong>启动定时备份:</strong> 按照配置的定时表达式自动执行备份
+            </p>
+            <p>
+              • <strong>立即执行备份:</strong> 立即执行一次H2到MySQL的数据备份
+            </p>
+            <p>
+              • <strong>从MySQL恢复数据:</strong> 将MySQL中的数据恢复到H2数据库
+              (谨慎操作)
+            </p>
           </div>
         </Space>
       </Card>
