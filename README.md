@@ -1,10 +1,21 @@
 # Oasis · 专属绿洲
 在信息纷繁复杂的数字荒漠中，您需要一片宁静、高效且专属于自我的空间。
 
-# 未完成项目
-- mysql 同步到 h2
-- 启动参数控制：h2控制台，swagger接口文档
-
+# 快速使用
+> https://hub.docker.com/r/tannnn/oasis
+```yaml
+docker run -d \
+  --name oasis \
+  -p 1249:1249 \
+  -e OASIS_DEF_UNAME=admin \
+  -e OASIS_DEF_PWD=123 \
+  -e OASIS_DEF_SITE_TITLE="OASIS" \
+  -e H2_CONSOLE_ENABLED=false \
+  -v $(pwd)/api/db:/app/db \
+  -v $(pwd)/logs:/app/logs \
+  --restart unless-stopped \
+  tannnn/oasis:0.0.3
+```
 
 # H2
 浏览器访问 http://localhost:1249/h2
