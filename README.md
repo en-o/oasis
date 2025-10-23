@@ -57,6 +57,7 @@ java -jar api-0.0.1-SNAPSHOT.jar
 
 
 ## docker build 
+> 版本根据[pom.xml](api/pom.xml)，每次发行版本之后都要用新的版本进行开发
 ###  一键构建
 ./docker-build.sh [版本号]        # Linux/Mac
 docker-build.bat  [版本号]        # Windows
