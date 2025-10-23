@@ -1,7 +1,7 @@
 spring:
   datasource:
     url: jdbc:h2:file:./api/db/db_oasis
-    username: ${DB_USERNAME:sa}}
+    username: ${DB_USERNAME:sa}
     password: ${DB_PASSWORD:sa}
     driver-class-name: org.h2.Driver
   jpa:
