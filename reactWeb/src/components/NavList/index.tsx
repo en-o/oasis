@@ -1,4 +1,5 @@
 import React from 'react';
+import { Tag, Space } from 'antd';
 import type { NavItem } from '@/types';
 import IconDisplay from '../IconDisplay';
 import { ExternalLink, Eye, EyeOff } from 'lucide-react';
@@ -40,16 +41,13 @@ const NavList: React.FC<Props> = ({ items, accountMap, accountDataMap, onToggleA
                 <div className="nav-list-details">
                   <h3 className="nav-list-title">{item.name}</h3>
                   <div className="nav-list-meta">
-                    <div className="flex flex-wrap gap-1">
+                    <Space size={[0, 4]} wrap>
                       {categories.map((category, index) => (
-                        <span
-                          key={index}
-                          className="inline-block px-2 py-0.5 text-xs rounded-full bg-blue-100 text-blue-700 border border-blue-200"
-                        >
+                        <Tag key={index} color="blue">
                           {category}
-                        </span>
+                        </Tag>
                       ))}
-                    </div>
+                    </Space>
                     {item.remark && <span className="nav-list-description">{item.remark}</span>}
                   </div>
                 </div>

@@ -1,4 +1,5 @@
 import React from 'react';
+import { Tag, Space } from 'antd';
 import type { NavItem } from '@/types';
 import IconDisplay from '../IconDisplay';
 import { ExternalLink, Eye, EyeOff } from 'lucide-react';
@@ -39,15 +40,14 @@ const NavGrid: React.FC<Props> = ({ items, accountMap, accountDataMap, onToggleA
                 />
                 <div className="nav-grid-details">
                   <h3 className="nav-grid-title">{item.name}</h3>
-                  <div className="flex flex-wrap gap-1 mt-1">
-                    {categories.map((category, index) => (
-                      <span
-                        key={index}
-                        className="inline-block px-2 py-0.5 text-xs rounded-full bg-blue-100 text-blue-700 border border-blue-200"
-                      >
-                        {category}
-                      </span>
-                    ))}
+                  <div className="mt-1">
+                    <Space size={[0, 4]} wrap>
+                      {categories.map((category, index) => (
+                        <Tag key={index} color="blue">
+                          {category}
+                        </Tag>
+                      ))}
+                    </Space>
                   </div>
                 </div>
               </div>
