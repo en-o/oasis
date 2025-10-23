@@ -21,6 +21,11 @@ public class ApiApplication  implements ApplicationRunner {
 
     public static void main(String[] args) {
         SpringApplication.run(ApiApplication.class, args);
+        log.info("""
+                =================================================
+                ========web地址：http://192.168.1.71:1249=========
+                =================================================
+                """);
     }
 
     @Override
