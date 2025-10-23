@@ -121,6 +121,21 @@
   overflow: hidden;
 }
 
+/* 当没有账户信息时，备注单独显示的样式 */
+.nav-grid-description-only {
+  border-top: 1px solid rgba(0, 0, 0, 0.06);
+  padding-top: 1rem;
+  margin-top: 1rem;
+}
+
+.nav-grid-description-only .nav-grid-description {
+  margin: 0;
+  line-height: 1.6;
+  -webkit-line-clamp: 3;
+  color: #4b5563;
+}
+
+
 .nav-grid-account {
   border-top: 1px solid rgba(0, 0, 0, 0.06);
   padding-top: 1rem;

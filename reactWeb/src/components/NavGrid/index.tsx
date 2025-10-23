@@ -42,40 +42,47 @@ const NavGrid: React.FC<Props> = ({ items, accountMap, accountDataMap, onToggleA
             </button>
           </div>
 
-          {item.remark && (
-            <p className="nav-grid-description">{item.remark}</p>
-          )}
-
-          {item.hasAccount && (
-            <div className="nav-grid-account">
-              <div className="nav-grid-account-header">
-                <span className="nav-grid-account-label">
-                  账户信息 {!item.lookAccount && '🔒'}
-                </span>
-                <button
-                  onClick={() => onToggleAccount(item.id)}
-                  className="nav-grid-account-toggle"
-                >
-                  {accountMap[item.id] ? (
-                    <EyeOff className="w-4 h-4" />
-                  ) : (
-                    <Eye className="w-4 h-4" />
-                  )}
-                </button>
-              </div>
-              {accountMap[item.id] && accountDataMap[item.id] && (
-                <div className="nav-grid-account-info">
-                  <div className="nav-grid-account-row">
-                    <span className="nav-grid-account-key">账号</span>
-                    <span className="nav-grid-account-value">{accountDataMap[item.id].account}</span>
-                  </div>
-                  <div className="nav-grid-account-row">
-                    <span className="nav-grid-account-key">密码</span>
-                    <span className="nav-grid-account-value">{accountDataMap[item.id].password}</span>
-                  </div>
-                </div>
+          {item.hasAccount ? (
+            <>
+              {item.remark && (
+                <p className="nav-grid-description">{item.remark}</p>
               )}
-            </div>
+              <div className="nav-grid-account">
+                <div className="nav-grid-account-header">
+                  <span className="nav-grid-account-label">
+                    账户信息 {!item.lookAccount && '🔒'}
+                  </span>
+                  <button
+                    onClick={() => onToggleAccount(item.id)}
+                    className="nav-grid-account-toggle"
+                  >
+                    {accountMap[item.id] ? (
+                      <EyeOff className="w-4 h-4" />
+                    ) : (
+                      <Eye className="w-4 h-4" />
+                    )}
+                  </button>
+                </div>
+                {accountMap[item.id] && accountDataMap[item.id] && (
+                  <div className="nav-grid-account-info">
+                    <div className="nav-grid-account-row">
+                      <span className="nav-grid-account-key">账号</span>
+                      <span className="nav-grid-account-value">{accountDataMap[item.id].account}</span>
+                    </div>
+                    <div className="nav-grid-account-row">
+                      <span className="nav-grid-account-key">密码</span>
+                      <span className="nav-grid-account-value">{accountDataMap[item.id].password}</span>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </>
+          ) : (
+            item.remark && (
+              <div className="nav-grid-description-only">
+                <p className="nav-grid-description">{item.remark}</p>
+              </div>
+            )
           )}
         </div>
       ))}
