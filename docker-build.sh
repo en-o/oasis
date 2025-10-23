@@ -3,7 +3,7 @@
 # Docker 镜像构建脚本 - Linux/Mac
 # 执行完整的构建流程：本地 Maven 打包 + Docker 镜像构建
 # 用法: ./docker-build.sh [版本号]
-# 示例: ./docker-build.sh v1.0.0
+# 示例: ./docker-build.sh 1.0.0
 #       ./docker-build.sh        (默认使用 latest)
 
 set -e  # 遇到错误立即退出
@@ -91,7 +91,7 @@ echo "=========================================="
 echo ""
 
 # 检查必要的文件是否存在
-if [ ! -f "api/target/output/api-0.0.1-SNAPSHOT.jar" ]; then
+if [ ! -f "api/target/output/api-0.0.3-SNAPSHOT.jar" ]; then
     echo "❌ 错误: 未找到 JAR 文件"
     exit 1
 fi
@@ -107,7 +107,7 @@ if [ ! -d "api/target/output/resources" ]; then
 fi
 
 echo "✅ 构建产物验证通过"
-echo "  - JAR 文件: $(ls -lh api/target/output/api-0.0.1-SNAPSHOT.jar | awk '{print $5}')"
+echo "  - JAR 文件: $(ls -lh api/target/output/api-0.0.3-SNAPSHOT.jar | awk '{print $5}')"
 echo "  - 依赖库数量: $(ls -1 api/target/output/lib | wc -l)"
 echo "  - 资源文件: $(ls -1 api/target/output/resources | wc -l)"
 

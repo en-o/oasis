@@ -8,7 +8,7 @@
 #    Linux/Mac: ./build-local.sh
 #    Windows:   build-local.bat
 # 2. 确保 api/target/output/ 目录包含以下文件：
-#    - api-0.0.1-SNAPSHOT.jar
+#    - api-*.jar（使用通配符匹配版本号)
 #    - lib/（所有依赖 jar）
 #    - resources/（所有资源文件）
 #
@@ -60,8 +60,8 @@ WORKDIR /app
 # 从前端构建阶段复制前端静态文件到后端资源目录
 COPY --from=frontend-builder /api/target/output/resources/static /tmp/frontend-static/
 
-# 从本地构建产物复制文件
-COPY api/target/output/api-0.0.1-SNAPSHOT.jar /app/api.jar
+# 从本地构建产物复制文件（使用通配符匹配版本号）
+COPY api/target/output/api-*.jar /app/api.jar
 COPY api/target/output/lib /app/lib
 COPY api/target/output/resources /app/resources
 
