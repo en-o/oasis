@@ -17,6 +17,13 @@ const NavGrid: React.FC<Props> = ({ items, accountMap, accountDataMap, onToggleA
     window.open(item.url, jumpMethod === 'currentTab' ? '_self' : '_blank');
   };
 
+  // 格式化分类显示
+  const formatCategories = (categoryStr: string) => {
+    if (!categoryStr) return '';
+    const categories = categoryStr.split(',').map(c => c.trim()).filter(c => c);
+    return categories.join(' · ');
+  };
+
   return (
     <div className="nav-grid">
       {items.map((item) => (
@@ -30,7 +37,7 @@ const NavGrid: React.FC<Props> = ({ items, accountMap, accountDataMap, onToggleA
               />
               <div className="nav-grid-details">
                 <h3 className="nav-grid-title">{item.name}</h3>
-                <span className="nav-grid-category">{item.category}</span>
+                <span className="nav-grid-category">{formatCategories(item.category)}</span>
               </div>
             </div>
             <button

@@ -80,10 +80,13 @@ const NavManagement: React.FC = () => {
     }
     setIconType(type);
 
+    // 处理分类：将逗号分隔的字符串转换为数组
+    const categoryArray = item.category ? item.category.split(',').map(c => c.trim()).filter(c => c) : [];
+
     form.setFieldsValue({
       name: item.name,
       url: item.url,
-      category: item.category,
+      category: categoryArray,
       sort: item.sort,
       icon: item.icon,
       iconUrl: type === 'url' ? item.icon : '',
@@ -158,10 +161,15 @@ const NavManagement: React.FC = () => {
       }
       // iconType === 'none' 时 finalIcon 为空字符串
 
+      // 处理分类：将数组转换为逗号分隔的字符串
+      const categoryValue = Array.isArray(values.category)
+        ? values.category.join(',')
+        : values.category;
+
       const submitData: Partial<NavItem> = {
         name: values.name,
         url: values.url,
-        category: values.category,
+        category: categoryValue,
         sort: values.sort,
         icon: finalIcon,
         remark: values.remark || '',
@@ -269,8 +277,12 @@ const NavManagement: React.FC = () => {
       title: '分类',
       dataIndex: 'category',
       key: 'category',
-      width: 100,
+      width: 120,
       ellipsis: true,
+      render: (category: string) => {
+        const categories = category ? category.split(',').map(c => c.trim()).filter(c => c) : [];
+        return categories.length > 0 ? categories.join(', ') : category;
+      },
     },
     {
       title: '排序',
@@ -411,10 +423,15 @@ const NavManagement: React.FC = () => {
 
           <Form.Item
             name="category"
-            label="分类"
-            rules={[{ required: true, message: '请选择分类' }]}
+            label="分类（可多选）"
+            rules={[{ required: true, message: '请选择至少一个分类' }]}
           >
-            <Select placeholder="请选择分类">
+            <Select
+              mode="multiple"
+              placeholder="请选择一个或多个分类"
+              showSearch
+              optionFilterProp="children"
+            >
               {categories.map((category) => (
                 <Select.Option key={category.id} value={category.categoryName}>
                   {category.categoryName}

@@ -43,8 +43,11 @@ const Navigation: React.FC = () => {
           item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
           (item.remark?.toLowerCase() || '').includes(searchTerm.toLowerCase());
 
+        // 处理多分类过滤：导航项的分类字段是逗号分隔的字符串
+        const itemCategories = item.category ? item.category.split(',').map(c => c.trim()).filter(c => c) : [];
         const matchesCategory =
-          selectedCategory === '全部' || item.category === selectedCategory;
+          selectedCategory === '全部' ||
+          itemCategories.includes(selectedCategory);
 
         return matchesSearch && matchesCategory;
       })

@@ -45,9 +45,9 @@ public class NavigationAdd extends SerializableBean<NavigationAdd> {
     private Integer sort;
 
     /**
-     * 分类
+     * 分类，多个逗号隔开
      */
-    @Schema(description = "分类", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "分类，多个逗号隔开", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "分类不允许为空")
     private String category;
 

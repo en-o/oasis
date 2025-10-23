@@ -53,7 +53,7 @@ public class Navigation extends SerializableBean<Navigation> {
     @Schema(description = "访问地址")
     private String url;
 
-    /**
+    /**，多个逗号隔开
      * 排序值（越小越靠前）
      */
     @ColumnDefault("1")
@@ -62,11 +62,11 @@ public class Navigation extends SerializableBean<Navigation> {
     private Integer sort;
 
     /**
-     * 分类
+     * 分类，多个逗号隔开
      */
-    @Column(columnDefinition = "varchar(50)", nullable = false)
-    @Comment("分类")
-    @Schema(description = "分类")
+    @Column(columnDefinition = "varchar(200)", nullable = false)
+    @Comment("分类，多个逗号隔开")
+    @Schema(description = "分类，多个逗号隔开")
     private String category;
 
     /**

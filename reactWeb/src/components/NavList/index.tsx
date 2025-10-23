@@ -17,6 +17,13 @@ const NavList: React.FC<Props> = ({ items, accountMap, accountDataMap, onToggleA
     window.open(item.url, jumpMethod === 'currentTab' ? '_self' : '_blank');
   };
 
+  // 格式化分类显示
+  const formatCategories = (categoryStr: string) => {
+    if (!categoryStr) return '';
+    const categories = categoryStr.split(',').map(c => c.trim()).filter(c => c);
+    return categories.join(' · ');
+  };
+
   return (
     <div className="nav-list">
       {items.map((item) => (
@@ -31,7 +38,7 @@ const NavList: React.FC<Props> = ({ items, accountMap, accountDataMap, onToggleA
               <div className="nav-list-details">
                 <h3 className="nav-list-title">{item.name}</h3>
                 <div className="nav-list-meta">
-                  <span className="nav-list-category">{item.category}</span>
+                  <span className="nav-list-category">{formatCategories(item.category)}</span>
                   {item.remark && <span className="nav-list-description">{item.remark}</span>}
                 </div>
               </div>

@@ -3,7 +3,7 @@ export interface NavItem {
   name: string;
   url: string;
   sort: number;
-  category: string;
+  category: string; // 分类，多个逗号隔开
   icon?: string;
   remark?: string;
   account?: string; // 登录账号
@@ -85,7 +85,7 @@ export interface NavigationVO {
   name: string;
   url: string;
   sort: number;
-  category: string;
+  category: string; // 分类，多个逗号隔开
   icon?: string;
   remark?: string;
   lookAccount: boolean;
