@@ -1,8 +1,8 @@
 spring:
   datasource:
     url: jdbc:h2:file:./api/db/db_oasis
-    username: sa
-    password: sa
+    username: ${DB_USERNAME:sa}}
+    password: ${DB_PASSWORD:sa}
     driver-class-name: org.h2.Driver
   jpa:
     show-sql: false
@@ -16,7 +16,7 @@ spring:
   h2:
     console:
       path: /h2
-      enabled: true
+      enabled: ${H2_CONSOLE_ENABLED:true}
       settings:
         web-allow-others: true
   sql:
