@@ -128,17 +128,17 @@
 
 /* 当没有账户信息时，备注单独显示的样式 */
 .nav-grid-description-only {
-  border-top: 1px solid rgba(0, 0, 0, 0.06);
-  padding-top: 1rem;
   margin-top: auto; /* 使用 auto 将备注推到底部 */
+  padding-top: 0.75rem; /* 减小上边距，去掉分割线 */
 }
 
 .nav-grid-description-only .nav-grid-description {
   margin: 0;
-  line-height: 1.6;
-  -webkit-line-clamp: 3;
-  color: #4b5563;
+  line-height: 1.5;
+  -webkit-line-clamp: 3; /* 允许显示更多行 */
+  color: #6b7280; /* 颜色稍微深一点 */
   min-height: 0; /* 单独显示的备注不需要固定高度 */
+  font-size: 0.8125rem; /* 稍微小一点 */
 }
 
 
