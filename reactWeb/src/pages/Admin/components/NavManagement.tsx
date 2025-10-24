@@ -458,15 +458,16 @@ const NavManagement: React.FC = () => {
         onFinish={handleSearch}
         className="mb-6 bg-gray-50 p-4 rounded-lg"
       >
-        <Row gutter={16}>
-          <Col span={8}>
-            <Form.Item name="name" label="标题" className="mb-0">
-              <Input placeholder="请输入导航标题" allowClear />
-            </Form.Item>
-          </Col>
+        <Row gutter={16} align="bottom">
           <Col span={8}>
             <Form.Item name="category" label="分类" className="mb-0">
-              <Select placeholder="请选择分类" allowClear>
+              <Select
+                placeholder="请选择分类"
+                allowClear
+                onChange={() => {
+                  searchForm.submit();
+                }}
+              >
                 {categories.map((category) => (
                   <Select.Option key={category.id} value={category.categoryName}>
                     {category.categoryName}
@@ -475,17 +476,24 @@ const NavManagement: React.FC = () => {
               </Select>
             </Form.Item>
           </Col>
-          <Col span={8} className="flex items-end">
-            <Space>
-              <Button
-                type="primary"
-                htmlType="submit"
-                icon={<Search className="w-4 h-4" />}
-              >
-                搜索
-              </Button>
-              <Button onClick={handleReset}>重置</Button>
-            </Space>
+          <Col span={8}>
+            <Form.Item name="name" label="标题" className="mb-0">
+              <Input placeholder="请输入导航标题" allowClear />
+            </Form.Item>
+          </Col>
+          <Col span={8}>
+            <Form.Item className="mb-0">
+              <Space>
+                <Button
+                  type="primary"
+                  htmlType="submit"
+                  icon={<Search className="w-4 h-4" />}
+                >
+                  搜索
+                </Button>
+                <Button onClick={handleReset}>重置</Button>
+              </Space>
+            </Form.Item>
           </Col>
         </Row>
       </Form>
