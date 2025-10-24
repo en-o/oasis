@@ -7,6 +7,7 @@ import type {
   SiteInfo,
   NavigationVO,
   NavigationPageRequest,
+  NavManagementPageRequest,
   NavAccessInfo,
   ResultVO,
   ResultPageVO,
@@ -21,8 +22,8 @@ export const navigationApi = {
   // 获取导航列表 - GET /navigation/lists
   getList: () => request.get<ResultVO<NavItem[]>>('/navigation/lists'),
 
-  // 分页查询导航 - POST /navigation/page (如果有分页接口)
-  // getPage: (params: any) => request.post<ResultPageVO<NavItem>>('/navigation/page', params),
+  // 分页查询导航 - POST /navigation/page
+  getPage: (params: NavManagementPageRequest) => request.post<ResultPageVO<NavItem>>('/navigation/page', params),
 
   // 获取导航详情 - GET /navigation/{id}
   getDetail: (id: number) => request.get<ResultVO<NavItem>>(`/navigation/${id}`),

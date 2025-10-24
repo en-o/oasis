@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Table, Button, Modal, Form, Input, Select, InputNumber, Switch, Popconfirm, Space, Radio, Upload, App, Tag } from 'antd';
-import { Plus, Edit, Trash2, UploadCloud } from 'lucide-react';
+import { Table, Button, Modal, Form, Input, Select, InputNumber, Switch, Popconfirm, Space, Radio, Upload, App, Tag, Row, Col } from 'antd';
+import { Plus, Edit, Trash2, UploadCloud, Search } from 'lucide-react';
 import type { NavItem, NavCategory } from '@/types';
 import { navigationApi, categoryApi } from '@/services/api';
 
@@ -42,33 +42,50 @@ const NavManagement: React.FC = () => {
   const [iconType, setIconType] = useState<'url' | 'upload' | 'none'>('none');
   const [iconPreview, setIconPreview] = useState<string>('');
   const [form] = Form.useForm();
+  const [searchForm] = Form.useForm();
+
+  // 分页相关状态
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+  const [total, setTotal] = useState(0);
+
+  // 搜索条件
+  const [searchParams, setSearchParams] = useState<{ name?: string; category?: string }>({});
 
   const loadData = async () => {
     setLoading(true);
     try {
-      const [navResponse, categoryResponse] = await Promise.all([
-        navigationApi.getList(),
-        categoryApi.getList(),
-      ]);
-
-      // 处理 ResultVO 响应结构
-      if (navResponse.code === 200 && navResponse.data) {
-        setNavItems(navResponse.data);
-      } else {
-        console.error('导航接口响应异常:', navResponse);
-        setNavItems([]);
-      }
-
+      // 加载分类列表
+      const categoryResponse = await categoryApi.getList();
       if (categoryResponse.code === 200 && categoryResponse.data) {
         setCategories(categoryResponse.data);
       } else {
         console.error('分类接口响应异常:', categoryResponse);
         setCategories([]);
       }
+
+      // 使用分页接口加载导航数据
+      const navResponse = await navigationApi.getPage({
+        ...searchParams,
+        page: {
+          pageNum: currentPage - 1, // 后端页码从0开始
+          pageSize,
+        },
+      });
+
+      if (navResponse.code === 200 && navResponse.data) {
+        const pageData = navResponse.data;
+        setNavItems(pageData.rows || []);
+        setTotal(pageData.total || 0);
+      } else {
+        console.error('导航接口响应异常:', navResponse);
+        setNavItems([]);
+        setTotal(0);
+      }
     } catch (error) {
       console.error('加载导航数据失败:', error);
       setNavItems([]);
-      setCategories([]);
+      setTotal(0);
     } finally {
       setLoading(false);
     }
@@ -76,7 +93,29 @@ const NavManagement: React.FC = () => {
 
   useEffect(() => {
     loadData();
-  }, []);
+  }, [currentPage, pageSize, searchParams]);
+
+  // 处理搜索
+  const handleSearch = (values: any) => {
+    setSearchParams({
+      name: values.name || undefined,
+      category: values.category || undefined,
+    });
+    setCurrentPage(1); // 搜索时重置到第一页
+  };
+
+  // 重置搜索
+  const handleReset = () => {
+    searchForm.resetFields();
+    setSearchParams({});
+    setCurrentPage(1);
+  };
+
+  // 处理分页变化
+  const handleTableChange = (page: number, size: number) => {
+    setCurrentPage(page);
+    setPageSize(size);
+  };
 
   const handleAdd = () => {
     setEditingItem(null);
@@ -413,6 +452,44 @@ const NavManagement: React.FC = () => {
         </Button>
       </div>
 
+      {/* 搜索表单 */}
+      <Form
+        form={searchForm}
+        onFinish={handleSearch}
+        className="mb-6 bg-gray-50 p-4 rounded-lg"
+      >
+        <Row gutter={16}>
+          <Col span={8}>
+            <Form.Item name="name" label="标题" className="mb-0">
+              <Input placeholder="请输入导航标题" allowClear />
+            </Form.Item>
+          </Col>
+          <Col span={8}>
+            <Form.Item name="category" label="分类" className="mb-0">
+              <Select placeholder="请选择分类" allowClear>
+                {categories.map((category) => (
+                  <Select.Option key={category.id} value={category.categoryName}>
+                    {category.categoryName}
+                  </Select.Option>
+                ))}
+              </Select>
+            </Form.Item>
+          </Col>
+          <Col span={8} className="flex items-end">
+            <Space>
+              <Button
+                type="primary"
+                htmlType="submit"
+                icon={<Search className="w-4 h-4" />}
+              >
+                搜索
+              </Button>
+              <Button onClick={handleReset}>重置</Button>
+            </Space>
+          </Col>
+        </Row>
+      </Form>
+
       <div className="overflow-hidden">
         <Table
           columns={columns}
@@ -420,10 +497,13 @@ const NavManagement: React.FC = () => {
           loading={loading}
           rowKey="id"
           pagination={{
-            pageSize: 10,
+            current: currentPage,
+            pageSize: pageSize,
+            total: total,
             showSizeChanger: true,
             showQuickJumper: true,
             showTotal: (total) => `共 ${total} 条`,
+            onChange: handleTableChange,
           }}
         />
       </div>

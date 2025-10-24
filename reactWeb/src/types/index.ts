@@ -93,6 +93,18 @@ export interface NavigationVO {
   status: number; // 0=停用, 1=启用
 }
 
+// 导航管理分页请求参数（对应 NavigationPage DTO）
+export interface NavManagementPageRequest {
+  name?: string;
+  category?: string;
+  page?: {
+    pageNum: number;
+    pageSize: number;
+    orders?: Array<{ direction: number; sort: string }>;
+  };
+}
+
+// WebController 的分页请求参数
 export interface NavigationPageRequest {
   name?: string;
   category?: string;
