@@ -95,7 +95,7 @@ echo ==========================================
 echo.
 
 REM 检查必要的文件是否存在
-if not exist "api\target\output\api-0.0.3-SNAPSHOT.jar" (
+if not exist "api\target\output\api-0.0.4-SNAPSHOT.jar" (
     echo ❌ 错误: 未找到 JAR 文件
     exit /b 1
 )
@@ -121,7 +121,7 @@ set res_count=0
 for /D %%D in (api\target\output\resources\*) do set /a res_count+=1
 for %%F in (api\target\output\resources\*) do set /a res_count+=1
 
-echo   - JAR 文件: api\target\output\api-0.0.3-SNAPSHOT.jar
+echo   - JAR 文件: api\target\output\api-0.0.4-SNAPSHOT.jar
 echo   - 依赖库数量: !lib_count!
 echo   - 资源文件数量: !res_count!
 

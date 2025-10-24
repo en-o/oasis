@@ -91,7 +91,7 @@ echo "=========================================="
 echo ""
 
 # 检查必要的文件是否存在
-if [ ! -f "api/target/output/api-0.0.3-SNAPSHOT.jar" ]; then
+if [ ! -f "api/target/output/api-0.0.4-SNAPSHOT.jar" ]; then
     echo "❌ 错误: 未找到 JAR 文件"
     exit 1
 fi
@@ -107,7 +107,7 @@ if [ ! -d "api/target/output/resources" ]; then
 fi
 
 echo "✅ 构建产物验证通过"
-echo "  - JAR 文件: $(ls -lh api/target/output/api-0.0.3-SNAPSHOT.jar | awk '{print $5}')"
+echo "  - JAR 文件: $(ls -lh api/target/output/api-0.0.4-SNAPSHOT.jar | awk '{print $5}')"
 echo "  - 依赖库数量: $(ls -1 api/target/output/lib | wc -l)"
 echo "  - 资源文件: $(ls -1 api/target/output/resources | wc -l)"
 
