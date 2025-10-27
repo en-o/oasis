@@ -68,7 +68,7 @@ const NavManagement: React.FC = () => {
       const navResponse = await navigationApi.getPage({
         ...searchParams,
         page: {
-          pageNum: currentPage - 1, // 后端页码从0开始
+          pageIndex: currentPage,
           pageSize,
         },
       });

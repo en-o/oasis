@@ -98,9 +98,9 @@ export interface NavManagementPageRequest {
   name?: string;
   category?: string;
   page?: {
-    pageNum: number;
+    pageIndex: number;
     pageSize: number;
-    orders?: Array<{ direction: number; sort: string }>;
+    sorts?: Array<{ orderDesc: number; orderBy: [string] }>;
   };
 }
 
