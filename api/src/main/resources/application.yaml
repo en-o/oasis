@@ -5,7 +5,7 @@ spring:
   application:
     name: oasis
   profiles:
-    active: h2
+    active: dev
   servlet:
     multipart:
       max-file-size: ${FILE_MAX_SIZE:500MB}

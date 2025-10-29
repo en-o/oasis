@@ -10,7 +10,7 @@
         debug="false" scan="true" scanPeriod="10 second">
 
     <!-- 配置日志输出目录文件夹以及进行重命名 -->
-    <property name="PROJECT" value="untitled2" />
+    <property name="PROJECT" value="PaperMate" />
     <property name="ROOT" value="logs/${PROJECT}/" />
     <!-- 配置日志文件大小 -->
     <property name="FILESIZE" value="50MB" />
@@ -131,7 +131,7 @@
         </rollingPolicy>
     </appender>
     <!-- API日志输出到文件 -->
-    <appender name="APILOG" class="cn.tannn.jdevelops.logback.rolling.CustomApiLogRollingFileAppenderInput">
+    <appender name="APILOG" class="com.sunway.logback.rolling.CustomApiLogRollingFileAppenderInput">
         <encoder charset="utf-8">
             <pattern>[%-5level] %d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %logger{36} - %m%n</pattern>
         </encoder>
@@ -164,15 +164,18 @@
     <logger name="org.springframework.orm.jpa" level="INFO"/>
     <logger name="org.springframework.beans" level="INFO"/>
     <logger name="org.springframework.boot.autoconfigure.logging.ConditionEvaluationReportLogger" level="INFO"/>
+    <logger name="io.grpc.netty.shaded.io.grpc.netty.NettyClientHandler" level="INFO"/>
+    <logger name="io.lettuce.core.RedisChannelHandler" level="INFO"/>
+    <logger name="org.springframework.data.redis.core.RedisConnectionUtils" level="INFO"/>
 
 
-    <springProfile name="h2">
+    <springProfile name="dev">
         <root level="debug">
             <appender-ref ref="STDOUT"/>
         </root>
     </springProfile>
     <!--    非dev环境下-->
-    <springProfile name="!h2">
+    <springProfile name="!dev">
         <!-- logger设置输出到文件，输出级别为info -->
         <root level="INFO">
             <appender-ref ref="STDOUT" />
