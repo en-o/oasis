@@ -34,6 +34,10 @@ public class NavigationPage extends SerializableBean<NavigationPage> {
     @JpaSelectOperator(operatorWrapper = SQLOperatorWrapper.LIKE, connect = SQLConnect.AND)
     private String category;
 
+    @Schema(description = "状态；0、停用，1、启用")
+    @JpaSelectOperator(operatorWrapper = SQLOperatorWrapper.EQ, connect = SQLConnect.AND)
+    private Integer status;
+
     /**
      * 分页排序
      */
