@@ -2,7 +2,7 @@ import React from 'react';
 import { Tag, Space, Tooltip } from 'antd';
 import type { NavItem } from '@/types';
 import IconDisplay from '../IconDisplay';
-import { ExternalLink, Eye, EyeOff } from 'lucide-react';
+import { ExternalLink, Eye, EyeOff, Monitor } from 'lucide-react';
 import './NavList.css';
 
 interface Props {
@@ -74,10 +74,14 @@ const NavList: React.FC<Props> = ({ items, accountMap, accountDataMap, onToggleA
               )}
               <button
                 onClick={() => handleItemClick(item)}
-                className="nav-list-link-button"
-                title="访问网站"
+                className={`nav-list-link-button ${jumpMethod === 'currentTab' ? 'current-tab' : ''}`}
+                title={jumpMethod === 'currentTab' ? '当前标签页打开' : '新标签页打开'}
               >
-                <ExternalLink className="w-4 h-4" />
+                {jumpMethod === 'currentTab' ? (
+                  <Monitor className="w-4 h-4" />
+                ) : (
+                  <ExternalLink className="w-4 h-4" />
+                )}
               </button>
             </div>
           </div>
