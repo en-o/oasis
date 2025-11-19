@@ -63,7 +63,7 @@ const Navigation: React.FC = () => {
 
       if (response.code === 200 && response.data) {
         // 登录成功，导航到管理页面
-        localStorage.setItem('token', response.data);
+        localStorage.setItem('nvatoken', response.data);
         navigate('/admin');
         return true;
       } else {

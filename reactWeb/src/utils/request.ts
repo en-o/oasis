@@ -22,7 +22,7 @@ const AUTH_ERROR_CODES = [401, 402, 403, 405];
 // 统一处理认证错误的函数
 const handleAuthError = (errorMessage: string) => {
   message.error(errorMessage);
-  localStorage.removeItem('token');
+  localStorage.removeItem('nvatoken');
   // 如果在管理页面，不跳转，让 Admin 组件自己处理登录状态
   // 如果在其他页面，跳转到首页
   if (!window.location.pathname.startsWith('/admin')) {
@@ -46,7 +46,7 @@ const api = axios.create({
 
 api.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem('nvatoken');
     if (token) {
       config.headers.token = token;
     }

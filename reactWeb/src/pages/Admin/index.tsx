@@ -21,7 +21,7 @@ const Admin: React.FC = () => {
   // 检查是否已登录
   useEffect(() => {
     const checkAuth = () => {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem('nvatoken');
       if (token) {
         setIsAuthenticated(true);
       } else {
@@ -50,7 +50,7 @@ const Admin: React.FC = () => {
       const response = await authApi.login({ username, password });
 
       if (response.code === 200 && response.data) {
-        localStorage.setItem('token', response.data);
+        localStorage.setItem('nvatoken', response.data);
         setIsAuthenticated(true);
         setShowLogin(false);
         // 登录成功后不需要跳转，因为已经在 /admin 页面了
@@ -70,7 +70,7 @@ const Admin: React.FC = () => {
   };
 
   const handleLogout = () => {
-    localStorage.removeItem('token');
+    localStorage.removeItem('nvatoken');
     setIsAuthenticated(false);
     navigate('/');
   };
