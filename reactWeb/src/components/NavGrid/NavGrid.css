@@ -160,18 +160,19 @@
 
 /* 当前标签页打开模式的样式 */
 .nav-grid-link-button.current-tab {
-  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
   box-shadow:
-    0 4px 15px rgba(16, 185, 129, 0.4),
-    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+          0 6px 20px rgba(102, 126, 234, 0.5),
+          0 0 20px rgba(102, 126, 234, 0.3),
+          inset 0 1px 0 rgba(255, 255, 255, 0.4);
+  background: linear-gradient(135deg, #5a6fd8 0%, #6a3f96 100%);
 }
 
 .nav-grid-link-button.current-tab:hover {
-  background: linear-gradient(135deg, #059669 0%, #047857 100%);
   box-shadow:
-    0 6px 20px rgba(16, 185, 129, 0.5),
-    0 0 20px rgba(16, 185, 129, 0.3),
-    inset 0 1px 0 rgba(255, 255, 255, 0.4);
+          0 6px 20px rgba(102, 126, 234, 0.5),
+          0 0 20px rgba(102, 126, 234, 0.3),
+          inset 0 1px 0 rgba(255, 255, 255, 0.4);
+  background: linear-gradient(135deg, #5a6fd8 0%, #6a3f96 100%);
 }
 
 
