@@ -69,10 +69,10 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
 }
 
-/* 淡灰色背景 */
+/* 浅蓝色背景 */
 .nav-container {
   min-height: 100vh;
-  background: #f5f7fa;
+  background: #e8f4f8;
   position: relative;
 }
 
@@ -88,10 +88,9 @@ code {
 }
 
 .nav-header {
-  background: rgba(255, 255, 255, 0.7);
-  backdrop-filter: blur(20px) saturate(180%);
-  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  background: #ffffff;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
 }
 
 .nav-header-content {
@@ -113,12 +112,11 @@ code {
 }
 
 .search-container {
-  background: rgba(255, 255, 255, 0.8);
-  backdrop-filter: blur(10px);
+  background: #ffffff;
   border-radius: 16px;
   padding: 2rem;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-  border: 1px solid rgba(0, 0, 0, 0.06);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+  border: 1px solid rgba(0, 0, 0, 0.03);
   margin-bottom: 2rem;
   transition: all 0.3s ease;
 }
@@ -265,7 +263,7 @@ code {
 
 .admin-container {
   min-height: 100vh;
-  background: #f5f7fa;
+  background: #e8f4f8;
 }
 
 .admin-header {
