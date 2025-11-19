@@ -50,7 +50,7 @@ const NavManagement: React.FC = () => {
   const [total, setTotal] = useState(0);
 
   // 搜索条件
-  const [searchParams, setSearchParams] = useState<{ name?: string; category?: string }>({});
+  const [searchParams, setSearchParams] = useState<{ name?: string; category?: string; status?: number }>({});
 
   const loadData = async () => {
     setLoading(true);
@@ -100,6 +100,7 @@ const NavManagement: React.FC = () => {
     setSearchParams({
       name: values.name || undefined,
       category: values.category || undefined,
+      status: values.status !== undefined ? values.status : undefined,
     });
     setCurrentPage(1); // 搜索时重置到第一页
   };
@@ -459,7 +460,7 @@ const NavManagement: React.FC = () => {
         className="mb-6 bg-gray-50 p-4 rounded-lg"
       >
         <Row gutter={16} align="bottom">
-          <Col span={8}>
+          <Col span={6}>
             <Form.Item name="category" label="分类" className="mb-0">
               <Select
                 placeholder="请选择分类"
@@ -476,12 +477,26 @@ const NavManagement: React.FC = () => {
               </Select>
             </Form.Item>
           </Col>
-          <Col span={8}>
+          <Col span={6}>
             <Form.Item name="name" label="标题" className="mb-0">
               <Input placeholder="请输入导航标题" allowClear />
             </Form.Item>
           </Col>
-          <Col span={8}>
+          <Col span={6}>
+            <Form.Item name="status" label="状态" className="mb-0">
+              <Select
+                placeholder="请选择状态"
+                allowClear
+                onChange={() => {
+                  searchForm.submit();
+                }}
+              >
+                <Select.Option value={1}>启用</Select.Option>
+                <Select.Option value={0}>停用</Select.Option>
+              </Select>
+            </Form.Item>
+          </Col>
+          <Col span={6}>
             <Form.Item className="mb-0">
               <Space>
                 <Button
