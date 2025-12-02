@@ -18,9 +18,6 @@ import type {
   SitePublish,
   SitePublishAdd,
   SitePublishEdit,
-  PlatformDict,
-  PlatformDictAdd,
-  PlatformDictEdit,
 } from '@/types';
 
 // Navigation APIs - 对应 NavigationController
@@ -154,31 +151,4 @@ export const sitePublishApi = {
 
   // 删除配置 - DELETE /sitePublish/delete/{id}
   delete: (id: number) => request.delete<ResultVO<any>>(`/sitePublish/delete/${id}`),
-};
-
-// Platform Dict APIs - 对应 PlatformDictController
-export const platformDictApi = {
-  // 获取所有平台字典 - GET /platformDict/lists
-  getList: () => request.get<ResultVO<PlatformDict[]>>('/platformDict/lists'),
-
-  // 获取启用的平台字典 - GET /platformDict/enabled
-  getEnabled: () => request.get<ResultVO<PlatformDict[]>>('/platformDict/enabled'),
-
-  // 根据路由路径获取 - GET /platformDict/route/{routePath}
-  getByRoutePath: (routePath: string) => {
-    const path = routePath.startsWith('/') ? routePath.substring(1) : routePath;
-    return request.get<ResultVO<PlatformDict>>(`/platformDict/route/${path}`);
-  },
-
-  // 根据ID获取 - GET /platformDict/{id}
-  getById: (id: number) => request.get<ResultVO<PlatformDict>>(`/platformDict/${id}`),
-
-  // 新增 - POST /platformDict/append
-  create: (data: PlatformDictAdd) => request.post<ResultVO<string>>('/platformDict/append', data),
-
-  // 更新 - PUT /platformDict/update
-  update: (data: PlatformDictEdit) => request.put<ResultVO<string>>('/platformDict/update', data),
-
-  // 删除 - DELETE /platformDict/delete/{id}
-  delete: (id: number) => request.delete<ResultVO<string>>(`/platformDict/delete/${id}`),
 };

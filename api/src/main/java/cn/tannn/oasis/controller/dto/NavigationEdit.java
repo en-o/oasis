@@ -91,9 +91,9 @@ public class NavigationEdit {
     private Integer status;
 
     /**
-     * 可显示的平台列表（逗号分隔的routePath）
+     * 发布页面（逗号分隔的routePath）
      */
-    @Schema(description = "可显示的平台列表，逗号分隔的routePath，如：dev,cp,public", example = "dev,cp")
+    @Schema(description = "发布页面，逗号分隔的routePath，如：dev,cp,public", example = "dev,cp")
     private String showPlatform;
 
 

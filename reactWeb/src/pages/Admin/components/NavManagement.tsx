@@ -387,6 +387,30 @@ const NavManagement: React.FC = () => {
       },
     },
     {
+      title: '平台列表',
+      dataIndex: 'showPlatform',
+      key: 'showPlatform',
+      width: 150,
+      render: (showPlatform: string) => {
+        if (!showPlatform) {
+          return <Tag color="default">全部</Tag>;
+        }
+        const platformPaths = showPlatform.split(',').map(p => p.trim()).filter(p => p);
+        return (
+          <Space size={[0, 4]} wrap>
+            {platformPaths.map((path, index) => {
+              const platform = platforms.find(p => p.routePath === path);
+              return (
+                <Tag key={index} color="green">
+                  {platform ? platform.name : path}
+                </Tag>
+              );
+            })}
+          </Space>
+        );
+      },
+    },
+    {
       title: '排序',
       dataIndex: 'sort',
       key: 'sort',

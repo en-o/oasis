@@ -12,7 +12,7 @@ export interface NavItem {
   hasAccount: boolean; // 是否有账户信息（从后端安全返回）
   nvaAccessSecret?: string; // 查看密钥
   status: number; // 0=停用, 1=启用
-  showPlatform?: string; // 平台列表，逗号分隔的routePath，如：dev,cp
+  showPlatform?: string; // 发布页面，逗号分隔的routePath，如：dev,cp
 }
 
 export interface NavCategory {

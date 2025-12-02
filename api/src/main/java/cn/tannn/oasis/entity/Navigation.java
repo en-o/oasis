@@ -130,13 +130,13 @@ public class Navigation extends SerializableBean<Navigation> {
     private Integer status;
 
     /**
-     * 可显示的平台列表（逗号分隔的routePath）
+     * 发布页面（逗号分隔的routePath） -跟管理页面没关系是导航页面显示控制
      * 例如: "dev,cp,public"
-     * 为空表示在所有平台显示
+     * 为空表示在所有发布页面显示
      */
     @Column(columnDefinition = "varchar(500)")
-    @Comment("可显示的平台列表，逗号分隔的routePath，如：dev,cp,public")
-    @Schema(description = "可显示的平台列表，逗号分隔的routePath，如：dev,cp,public", example = "dev,cp")
+    @Comment("发布页面，逗号分隔的routePath，如：dev,cp,public")
+    @Schema(description = "发布页面，逗号分隔的routePath，如：dev,cp,public", example = "dev,cp")
     private String showPlatform;
 
     /**
