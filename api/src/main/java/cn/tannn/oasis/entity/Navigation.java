@@ -135,6 +135,6 @@ public class Navigation extends SerializableBean<Navigation> {
     @Column(columnDefinition = "smallint")
     @Comment("showPlatform")
     @ColumnDefault("0")
-    @Schema(description = "可显示的平台，在status的前提之下作用；0:dev主页(开发运维用),1:cp主页(产品销售用)，当前默认主页不用这个参数，这个参数是给定制页面用的")
+    @Schema(description = "可显示的平台，在status的前提之下作用；0:dev主页(开发运维用),1:cp主页(产品销售用)，当前默认主页不用这个参数，这个参数是给定制页面用的,可以自定义扩展")
     private Integer showPlatform;
 }
