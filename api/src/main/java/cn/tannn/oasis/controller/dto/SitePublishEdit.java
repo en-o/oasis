@@ -36,17 +36,17 @@ public class SitePublishEdit extends SerializableBean<SitePublishEdit> {
     private String name;
 
     /**
-     * 路由路径
+     * 路由路径（不包含前缀斜杠，不允许使用admin和根路径）
      */
-    @Schema(description = "路由路径，如：/site、/dev、/cp")
+    @Schema(description = "路由路径，如：site、dev、cp（不包含前缀斜杠）")
     @NotBlank(message = "路由路径不允许为空")
     private String routePath;
 
     /**
-     * 显示的平台类型
+     * 关联的平台字典路由路径
      */
-    @Schema(description = "显示的平台类型，0:dev主页, 1:cp主页等，null表示不过滤")
-    private Integer showPlatform;
+    @Schema(description = "关联的平台字典路由路径，为空表示显示所有导航")
+    private String platformDictPath;
 
     /**
      * 是否隐藏管理入口

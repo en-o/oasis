@@ -29,9 +29,15 @@ public class SitePublishServiceImpl extends J2ServiceImpl<SitePublishDao, SitePu
 
     @Override
     public void create(SitePublishAdd add) {
+        // 验证路由路径
+        if (SitePublish.isReservedPath(add.getRoutePath())) {
+            throw new BusinessException("路由路径不能使用保留路径: admin 或 / (根路径)");
+        }
+
         if (routePathExists(add.getRoutePath())) {
             throw new BusinessException("路由路径已存在，请勿重复添加");
         }
+
         SitePublish entity = add.to(SitePublish.class);
         getJpaBasicsDao().save(entity);
     }
@@ -41,6 +47,11 @@ public class SitePublishServiceImpl extends J2ServiceImpl<SitePublishDao, SitePu
         SitePublish entity = getJpaBasicsDao().findById(edit.getId())
                 .orElseThrow(() -> new BusinessException("站点发布配置不存在"));
 
+        // 验证路由路径
+        if (SitePublish.isReservedPath(edit.getRoutePath())) {
+            throw new BusinessException("路由路径不能使用保留路径: admin 或 / (根路径)");
+        }
+
         // 检查路由路径是否被其他配置占用
         if (!entity.getRoutePath().equals(edit.getRoutePath())
                 && routePathExists(edit.getRoutePath(), edit.getId())) {
@@ -49,7 +60,7 @@ public class SitePublishServiceImpl extends J2ServiceImpl<SitePublishDao, SitePu
 
         entity.setName(edit.getName());
         entity.setRoutePath(edit.getRoutePath());
-        entity.setShowPlatform(edit.getShowPlatform());
+        entity.setPlatformDictPath(edit.getPlatformDictPath());
         entity.setHideAdminEntry(edit.getHideAdminEntry());
         entity.setEnabled(edit.getEnabled());
         entity.setSort(edit.getSort());

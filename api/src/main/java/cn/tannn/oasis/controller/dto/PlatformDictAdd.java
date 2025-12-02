@@ -1,5 +1,6 @@
 package cn.tannn.oasis.controller.dto;
 
+import cn.tannn.jdevelops.result.bean.SerializableBean;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
@@ -17,7 +18,7 @@ import lombok.ToString;
 @Setter
 @ToString
 @Schema(description = "平台字典新增")
-public class PlatformDictAdd {
+public class PlatformDictAdd extends SerializableBean<PlatformDictAdd> {
 
     @NotBlank(message = "路由路径不能为空")
     @Pattern(regexp = "^[a-zA-Z0-9-_]+$", message = "路由路径只能包含字母、数字、横杠和下划线")

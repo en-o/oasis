@@ -1,7 +1,6 @@
 package cn.tannn.oasis.controller.dto;
 
-import cn.tannn.jdevelops.dals.validation.constant.ValidationConstant;
-import cn.tannn.jdevelops.dals.validation.validator.notbig.NotBig;
+import cn.tannn.jdevelops.result.bean.SerializableBean;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -20,7 +19,7 @@ import lombok.ToString;
 @Setter
 @ToString
 @Schema(description = "平台字典编辑")
-public class PlatformDictEdit {
+public class PlatformDictEdit extends SerializableBean<PlatformDictEdit> {
 
     @NotNull(message = "ID不能为空")
     @Schema(description = "主键ID", example = "1", requiredMode = Schema.RequiredMode.REQUIRED)

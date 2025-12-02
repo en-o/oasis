@@ -12,7 +12,7 @@ export interface NavItem {
   hasAccount: boolean; // 是否有账户信息（从后端安全返回）
   nvaAccessSecret?: string; // 查看密钥
   status: number; // 0=停用, 1=启用
-  showPlatform?: number | null; // 显示的平台类型
+  showPlatform?: string; // 平台列表，逗号分隔的routePath，如：dev,cp
 }
 
 export interface NavCategory {
@@ -162,7 +162,7 @@ export interface SitePublish {
   id?: number;
   name: string;
   routePath: string;
-  showPlatform?: number | null; // 平台类型
+  platformDictPath?: string | null; // 关联的平台字典路由路径
   hideAdminEntry: boolean; // 是否隐藏管理入口
   enabled: boolean; // 是否启用
   sort: number;
@@ -172,7 +172,7 @@ export interface SitePublish {
 export interface SitePublishAdd {
   name: string;
   routePath: string;
-  showPlatform?: number | null;
+  platformDictPath?: string | null;
   hideAdminEntry: boolean;
   enabled: boolean;
   sort: number;
@@ -183,9 +183,36 @@ export interface SitePublishEdit {
   id: number;
   name: string;
   routePath: string;
-  showPlatform?: number | null;
+  platformDictPath?: string | null;
   hideAdminEntry: boolean;
   enabled: boolean;
   sort: number;
   description?: string;
+}
+
+// 平台字典相关类型定义
+export interface PlatformDict {
+  id?: number;
+  routePath: string; // 路由路径，如：dev、cp
+  platformName: string; // 平台名称
+  description?: string;
+  enabled: boolean;
+  sort: number;
+}
+
+export interface PlatformDictAdd {
+  routePath: string;
+  platformName: string;
+  description?: string;
+  enabled: boolean;
+  sort: number;
+}
+
+export interface PlatformDictEdit {
+  id: number;
+  routePath: string;
+  platformName: string;
+  description?: string;
+  enabled: boolean;
+  sort: number;
 }

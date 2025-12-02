@@ -130,11 +130,33 @@ public class Navigation extends SerializableBean<Navigation> {
     private Integer status;
 
     /**
-     * 可显示的平台，在status的前提之下作用；0:dev主页(开发运维用),1:cp主页(产品销售用)，当前默认主页不用这个参数，这个参数是给定制页面用的
+     * 可显示的平台列表（逗号分隔的routePath）
+     * 例如: "dev,cp,public"
+     * 为空表示在所有平台显示
      */
-    @Column(columnDefinition = "smallint")
-    @Comment("showPlatform")
-    @ColumnDefault("0")
-    @Schema(description = "可显示的平台，在status的前提之下作用；0:dev主页(开发运维用),1:cp主页(产品销售用)，当前默认主页不用这个参数，这个参数是给定制页面用的,可以自定义扩展")
-    private Integer showPlatform;
+    @Column(columnDefinition = "varchar(500)")
+    @Comment("可显示的平台列表，逗号分隔的routePath，如：dev,cp,public，为空表示在所有平台显示")
+    @Schema(description = "可显示的平台列表，逗号分隔的routePath，如：dev,cp,public，为空表示在所有平台显示", example = "dev,cp")
+    private String showPlatform;
+
+    /**
+     * 将 showPlatform 字符串分割为列表
+     */
+    public String[] getShowPlatformList() {
+        if (showPlatform == null || showPlatform.trim().isEmpty()) {
+            return new String[0];
+        }
+        return showPlatform.split(",");
+    }
+
+    /**
+     * 设置 showPlatform（从列表）
+     */
+    public void setShowPlatformFromList(String[] platforms) {
+        if (platforms == null || platforms.length == 0) {
+            this.showPlatform = null;
+        } else {
+            this.showPlatform = String.join(",", platforms);
+        }
+    }
 }

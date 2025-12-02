@@ -46,20 +46,22 @@ public class SitePublish extends SerializableBean<SitePublish> {
     private String name;
 
     /**
-     * 路由路径（如：/site、/dev、/cp）
+     * 路由路径（如：site、dev、cp）
+     * 不允许使用 admin 和空（根路径）
      */
     @Column(columnDefinition = "varchar(100)", nullable = false)
     @Comment("路由路径")
-    @Schema(description = "路由路径，如：/site、/dev、/cp")
+    @Schema(description = "路由路径，如：site、dev、cp（不包含前缀斜杠，不允许使用admin和根路径）")
     private String routePath;
 
     /**
-     * 显示的平台类型（0:dev主页, 1:cp主页等）
+     * 关联的平台字典路由路径
+     * 指定显示哪个平台的导航数据
      */
-    @Column(columnDefinition = "smallint")
-    @Comment("显示的平台类型")
-    @Schema(description = "显示的平台类型，0:dev主页, 1:cp主页等，null表示不过滤")
-    private Integer showPlatform;
+    @Column(columnDefinition = "varchar(100)")
+    @Comment("关联的平台字典路由路径")
+    @Schema(description = "关联的平台字典路由路径，为空表示显示所有导航")
+    private String platformDictPath;
 
     /**
      * 是否隐藏管理入口
@@ -95,4 +97,20 @@ public class SitePublish extends SerializableBean<SitePublish> {
     @Comment("描述说明")
     @Schema(description = "描述说明")
     private String description;
+
+    /**
+     * 检查路由路径是否为保留路径
+     */
+    public static boolean isReservedPath(String path) {
+        if (path == null) {
+            return false;
+        }
+        String cleanPath = path.trim().toLowerCase();
+        // 移除前缀斜杠
+        if (cleanPath.startsWith("/")) {
+            cleanPath = cleanPath.substring(1);
+        }
+        // 检查是否为空或保留路径
+        return cleanPath.isEmpty() || "admin".equals(cleanPath);
+    }
 }
