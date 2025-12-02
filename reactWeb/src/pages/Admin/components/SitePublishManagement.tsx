@@ -132,7 +132,7 @@ const SitePublishManagement: React.FC = () => {
     {
       title: '操作',
       key: 'action',
-      width: 150,
+      width: 200,
       fixed: 'right' as const,
       render: (_: any, record: SitePublish) => (
         <Space>
