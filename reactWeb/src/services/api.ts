@@ -15,12 +15,21 @@ import type {
   BackupConfigAdd,
   BackupStatus,
   DatabaseConfig,
+  SitePublish,
+  SitePublishAdd,
+  SitePublishEdit,
 } from '@/types';
 
 // Navigation APIs - 对应 NavigationController
 export const navigationApi = {
   // 获取导航列表 - GET /navigation/lists
   getList: () => request.get<ResultVO<NavItem[]>>('/navigation/lists'),
+
+  // 根据平台类型获取导航列表 - GET /navigation/lists/platform
+  getListByPlatform: (showPlatform?: number | null) =>
+    request.get<ResultVO<NavItem[]>>('/navigation/lists/platform', {
+      params: showPlatform !== undefined && showPlatform !== null ? { showPlatform } : {}
+    }),
 
   // 分页查询导航 - POST /navigation/page
   getPage: (params: NavManagementPageRequest) => request.post<ResultPageVO<NavItem>>('/navigation/page', params),
@@ -114,4 +123,29 @@ export const backupApi = {
 
   // 从MySQL恢复数据到H2 - POST /data/restore
   restore: () => request.post<ResultVO<string>>('/data/restore'),
+};
+
+// Site Publish APIs - 对应 SitePublishController
+export const sitePublishApi = {
+  // 获取所有配置 - GET /sitePublish/lists
+  getList: () => request.get<ResultVO<SitePublish[]>>('/sitePublish/lists'),
+
+  // 获取所有启用的配置 - GET /sitePublish/enabled
+  getEnabled: () => request.get<ResultVO<SitePublish[]>>('/sitePublish/enabled'),
+
+  // 根据路由路径获取配置 - GET /sitePublish/route/{routePath}
+  getByRoutePath: (routePath: string) => {
+    // 移除路径前的斜杠，因为后端期望没有斜杠的路径
+    const path = routePath.startsWith('/') ? routePath.substring(1) : routePath;
+    return request.get<ResultVO<SitePublish>>(`/sitePublish/route/${path}`);
+  },
+
+  // 新增配置 - POST /sitePublish/append
+  create: (data: SitePublishAdd) => request.post<ResultVO<any>>('/sitePublish/append', data),
+
+  // 更新配置 - PUT /sitePublish/update
+  update: (data: SitePublishEdit) => request.put<ResultVO<any>>('/sitePublish/update', data),
+
+  // 删除配置 - DELETE /sitePublish/delete/{id}
+  delete: (id: number) => request.delete<ResultVO<any>>(`/sitePublish/delete/${id}`),
 };

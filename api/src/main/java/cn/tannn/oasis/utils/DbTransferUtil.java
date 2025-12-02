@@ -969,9 +969,52 @@ public class DbTransferUtil {
             Class.forName(cfg.getDriverClassName());
         }
 
-        Connection conn = DriverManager.getConnection(cfg.getUrl(), cfg.getUsername(), cfg.getPassword());
-        conn.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);
-        return conn;
+        // 优化 MySQL 连接 URL，添加必要的参数
+        String url = cfg.getUrl();
+        if (url.contains("mysql")) {
+            if (!url.contains("?")) {
+                url += "?";
+            }
+            if (!url.contains("useSSL")) {
+                url += "&useSSL=false";
+            }
+            if (!url.contains("allowPublicKeyRetrieval")) {
+                url += "&allowPublicKeyRetrieval=true";
+            }
+            if (!url.contains("serverTimezone")) {
+                url += "&serverTimezone=Asia/Shanghai";
+            }
+            if (!url.contains("connectTimeout")) {
+                url += "&connectTimeout=10000";
+            }
+            if (!url.contains("socketTimeout")) {
+                url += "&socketTimeout=30000";
+            }
+            // 清理开头可能多余的 &
+            url = url.replace("?&", "?");
+        }
+
+        log.debug("尝试连接数据库: {}", maskPassword(url));
+
+        try {
+            Connection conn = DriverManager.getConnection(url, cfg.getUsername(), cfg.getPassword());
+            conn.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);
+            log.debug("数据库连接成功");
+            return conn;
+        } catch (Exception e) {
+            log.error("数据库连接失败: url={}, username={}, error={}",
+                    maskPassword(url), cfg.getUsername(), e.getMessage());
+            throw new Exception("数据库连接失败: " + e.getMessage() +
+                    "\n请检查：\n1. 数据库服务是否启动\n2. URL、端口是否正确\n3. 用户名密码是否正确\n4. 网络是否可达", e);
+        }
+    }
+
+    /**
+     * 掩盖密码用于日志输出
+     */
+    private static String maskPassword(String url) {
+        if (url == null) return null;
+        return url.replaceAll("password=([^&;]+)", "password=****");
     }
 
     /**

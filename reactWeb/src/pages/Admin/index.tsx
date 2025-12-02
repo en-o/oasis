@@ -7,13 +7,14 @@ import NavManagement from './components/NavManagement';
 import CategoryManagement from './components/CategoryManagement';
 import SystemManagement from './components/SystemManagement';
 import BackupManagement from './components/BackupManagement';
+import SitePublishManagement from './components/SitePublishManagement';
 import LoginModal from '@/components/LoginModal';
 import { authApi } from '@/services/api';
 
 const Admin: React.FC = () => {
   const navigate = useNavigate();
   const [currentTab, setCurrentTab] = useState<
-    'nav-management' | 'category-management' | 'system-management' | 'backup-management'
+    'nav-management' | 'category-management' | 'system-management' | 'backup-management' | 'site-publish-management'
   >('nav-management');
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [showLogin, setShowLogin] = useState(false);
@@ -143,6 +144,7 @@ const Admin: React.FC = () => {
           <div className="flex-1 admin-content overflow-auto">
             {currentTab === 'nav-management' && <NavManagement />}
             {currentTab === 'category-management' && <CategoryManagement />}
+            {currentTab === 'site-publish-management' && <SitePublishManagement />}
             {currentTab === 'system-management' && <SystemManagement />}
             {currentTab === 'backup-management' && <BackupManagement />}
           </div>

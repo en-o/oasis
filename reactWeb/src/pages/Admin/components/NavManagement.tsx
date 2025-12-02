@@ -164,6 +164,7 @@ const NavManagement: React.FC = () => {
       lookAccount: item.lookAccount,
       nvaAccessSecret: item.nvaAccessSecret,
       status: item.status === 1, // 转换为 boolean
+      showPlatform: item.showPlatform,
     });
     setModalVisible(true);
   };
@@ -246,6 +247,7 @@ const NavManagement: React.FC = () => {
         lookAccount: values.lookAccount !== undefined ? values.lookAccount : true,
         nvaAccessSecret: values.nvaAccessSecret || 'tan',
         status: values.status ? 1 : 0, // 转换为数字
+        showPlatform: values.showPlatform !== undefined && values.showPlatform !== null ? values.showPlatform : undefined,
       };
 
       if (editingItem) {
@@ -715,6 +717,17 @@ const NavManagement: React.FC = () => {
 
           <div className="border-t pt-4 mt-4">
             <h4 className="font-medium mb-3">其他设置</h4>
+            <Form.Item
+              name="showPlatform"
+              label="平台类型"
+              tooltip="留空表示在所有平台显示，设置数字则只在对应平台显示"
+            >
+              <InputNumber
+                placeholder="留空显示全部，或输入数字如：0、1、2"
+                style={{ width: '100%' }}
+                min={0}
+              />
+            </Form.Item>
             <Form.Item
               name="status"
               label="状态"

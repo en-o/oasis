@@ -11,7 +11,9 @@
       "Bash(find:*)",
       "Bash(chmod:*)",
       "Read(//mnt/c/Users/**)",
-      "Bash(npm install:*)"
+      "Bash(npm install:*)",
+      "Bash(systemctl:*)",
+      "Bash(service mysql:*)"
     ],
     "deny": [],
     "ask": []
