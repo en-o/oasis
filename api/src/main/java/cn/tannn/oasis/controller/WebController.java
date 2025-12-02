@@ -4,6 +4,7 @@ import cn.tannn.jdevelops.annotations.web.authentication.ApiMapping;
 import cn.tannn.jdevelops.annotations.web.mapping.PathRestController;
 import cn.tannn.jdevelops.jpa.request.Sorteds;
 import cn.tannn.jdevelops.jpa.result.JpaPageResult;
+import cn.tannn.jdevelops.jpa.select.EnhanceSpecification;
 import cn.tannn.jdevelops.result.response.ResultPageVO;
 import cn.tannn.jdevelops.result.response.ResultVO;
 import cn.tannn.oasis.config.DefaultSysConfig;
@@ -24,6 +25,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -59,7 +61,11 @@ public class WebController {
     @Operation(summary = "获取网站集合-分页")
     @ApiMapping(value = "navs",checkToken = false,method = RequestMethod.POST)
     public ResultPageVO<NavigationVO, JpaPageResult<NavigationVO>> navsPage(@RequestBody @Valid NavigationSitePage page) {
-        Page<Navigation> byBean = navigationService.findPage(page, page.getPage());
+        Specification<Navigation> beanWhere = EnhanceSpecification.beanWhere(page, x -> {
+            x.eq(true,"status",1);
+        });
+
+        Page<Navigation> byBean = navigationService.findPage(beanWhere, page.getPage().pageable());
 
         // 自定义转换，设置 hasAccount 字段
         List<NavigationVO> voList = byBean.getContent().stream().map(nav -> {
