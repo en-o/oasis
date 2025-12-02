@@ -50,6 +50,8 @@ public class WebController {
     private final SysConfigsService sysConfigsService;
     private final DefaultSysConfig defaultSysConfig;
     private final NavCategoryService navCategoryService;
+
+
     @ApiMapping(value = "/site",checkToken = false,method = RequestMethod.GET)
     @Operation(summary = "站点信息", description = "详情")
     public ResultVO<SiteInfo> siteInfo(@RequestParam(value = "admin",required = false) Boolean admin) {
