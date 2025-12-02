@@ -135,9 +135,9 @@ public class Navigation extends SerializableBean<Navigation> {
      * 为空表示在所有平台显示
      */
     @Column(columnDefinition = "varchar(500)")
-    @Comment("可显示的平台列表，逗号分隔的routePath，如：dev,cp,public，为空表示在所有平台显示")
+    @Comment("可显示的平台列表，逗号分隔的routePath，如：dev,cp,public")
     @ColumnDefault("'dev'")
-    @Schema(description = "可显示的平台列表，逗号分隔的routePath，如：dev,cp,public，为空表示在所有平台显示", example = "dev,cp")
+    @Schema(description = "可显示的平台列表，逗号分隔的routePath，如：dev,cp,public", example = "dev,cp")
     private String showPlatform;
 
     /**
