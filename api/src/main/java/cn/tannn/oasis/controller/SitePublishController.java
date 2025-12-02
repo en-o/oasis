@@ -74,7 +74,7 @@ public class SitePublishController {
     @GetMapping("{id}")
     @Parameter(name = "id", description = "配置ID", required = true)
     public ResultVO<SitePublish> getById(@PathVariable Integer id) {
-        SitePublish config = sitePublishService.findById(id);
+        SitePublish config = sitePublishService.getJpaBasicsDao().findById(id).orElseThrow();
         return ResultVO.success(config);
     }
 
@@ -82,7 +82,7 @@ public class SitePublishController {
     @DeleteMapping("delete/{id}")
     @Parameter(name = "id", description = "配置ID", required = true)
     public ResultVO<String> delete(@PathVariable Integer id) {
-        sitePublishService.deleteById(id);
+        sitePublishService.deleteEq("id",id);
         return ResultVO.success();
     }
 }
