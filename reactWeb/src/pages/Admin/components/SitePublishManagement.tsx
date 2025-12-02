@@ -87,7 +87,7 @@ const SitePublishManagement: React.FC = () => {
 
   const columns = [
     {
-      title: '配置名称',
+      title: '页面名称',
       dataIndex: 'name',
       key: 'name',
       width: 150,
@@ -96,20 +96,8 @@ const SitePublishManagement: React.FC = () => {
       title: '路由路径',
       dataIndex: 'routePath',
       key: 'routePath',
-      width: 120,
+      width: 150,
       render: (path: string) => <code className="bg-gray-100 px-2 py-1 rounded">/{path}</code>,
-    },
-    {
-      title: '平台类型',
-      dataIndex: 'showPlatform',
-      key: 'showPlatform',
-      width: 100,
-      render: (value: number | null) => {
-        if (value === null || value === undefined) {
-          return <Tag color="default">全部</Tag>;
-        }
-        return <Tag color="blue">{value}</Tag>;
-      },
     },
     {
       title: '隐藏管理入口',

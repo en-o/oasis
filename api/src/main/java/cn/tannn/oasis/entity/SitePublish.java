@@ -38,11 +38,11 @@ public class SitePublish extends SerializableBean<SitePublish> {
     private Integer id;
 
     /**
-     * 配置名称
+     * 页面名称
      */
     @Column(columnDefinition = "varchar(100)", nullable = false)
-    @Comment("配置名称")
-    @Schema(description = "配置名称")
+    @Comment("页面名称")
+    @Schema(description = "页面名称")
     private String name;
 
     /**
