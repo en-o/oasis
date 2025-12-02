@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { Search } from 'lucide-react';
 import IconDisplay from '@/components/IconDisplay';
 import NavGrid from '@/components/NavGrid';
 import NavList from '@/components/NavList';
 import LoginModal from '@/components/LoginModal';
-import { navApi, categoryApi, systemApi } from '@/apis';
-import type { NavItem, SystemConfig } from '@/types';
+import { navApi, categoryApi, systemApi, sitePublishApi } from '@/apis';
+import type { NavItem, SystemConfig, SitePublish } from '@/types';
 import { Grid, List, Settings } from 'lucide-react';
 import './index.css';
 
@@ -14,9 +15,12 @@ interface Props {
 }
 
 const Navigation: React.FC<Props> = ({ onEnterAdmin }) => {
+  const location = useLocation();
+  const navigate = useNavigate();
   const [navItems, setNavItems] = useState<NavItem[]>([]);
   const [categories, setCategories] = useState<string[]>([]);
   const [systemConfig, setSystemConfig] = useState<SystemConfig | null>(null);
+  const [siteConfig, setSiteConfig] = useState<SitePublish | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('全部');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
@@ -24,19 +28,56 @@ const Navigation: React.FC<Props> = ({ onEnterAdmin }) => {
   const [showLogin, setShowLogin] = useState(false);
   const [accountMap, setAccountMap] = useState<Record<number, boolean>>({});
   const [secret, setSecret] = useState('');
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    Promise.all([navApi.list(), categoryApi.list(), systemApi.get()]).then(
-      ([navs, cats, cfg]) => {
-        setNavItems(navs);
-        setCategories(cats);
-        setSystemConfig(cfg);
-        setJumpMethod(cfg.defaultOpenMode);
-      }
-    );
-  }, []);
+    loadData();
+  }, [location.pathname]);
 
-  if (!systemConfig) return null;
+  const loadData = async () => {
+    setLoading(true);
+    try {
+      // 获取当前路径
+      const currentPath = location.pathname;
+
+      // 先尝试根据路径获取站点配置
+      let config: SitePublish | null = null;
+      if (currentPath !== '/') {
+        try {
+          config = await sitePublishApi.getByRoutePath(currentPath);
+          setSiteConfig(config);
+        } catch (error) {
+          console.log('未找到路径对应的配置，使用默认配置');
+        }
+      }
+
+      // 根据配置的 showPlatform 加载导航数据
+      const navs =
+        config?.showPlatform !== undefined && config?.showPlatform !== null
+          ? await navApi.listByPlatform(config.showPlatform)
+          : await navApi.list();
+
+      const cats = await categoryApi.list();
+      const cfg = await systemApi.get();
+
+      setNavItems(navs);
+      setCategories(cats);
+      setSystemConfig(cfg);
+      setJumpMethod(cfg.defaultOpenMode);
+    } catch (error) {
+      console.error('加载数据失败:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (loading || !systemConfig) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="text-gray-500">加载中...</div>
+      </div>
+    );
+  }
 
   const allCategories = ['全部', ...categories];
   const filtered = navItems
@@ -65,6 +106,10 @@ const Navigation: React.FC<Props> = ({ onEnterAdmin }) => {
     }
   };
 
+  // 检查是否隐藏管理入口
+  // 优先使用站点配置，如果没有站点配置则使用系统配置
+  const hideAdmin = siteConfig?.hideAdminEntry ?? systemConfig.hideAdminEntry;
+
   return (
     <div className="nav-container">
       <header className="nav-header">
@@ -78,9 +123,14 @@ const Navigation: React.FC<Props> = ({ onEnterAdmin }) => {
               />
               <h1 className="text-2xl font-bold text-gray-800">
                 {systemConfig.siteTitle}
+                {siteConfig && (
+                  <span className="ml-2 text-sm font-normal text-gray-500">
+                    - {siteConfig.name}
+                  </span>
+                )}
               </h1>
             </div>
-            {!systemConfig.hideAdminEntry && (
+            {!hideAdmin && (
               <div className="flex items-center space-x-4">
                 <div className="flex items-center space-x-2">
                   <span className="text-sm text-gray-600">打开方式:</span>
@@ -183,7 +233,10 @@ const Navigation: React.FC<Props> = ({ onEnterAdmin }) => {
         onClose={() => setShowLogin(false)}
         onLogin={(u, p) => {
           const ok = u === systemConfig.user.username && p === systemConfig.user.password;
-          if (ok) onEnterAdmin();
+          if (ok) {
+            navigate('/admin');
+            onEnterAdmin();
+          }
           return ok;
         }}
       />

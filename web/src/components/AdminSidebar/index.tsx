@@ -9,6 +9,7 @@ interface Props {
 const tabs = [
   { id: 'nav-management', label: '导航页面管理' },
   { id: 'category-management', label: '分类管理' },
+  { id: 'site-publish-management', label: '页面发布' },
   { id: 'system-management', label: '系统管理' },
   { id: 'backup-management', label: '备份管理' },
 ];

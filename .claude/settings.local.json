@@ -10,7 +10,8 @@
       "Bash(npm run build:merged)",
       "Bash(find:*)",
       "Bash(chmod:*)",
-      "Read(//mnt/c/Users/**)"
+      "Read(//mnt/c/Users/**)",
+      "Bash(npm install:*)"
     ],
     "deny": [],
     "ask": []

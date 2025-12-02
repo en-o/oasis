@@ -3,6 +3,8 @@ package cn.tannn.oasis.dao;
 import cn.tannn.jdevelops.jpa.repository.JpaBasicsRepository;
 import cn.tannn.oasis.entity.Navigation;
 
+import java.util.List;
+
 /**
  * 导航项表
  *
@@ -24,4 +26,12 @@ public interface NavigationDao extends JpaBasicsRepository<Navigation, Integer> 
      * @return true存在 false不存在
      */
     boolean existsByName(String name);
+
+    /**
+     * 根据平台类型和状态查询导航列表
+     * @param showPlatform 平台类型
+     * @param status 状态（1:启用）
+     * @return 导航列表
+     */
+    List<Navigation> findByShowPlatformAndStatusOrderBySortAsc(Integer showPlatform, Integer status);
 }

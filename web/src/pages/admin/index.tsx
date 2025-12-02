@@ -4,6 +4,7 @@ import NavManagement from './components/NavManagement';
 import CategoryManagement from './components/CategoryManagement';
 import SystemManagement from './components/SystemManagement';
 import BackupManagement from './components/BackupManagement';
+import SitePublishManagement from './components/SitePublishManagement';
 import { useNavigation } from '@/hooks/useNavigation';
 import './index.css';
 
@@ -13,7 +14,11 @@ interface Props {
 
 const Admin: React.FC<Props> = ({ onExit }) => {
   const [currentTab, setCurrentTab] = useState<
-    'nav-management' | 'category-management' | 'system-management' | 'backup-management'
+    | 'nav-management'
+    | 'category-management'
+    | 'system-management'
+    | 'backup-management'
+    | 'site-publish-management'
   >('nav-management');
   const { navItems, setNavItems, categories, setCategories, systemConfig, setSystemConfig } =
     useNavigation();
@@ -50,6 +55,7 @@ const Admin: React.FC<Props> = ({ onExit }) => {
           <div className="flex-1">
             {currentTab === 'nav-management' && <NavManagement />}
             {currentTab === 'category-management' && <CategoryManagement />}
+            {currentTab === 'site-publish-management' && <SitePublishManagement />}
             {currentTab === 'system-management' && <SystemManagement />}
             {currentTab === 'backup-management' && <BackupManagement />}
           </div>

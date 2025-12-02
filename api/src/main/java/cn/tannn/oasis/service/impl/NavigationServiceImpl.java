@@ -8,6 +8,8 @@ import cn.tannn.oasis.service.NavigationService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 /**
  * 导航项表
  *
@@ -34,5 +36,11 @@ public class NavigationServiceImpl extends J2ServiceImpl<NavigationDao, Navigati
             throw new IllegalArgumentException("名称已存在");
         }
         getJpaBasicsDao().save(append.to(Navigation.class));
+    }
+
+    @Override
+    public List<Navigation> findByShowPlatform(Integer showPlatform) {
+        // status=1 表示启用状态
+        return getJpaBasicsDao().findByShowPlatformAndStatusOrderBySortAsc(showPlatform, 1);
     }
 }

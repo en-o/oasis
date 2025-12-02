@@ -13,6 +13,7 @@ export interface NavItem {
   icon: string;
   remark: string;
   accountInfo: AccountInfo;
+  showPlatform?: number;
 }
 
 export interface SystemConfig {
@@ -57,4 +58,29 @@ export interface DatabaseConfig {
   username: string;
   password: string;
   driverClassName: string;
+}
+
+export interface SitePublish {
+  id?: number;
+  name: string;
+  routePath: string;
+  showPlatform?: number;
+  hideAdminEntry: boolean;
+  enabled: boolean;
+  sort?: number;
+  description?: string;
+}
+
+export interface SitePublishAdd {
+  name: string;
+  routePath: string;
+  showPlatform?: number;
+  hideAdminEntry: boolean;
+  enabled: boolean;
+  sort?: number;
+  description?: string;
+}
+
+export interface SitePublishEdit extends SitePublishAdd {
+  id: number;
 }

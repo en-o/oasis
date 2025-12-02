@@ -5,6 +5,8 @@ import cn.tannn.oasis.controller.dto.NavigationAdd;
 import cn.tannn.oasis.entity.Navigation;
 import jakarta.validation.Valid;
 
+import java.util.List;
+
 /**
  * 导航项表
  *
@@ -25,4 +27,11 @@ public interface NavigationService extends J2Service<Navigation> {
      * @param append NavigationAdd
      */
     void create(@Valid NavigationAdd append);
+
+    /**
+     * 根据平台类型获取导航列表
+     * @param showPlatform 平台类型
+     * @return 导航列表
+     */
+    List<Navigation> findByShowPlatform(Integer showPlatform);
 }

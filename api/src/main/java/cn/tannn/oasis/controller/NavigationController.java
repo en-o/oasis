@@ -66,6 +66,19 @@ public class NavigationController {
         return ResultVO.success(finds);
     }
 
+    @Operation(summary = "根据平台类型获取导航列表")
+    @GetMapping("lists/platform")
+    @Parameter(name = "showPlatform", description = "平台类型，null表示不过滤", required = false)
+    public ResultVO<List<Navigation>> listsByPlatform(@RequestParam(required = false) Integer showPlatform) {
+        List<Navigation> finds;
+        if (showPlatform == null) {
+            finds = navigationService.finds();
+        } else {
+            finds = navigationService.findByShowPlatform(showPlatform);
+        }
+        return ResultVO.success(finds);
+    }
+
     @Operation(summary = "删除")
     @DeleteMapping("delete")
     @Parameter(name = "id", description = "id", required = true)
