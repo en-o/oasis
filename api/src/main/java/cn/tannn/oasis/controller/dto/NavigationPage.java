@@ -38,9 +38,9 @@ public class NavigationPage extends SerializableBean<NavigationPage> {
     @JpaSelectOperator(operatorWrapper = SQLOperatorWrapper.EQ, connect = SQLConnect.AND)
     private Integer status;
 
-    @Schema(description = "可显示的平台，在status的前提之下作用；0:dev主页(开发运维用),1:cp主页(产品销售用)，当前默认主页不用这个参数，这个参数是给定制页面用的")
-    @JpaSelectOperator(operatorWrapper = SQLOperatorWrapper.EQ, connect = SQLConnect.AND)
-    private Integer showPlatform;
+    @Schema(description = "可显示的平台列表，逗号分隔的routePath，如：dev,cp,public")
+    @JpaSelectOperator(operatorWrapper = SQLOperatorWrapper.LIKE, connect = SQLConnect.AND)
+    private String showPlatform;
 
     /**
      * 分页排序
