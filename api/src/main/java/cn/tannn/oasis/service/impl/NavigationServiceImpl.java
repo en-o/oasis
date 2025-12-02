@@ -37,10 +37,4 @@ public class NavigationServiceImpl extends J2ServiceImpl<NavigationDao, Navigati
         }
         getJpaBasicsDao().save(append.to(Navigation.class));
     }
-
-    @Override
-    public List<Navigation> findByShowPlatform(Integer showPlatform) {
-        // status=1 表示启用状态
-        return getJpaBasicsDao().findByShowPlatformAndStatusOrderBySortAsc(showPlatform, 1);
-    }
 }
