@@ -65,7 +65,7 @@ const NavManagement: React.FC = () => {
         setCategories([]);
       }
 
-      // 加载平台列表
+      // 加载发布页面
       const platformResponse = await sitePublishApi.getList();
       if (platformResponse.code === 200 && platformResponse.data) {
         setPlatforms(platformResponse.data);
@@ -161,7 +161,7 @@ const NavManagement: React.FC = () => {
     // 处理分类：将逗号分隔的字符串转换为数组
     const categoryArray = item.category ? item.category.split(',').map(c => c.trim()).filter(c => c) : [];
 
-    // 处理平台列表：将逗号分隔的字符串转换为数组
+    // 处理发布页面：将逗号分隔的字符串转换为数组
     const platformArray = item.showPlatform ? item.showPlatform.split(',').map(p => p.trim()).filter(p => p) : [];
 
     form.setFieldsValue({
@@ -248,7 +248,7 @@ const NavManagement: React.FC = () => {
         ? values.category.join(',')
         : values.category;
 
-      // 处理平台列表：将数组去重并转换为逗号分隔的字符串
+      // 处理发布页面：将数组去重并转换为逗号分隔的字符串
       const platformValue = Array.isArray(values.showPlatform)
         ? Array.from(new Set(values.showPlatform)).join(',')
         : values.showPlatform || '';
@@ -387,7 +387,7 @@ const NavManagement: React.FC = () => {
       },
     },
     {
-      title: '平台列表',
+      title: '发布页面',
       dataIndex: 'showPlatform',
       key: 'showPlatform',
       width: 150,
@@ -761,8 +761,8 @@ const NavManagement: React.FC = () => {
             <h4 className="font-medium mb-3">其他设置</h4>
             <Form.Item
               name="showPlatform"
-              label="平台列表"
-              tooltip="选择可显示的平台，支持多选。留空表示在所有平台显示"
+              label="发布页面"
+              tooltip="选择发布页面，支持多选。留空表示在所有导航页显示"
             >
               <Select
                 mode="multiple"
