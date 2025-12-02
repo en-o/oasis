@@ -174,7 +174,7 @@ const SitePublishManagement: React.FC = () => {
             页面发布管理
           </h2>
           <p className="text-sm text-gray-500 mt-1">
-            配置不同的访问路径，根据平台类型显示不同的导航数据
+            发布不同的导航页面，配置独立的路由和显示选项。
           </p>
         </div>
         <Button
@@ -236,19 +236,6 @@ const SitePublishManagement: React.FC = () => {
               addonBefore="/"
             />
           </Form.Item>
-
-          <Form.Item
-            label="平台类型"
-            name="showPlatform"
-            tooltip="留空表示显示所有导航，设置数字则只显示对应平台类型的导航"
-          >
-            <InputNumber
-              placeholder="留空显示全部，或输入数字如：0、1、2"
-              style={{ width: '100%' }}
-              min={0}
-            />
-          </Form.Item>
-
           <Form.Item
             label="隐藏管理入口"
             name="hideAdminEntry"
