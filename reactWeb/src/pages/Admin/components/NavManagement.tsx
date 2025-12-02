@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Table, Button, Modal, Form, Input, Select, InputNumber, Switch, Popconfirm, Space, Radio, Upload, App, Tag, Row, Col } from 'antd';
 import { Plus, Edit, Trash2, UploadCloud, Search } from 'lucide-react';
-import type { NavItem, NavCategory } from '@/types';
-import { navigationApi, categoryApi } from '@/services/api';
+import type { NavItem, NavCategory, SitePublish } from '@/types';
+import { navigationApi, categoryApi, sitePublishApi } from '@/services/api';
 
 // 定义7种浅色系背景颜色（不包括黑色，以文字为重点）
 const pastelColors = [
@@ -36,6 +36,7 @@ const NavManagement: React.FC = () => {
   const { message } = App.useApp();
   const [navItems, setNavItems] = useState<NavItem[]>([]);
   const [categories, setCategories] = useState<NavCategory[]>([]);
+  const [platforms, setPlatforms] = useState<SitePublish[]>([]);
   const [loading, setLoading] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   const [editingItem, setEditingItem] = useState<NavItem | null>(null);
@@ -62,6 +63,15 @@ const NavManagement: React.FC = () => {
       } else {
         console.error('分类接口响应异常:', categoryResponse);
         setCategories([]);
+      }
+
+      // 加载平台列表
+      const platformResponse = await sitePublishApi.getList();
+      if (platformResponse.code === 200 && platformResponse.data) {
+        setPlatforms(platformResponse.data);
+      } else {
+        console.error('平台接口响应异常:', platformResponse);
+        setPlatforms([]);
       }
 
       // 使用分页接口加载导航数据
@@ -151,6 +161,9 @@ const NavManagement: React.FC = () => {
     // 处理分类：将逗号分隔的字符串转换为数组
     const categoryArray = item.category ? item.category.split(',').map(c => c.trim()).filter(c => c) : [];
 
+    // 处理平台列表：将逗号分隔的字符串转换为数组
+    const platformArray = item.showPlatform ? item.showPlatform.split(',').map(p => p.trim()).filter(p => p) : [];
+
     form.setFieldsValue({
       name: item.name,
       url: item.url,
@@ -164,7 +177,7 @@ const NavManagement: React.FC = () => {
       lookAccount: item.lookAccount,
       nvaAccessSecret: item.nvaAccessSecret,
       status: item.status === 1, // 转换为 boolean
-      showPlatform: item.showPlatform,
+      showPlatform: platformArray,
     });
     setModalVisible(true);
   };
@@ -235,6 +248,11 @@ const NavManagement: React.FC = () => {
         ? values.category.join(',')
         : values.category;
 
+      // 处理平台列表：将数组去重并转换为逗号分隔的字符串
+      const platformValue = Array.isArray(values.showPlatform)
+        ? Array.from(new Set(values.showPlatform)).join(',')
+        : values.showPlatform || '';
+
       const submitData: Partial<NavItem> = {
         name: values.name,
         url: values.url,
@@ -247,7 +265,7 @@ const NavManagement: React.FC = () => {
         lookAccount: values.lookAccount !== undefined ? values.lookAccount : true,
         nvaAccessSecret: values.nvaAccessSecret || 'tan',
         status: values.status ? 1 : 0, // 转换为数字
-        showPlatform: values.showPlatform !== undefined && values.showPlatform !== null ? values.showPlatform : undefined,
+        showPlatform: platformValue || undefined,
       };
 
       if (editingItem) {
@@ -720,12 +738,21 @@ const NavManagement: React.FC = () => {
             <Form.Item
               name="showPlatform"
               label="平台列表"
-              tooltip="可显示的平台列表，输入逗号分隔的routePath，如：dev,cp,public。（默认dev）"
+              tooltip="选择可显示的平台，支持多选。留空表示在所有平台显示"
             >
-              <Input
-                placeholder="如：dev,cp,public（默认dev）"
+              <Select
+                mode="multiple"
+                placeholder="请选择平台（留空表示所有平台）"
                 allowClear
-              />
+                showSearch
+                optionFilterProp="children"
+              >
+                {platforms.map((platform) => (
+                  <Select.Option key={platform.id} value={platform.routePath}>
+                    {platform.name}
+                  </Select.Option>
+                ))}
+              </Select>
             </Form.Item>
             <Form.Item
               name="status"
