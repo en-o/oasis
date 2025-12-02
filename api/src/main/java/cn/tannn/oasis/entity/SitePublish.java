@@ -55,15 +55,6 @@ public class SitePublish extends SerializableBean<SitePublish> {
     private String routePath;
 
     /**
-     * 关联的平台字典路由路径
-     * 指定显示哪个平台的导航数据
-     */
-    @Column(columnDefinition = "varchar(100)")
-    @Comment("关联的平台字典路由路径")
-    @Schema(description = "关联的平台字典路由路径，为空表示显示所有导航")
-    private String platformDictPath;
-
-    /**
      * 是否隐藏管理入口
      */
     @Column(columnDefinition = "boolean")

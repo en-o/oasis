@@ -60,7 +60,6 @@ public class SitePublishServiceImpl extends J2ServiceImpl<SitePublishDao, SitePu
 
         entity.setName(edit.getName());
         entity.setRoutePath(edit.getRoutePath());
-        entity.setPlatformDictPath(edit.getPlatformDictPath());
         entity.setHideAdminEntry(edit.getHideAdminEntry());
         entity.setEnabled(edit.getEnabled());
         entity.setSort(edit.getSort());

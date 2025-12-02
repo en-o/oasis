@@ -43,12 +43,6 @@ public class SitePublishEdit extends SerializableBean<SitePublishEdit> {
     private String routePath;
 
     /**
-     * 关联的平台字典路由路径
-     */
-    @Schema(description = "关联的平台字典路由路径，为空表示显示所有导航")
-    private String platformDictPath;
-
-    /**
      * 是否隐藏管理入口
      */
     @Schema(description = "是否隐藏管理入口，true隐藏，false显示")

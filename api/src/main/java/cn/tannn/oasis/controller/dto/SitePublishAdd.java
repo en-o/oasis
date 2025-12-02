@@ -35,11 +35,6 @@ public class SitePublishAdd extends SerializableBean<SitePublishAdd> {
     @NotBlank(message = "路由路径不允许为空")
     private String routePath;
 
-    /**
-     * 关联的平台字典路由路径
-     */
-    @Schema(description = "关联的平台字典路由路径，为空表示显示所有导航")
-    private String platformDictPath;
 
     /**
      * 是否隐藏管理入口
