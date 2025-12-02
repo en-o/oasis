@@ -719,13 +719,12 @@ const NavManagement: React.FC = () => {
             <h4 className="font-medium mb-3">其他设置</h4>
             <Form.Item
               name="showPlatform"
-              label="平台类型"
-              tooltip="留空表示在所有平台显示，设置数字则只在对应平台显示"
+              label="平台列表"
+              tooltip="可显示的平台列表，输入逗号分隔的routePath，如：dev,cp,public。（默认dev）"
             >
-              <InputNumber
-                placeholder="留空显示全部，或输入数字如：0、1、2"
-                style={{ width: '100%' }}
-                min={0}
+              <Input
+                placeholder="如：dev,cp,public（默认dev）"
+                allowClear
               />
             </Form.Item>
             <Form.Item
