@@ -8,6 +8,7 @@ import cn.tannn.jdevelops.result.response.ResultPageVO;
 import cn.tannn.jdevelops.result.response.ResultVO;
 import cn.tannn.oasis.config.DefaultSysConfig;
 import cn.tannn.oasis.controller.dto.NavigationPage;
+import cn.tannn.oasis.controller.dto.NavigationSitePage;
 import cn.tannn.oasis.controller.vo.NavAccessInfo;
 import cn.tannn.oasis.controller.vo.NavigationVO;
 import cn.tannn.oasis.controller.vo.SiteInfo;
@@ -57,7 +58,7 @@ public class WebController {
 
     @Operation(summary = "获取网站集合-分页")
     @ApiMapping(value = "navs",checkToken = false,method = RequestMethod.POST)
-    public ResultPageVO<NavigationVO, JpaPageResult<NavigationVO>> navsPage(@RequestBody @Valid NavigationPage page) {
+    public ResultPageVO<NavigationVO, JpaPageResult<NavigationVO>> navsPage(@RequestBody @Valid NavigationSitePage page) {
         Page<Navigation> byBean = navigationService.findPage(page, page.getPage());
 
         // 自定义转换，设置 hasAccount 字段

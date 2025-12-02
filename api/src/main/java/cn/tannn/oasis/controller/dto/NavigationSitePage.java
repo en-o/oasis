@@ -19,11 +19,11 @@ import lombok.ToString;
  * @version 0.0.1
  * @date 2025-08-26
  */
-@Schema(description = "分页查询导航项表")
+@Schema(description = "分页查询导航项表-站点用")
 @ToString
 @Getter
 @Setter
-public class NavigationPage extends SerializableBean<NavigationPage> {
+public class NavigationSitePage extends SerializableBean<NavigationSitePage> {
 
 
     @JpaSelectOperator(operatorWrapper = SQLOperatorWrapper.LIKE, connect = SQLConnect.AND)
@@ -33,10 +33,6 @@ public class NavigationPage extends SerializableBean<NavigationPage> {
     @Schema(description = "分类")
     @JpaSelectOperator(operatorWrapper = SQLOperatorWrapper.LIKE, connect = SQLConnect.AND)
     private String category;
-
-    @Schema(description = "状态；0、停用，1、启用")
-    @JpaSelectOperator(operatorWrapper = SQLOperatorWrapper.EQ, connect = SQLConnect.AND)
-    private Integer status;
 
     @Schema(description = "可显示的平台，在status的前提之下作用；0:dev主页(开发运维用),1:cp主页(产品销售用)，当前默认主页不用这个参数，这个参数是给定制页面用的")
     @JpaSelectOperator(operatorWrapper = SQLOperatorWrapper.EQ, connect = SQLConnect.AND)

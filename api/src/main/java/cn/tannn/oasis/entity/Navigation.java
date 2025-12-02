@@ -128,4 +128,13 @@ public class Navigation extends SerializableBean<Navigation> {
     @Comment("状态；0、停用，1、启用")
     @Schema(description = "状态；0、停用，1、启用")
     private Integer status;
+
+    /**
+     * 可显示的平台，在status的前提之下作用；0:dev主页(开发运维用),1:cp主页(产品销售用)，当前默认主页不用这个参数，这个参数是给定制页面用的
+     */
+    @Column(columnDefinition = "smallint")
+    @Comment("showPlatform")
+    @ColumnDefault("0")
+    @Schema(description = "可显示的平台，在status的前提之下作用；0:dev主页(开发运维用),1:cp主页(产品销售用)，当前默认主页不用这个参数，这个参数是给定制页面用的")
+    private Integer showPlatform;
 }
