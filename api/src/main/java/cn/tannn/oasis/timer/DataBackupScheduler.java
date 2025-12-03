@@ -30,7 +30,8 @@ public class DataBackupScheduler {
             "nav_category",
             "nav_item",
             "backup_config",
-            "system_config"
+            "system_config",
+            "site_publish"
     };
 
     /**
