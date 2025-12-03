@@ -215,9 +215,9 @@ const SitePublishManagement: React.FC = () => {
           autoComplete="off"
         >
           <Form.Item
-            label="配置名称"
+            label="页面名称"
             name="name"
-            rules={[{ required: true, message: '请输入配置名称' }]}
+            rules={[{ required: true, message: '请输入页面名称' }]}
           >
             <Input placeholder="如：开发运维主页" />
           </Form.Item>

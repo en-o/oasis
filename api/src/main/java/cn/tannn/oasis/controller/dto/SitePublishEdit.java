@@ -29,10 +29,10 @@ public class SitePublishEdit extends SerializableBean<SitePublishEdit> {
     private Integer id;
 
     /**
-     * 配置名称
+     * 页面名称
      */
-    @Schema(description = "配置名称")
-    @NotBlank(message = "配置名称不允许为空")
+    @Schema(description = "页面名称")
+    @NotBlank(message = "页面名称不允许为空")
     private String name;
 
     /**
