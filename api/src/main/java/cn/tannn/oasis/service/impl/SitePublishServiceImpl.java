@@ -31,7 +31,8 @@ public class SitePublishServiceImpl extends J2ServiceImpl<SitePublishDao, SitePu
     public void create(SitePublishAdd add) {
         // 验证路由路径
         if (SitePublish.isReservedPath(add.getRoutePath())) {
-            throw new BusinessException("路由路径不能使用保留路径: admin 或 / (根路径)");
+            throw new BusinessException("路由路径不能使用保留路径，保留路径包括: "
+                    + SitePublish.getReservedPathsDescription());
         }
 
         if (routePathExists(add.getRoutePath())) {
@@ -49,7 +50,8 @@ public class SitePublishServiceImpl extends J2ServiceImpl<SitePublishDao, SitePu
 
         // 验证路由路径
         if (SitePublish.isReservedPath(edit.getRoutePath())) {
-            throw new BusinessException("路由路径不能使用保留路径: admin 或 / (根路径)");
+            throw new BusinessException("路由路径不能使用保留路径，保留路径包括: "
+                    + SitePublish.getReservedPathsDescription());
         }
 
         // 检查路由路径是否被其他配置占用

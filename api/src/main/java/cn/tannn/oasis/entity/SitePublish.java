@@ -91,6 +91,11 @@ public class SitePublish extends SerializableBean<SitePublish> {
 
     /**
      * 检查路由路径是否为保留路径
+     * 保留路径包括：
+     * - 根路径（空）
+     * - 管理路径：admin
+     * - API 路径：navigation, navCategory, sysConfigs, webs, data, sitePublish, login, init, api
+     * - 文档路径：doc, v3, swagger, webjars
      */
     public static boolean isReservedPath(String path) {
         if (path == null) {
@@ -101,7 +106,41 @@ public class SitePublish extends SerializableBean<SitePublish> {
         if (cleanPath.startsWith("/")) {
             cleanPath = cleanPath.substring(1);
         }
-        // 检查是否为空或保留路径
-        return cleanPath.isEmpty() || "admin".equals(cleanPath);
+        // 移除后缀斜杠
+        if (cleanPath.endsWith("/")) {
+            cleanPath = cleanPath.substring(0, cleanPath.length() - 1);
+        }
+
+        // 检查是否为空（根路径）
+        if (cleanPath.isEmpty()) {
+            return true;
+        }
+
+        // 提取第一段路径（用于匹配）
+        String firstSegment = cleanPath.split("/")[0];
+
+        // 保留路径列表
+        return "admin".equals(firstSegment) ||
+               "navigation".equals(firstSegment) ||
+               "navcategory".equals(firstSegment) ||
+               "sysconfigs".equals(firstSegment) ||
+               "webs".equals(firstSegment) ||
+               "data".equals(firstSegment) ||
+               "sitepublish".equals(firstSegment) ||
+               "login".equals(firstSegment) ||
+               "init".equals(firstSegment) ||
+               "api".equals(firstSegment) ||
+               "doc".equals(firstSegment) ||
+               "v3".equals(firstSegment) ||
+               "swagger".equals(firstSegment) ||
+               "webjars".equals(firstSegment);
+    }
+
+    /**
+     * 获取保留路径列表（用于错误提示）
+     */
+    public static String getReservedPathsDescription() {
+        return "/ (根路径)、admin、navigation、navCategory、sysConfigs、webs、data、sitePublish、" +
+               "login、init、api、doc、v3、swagger、webjars";
     }
 }
