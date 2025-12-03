@@ -12,6 +12,7 @@ export interface NavItem {
   hasAccount: boolean; // 是否有账户信息（从后端安全返回）
   nvaAccessSecret?: string; // 查看密钥
   status: number; // 0=停用, 1=启用
+  showPlatform?: string; // 发布页面，逗号分隔的routePath，如：dev,cp
 }
 
 export interface NavCategory {
@@ -154,4 +155,34 @@ export interface DatabaseConfig {
   username: string;
   password: string;
   driverClassName: string;
+}
+
+// 页面发布配置相关类型定义（平台配置）
+export interface SitePublish {
+  id?: number;
+  name: string;
+  routePath: string; // 路由路径，如：dev、cp、public
+  hideAdminEntry: boolean; // 是否隐藏管理入口
+  enabled: boolean; // 是否启用
+  sort: number;
+  description?: string;
+}
+
+export interface SitePublishAdd {
+  name: string;
+  routePath: string;
+  hideAdminEntry: boolean;
+  enabled: boolean;
+  sort: number;
+  description?: string;
+}
+
+export interface SitePublishEdit {
+  id: number;
+  name: string;
+  routePath: string;
+  hideAdminEntry: boolean;
+  enabled: boolean;
+  sort: number;
+  description?: string;
 }

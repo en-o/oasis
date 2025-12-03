@@ -15,7 +15,7 @@ public class SpaController {
 
     /**
      * 处理前端路由
-     * 将所有前端路由请求转发到 index.html
+     * 将已知的前端路由请求转发到 index.html
      * Spring Boot 会自动从 static 目录查找
      */
     @ApiMapping(value = {

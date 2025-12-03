@@ -1,6 +1,6 @@
 import React from 'react';
 import { ConfigProvider, App as AntdApp, message } from 'antd';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import zhCN from 'antd/locale/zh_CN';
 import Navigation from '@/pages/Navigation';
 import Admin from '@/pages/Admin';
@@ -29,8 +29,8 @@ const App: React.FC = () => {
               <Route path="/" element={<Navigation />} />
               <Route path="/admin" element={<Admin />} />
               <Route path="/admin/*" element={<Admin />} />
-              {/* 404 重定向到首页 */}
-              <Route path="*" element={<Navigate to="/" replace />} />
+              {/* 所有其他路径也显示 Navigation 组件，支持自定义页面 */}
+              <Route path="*" element={<Navigation />} />
             </Routes>
           </div>
         </Router>

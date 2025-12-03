@@ -85,6 +85,13 @@ public class NavigationAdd extends SerializableBean<NavigationAdd> {
     @Schema(description = "是否运行查看登录信息；false、密钥查看，true、直接查看，默认true")
     private Boolean lookAccount;
 
+    /**
+     * 发布页面（逗号分隔的routePath）
+     */
+    @Schema(description = "发布页面，逗号分隔的routePath，如：dev,cp,public", example = "dev,cp", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotBlank(message = "发布页面不允许为空")
+    private String showPlatform;
+
 
     public String getIcon() {
         return ImageUtils.processImage(icon);

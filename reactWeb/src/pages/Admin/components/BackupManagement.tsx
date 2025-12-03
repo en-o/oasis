@@ -278,7 +278,16 @@ const BackupManagement: React.FC = () => {
             label="数据库连接地址"
             name="url"
             rules={[{ required: true, message: '请输入数据库连接地址' }]}
-            extra="格式: jdbc:mysql://host:port/database"
+            tooltip="完整的 JDBC 连接 URL，包括数据库主机、端口和数据库名"
+            extra={
+              <div className="text-xs text-gray-500">
+                <div>格式: jdbc:mysql://host:port/database</div>
+                <div>示例: jdbc:mysql://localhost:3306/oasis</div>
+                <div className="text-orange-600 mt-1">
+                  注意: 请确保 MySQL 服务已启动且可访问
+                </div>
+              </div>
+            }
           >
             <Input placeholder="jdbc:mysql://localhost:3306/oasis" />
           </Form.Item>

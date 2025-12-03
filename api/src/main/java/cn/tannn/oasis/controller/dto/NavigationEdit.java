@@ -90,6 +90,12 @@ public class NavigationEdit {
     @Schema(description = "状态；0、停用，1、启用")
     private Integer status;
 
+    /**
+     * 发布页面（逗号分隔的routePath）
+     */
+    @Schema(description = "发布页面，逗号分隔的routePath，如：dev,cp,public", example = "dev,cp")
+    private String showPlatform;
+
 
     public String getIcon() {
         return ImageUtils.processImage(icon);

@@ -15,12 +15,24 @@ import type {
   BackupConfigAdd,
   BackupStatus,
   DatabaseConfig,
+  SitePublish,
+  SitePublishAdd,
+  SitePublishEdit,
 } from '@/types';
 
 // Navigation APIs - 对应 NavigationController
 export const navigationApi = {
   // 获取导航列表 - GET /navigation/lists
   getList: () => request.get<ResultVO<NavItem[]>>('/navigation/lists'),
+
+  // 根据平台类型获取导航列表 - GET /navigation/lists/platform
+  getListByPlatform: (platformPaths: string[]) => {
+    // 将数组转换为逗号分隔的字符串
+    const platformParam = platformPaths.join(',');
+    return request.get<ResultVO<NavItem[]>>('/navigation/lists/platform', {
+      params: { showPlatform: platformParam }
+    });
+  },
 
   // 分页查询导航 - POST /navigation/page
   getPage: (params: NavManagementPageRequest) => request.post<ResultPageVO<NavItem>>('/navigation/page', params),
@@ -62,11 +74,17 @@ export const sysConfigApi = {
 // Web APIs - 对应 WebController (前端导航页面接口)
 export const webApi = {
   // 获取站点信息 - GET /webs/site (无需token)
-  getSiteInfo: () => request.get<ResultVO<SiteInfo>>('/webs/site'),
+  getSiteInfo: (routePath?: string) => {
+    const params = routePath ? { routePath } : undefined;
+    return request.get<ResultVO<SiteInfo>>('/webs/site', { params });
+  },
 
   // 获取导航列表 - POST /webs/navs (无需token)
-  getNavsPage: (params: NavigationPageRequest) =>
-    request.post<ResultPageVO<NavigationVO>>('/webs/navs', params),
+  getNavsPage: (params: NavigationPageRequest, routePath?: string) => {
+    // 将 routePath 放到请求体的 showPlatform 字段中
+    const requestBody = routePath ? { ...params, showPlatform: routePath } : params;
+    return request.post<ResultPageVO<NavigationVO>>('/webs/navs', requestBody);
+  },
 
   // 获取导航访问信息 - GET /webs/navs/access/{id} (无需token)
   getNavAccess: (id: number, secret?: string) =>
@@ -114,4 +132,29 @@ export const backupApi = {
 
   // 从MySQL恢复数据到H2 - POST /data/restore
   restore: () => request.post<ResultVO<string>>('/data/restore'),
+};
+
+// Site Publish APIs - 对应 SitePublishController
+export const sitePublishApi = {
+  // 获取所有配置 - GET /sitePublish/lists
+  getList: () => request.get<ResultVO<SitePublish[]>>('/sitePublish/lists'),
+
+  // 获取所有启用的配置 - GET /sitePublish/enabled
+  getEnabled: () => request.get<ResultVO<SitePublish[]>>('/sitePublish/enabled'),
+
+  // 根据路由路径获取配置 - GET /sitePublish/route/{routePath}
+  getByRoutePath: (routePath: string) => {
+    // 移除路径前的斜杠，因为后端期望没有斜杠的路径
+    const path = routePath.startsWith('/') ? routePath.substring(1) : routePath;
+    return request.get<ResultVO<SitePublish>>(`/sitePublish/route/${path}`);
+  },
+
+  // 新增配置 - POST /sitePublish/append
+  create: (data: SitePublishAdd) => request.post<ResultVO<any>>('/sitePublish/append', data),
+
+  // 更新配置 - PUT /sitePublish/update
+  update: (data: SitePublishEdit) => request.put<ResultVO<any>>('/sitePublish/update', data),
+
+  // 删除配置 - DELETE /sitePublish/delete/{id}
+  delete: (id: number) => request.delete<ResultVO<any>>(`/sitePublish/delete/${id}`),
 };

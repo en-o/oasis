@@ -159,6 +159,10 @@
     <logger name="com.alibaba.nacos" level="INFO"/>
     <logger name="com.zaxxer.hikari.pool.HikariPool" level="INFO"/>
     <logger name="org.hibernate" level="INFO"/>
+    <!-- 显示 SQL 语句 -->
+    <logger name="org.hibernate.SQL" level="DEBUG"/>
+    <!-- 显示 SQL 参数绑定 -->
+    <logger name="org.hibernate.type.descriptor.sql.BasicBinder" level="TRACE"/>
     <logger name="org.springframework.web.servlet.mvc" level="INFO"/>
     <logger name="org.springframework.jdbc" level="INFO"/>
     <logger name="org.springframework.orm.jpa" level="INFO"/>

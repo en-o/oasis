@@ -6,11 +6,13 @@ import cn.tannn.jdevelops.annotations.jpa.enums.SQLConnect;
 import cn.tannn.jdevelops.annotations.jpa.enums.SQLOperatorWrapper;
 import cn.tannn.jdevelops.jpa.request.PagingSorteds;
 import cn.tannn.jdevelops.result.bean.SerializableBean;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.Valid;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import org.springframework.web.bind.annotation.RequestParam;
 
 /**
  * 分页查询导航项表
@@ -34,9 +36,10 @@ public class NavigationSitePage extends SerializableBean<NavigationSitePage> {
     @JpaSelectOperator(operatorWrapper = SQLOperatorWrapper.LIKE, connect = SQLConnect.AND)
     private String category;
 
-    @Schema(description = "可显示的平台，在status的前提之下作用；0:dev主页(开发运维用),1:cp主页(产品销售用)，当前默认主页不用这个参数，这个参数是给定制页面用的")
-    @JpaSelectOperator(operatorWrapper = SQLOperatorWrapper.EQ, connect = SQLConnect.AND)
-    private Integer showPlatform;
+    //人工处理这个
+    @Schema(description = "发布页面，逗号分隔的routePath，如：dev,cp,public")
+    @JpaSelectIgnoreField
+    private String showPlatform;
 
     /**
      * 分页排序

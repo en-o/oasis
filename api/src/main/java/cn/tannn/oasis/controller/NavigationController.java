@@ -66,6 +66,7 @@ public class NavigationController {
         return ResultVO.success(finds);
     }
 
+
     @Operation(summary = "删除")
     @DeleteMapping("delete")
     @Parameter(name = "id", description = "id", required = true)

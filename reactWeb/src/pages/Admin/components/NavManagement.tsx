@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Table, Button, Modal, Form, Input, Select, InputNumber, Switch, Popconfirm, Space, Radio, Upload, App, Tag, Row, Col } from 'antd';
 import { Plus, Edit, Trash2, UploadCloud, Search } from 'lucide-react';
-import type { NavItem, NavCategory } from '@/types';
-import { navigationApi, categoryApi } from '@/services/api';
+import type { NavItem, NavCategory, SitePublish } from '@/types';
+import { navigationApi, categoryApi, sitePublishApi } from '@/services/api';
 
 // 定义7种浅色系背景颜色（不包括黑色，以文字为重点）
 const pastelColors = [
@@ -36,6 +36,7 @@ const NavManagement: React.FC = () => {
   const { message } = App.useApp();
   const [navItems, setNavItems] = useState<NavItem[]>([]);
   const [categories, setCategories] = useState<NavCategory[]>([]);
+  const [platforms, setPlatforms] = useState<SitePublish[]>([]);
   const [loading, setLoading] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   const [editingItem, setEditingItem] = useState<NavItem | null>(null);
@@ -62,6 +63,15 @@ const NavManagement: React.FC = () => {
       } else {
         console.error('分类接口响应异常:', categoryResponse);
         setCategories([]);
+      }
+
+      // 加载发布页面
+      const platformResponse = await sitePublishApi.getList();
+      if (platformResponse.code === 200 && platformResponse.data) {
+        setPlatforms(platformResponse.data);
+      } else {
+        console.error('平台接口响应异常:', platformResponse);
+        setPlatforms([]);
       }
 
       // 使用分页接口加载导航数据
@@ -151,6 +161,9 @@ const NavManagement: React.FC = () => {
     // 处理分类：将逗号分隔的字符串转换为数组
     const categoryArray = item.category ? item.category.split(',').map(c => c.trim()).filter(c => c) : [];
 
+    // 处理发布页面：将逗号分隔的字符串转换为数组
+    const platformArray = item.showPlatform ? item.showPlatform.split(',').map(p => p.trim()).filter(p => p) : [];
+
     form.setFieldsValue({
       name: item.name,
       url: item.url,
@@ -164,6 +177,7 @@ const NavManagement: React.FC = () => {
       lookAccount: item.lookAccount,
       nvaAccessSecret: item.nvaAccessSecret,
       status: item.status === 1, // 转换为 boolean
+      showPlatform: platformArray,
     });
     setModalVisible(true);
   };
@@ -234,6 +248,11 @@ const NavManagement: React.FC = () => {
         ? values.category.join(',')
         : values.category;
 
+      // 处理发布页面：将数组去重并转换为逗号分隔的字符串
+      const platformValue = Array.isArray(values.showPlatform)
+        ? Array.from(new Set(values.showPlatform)).join(',')
+        : values.showPlatform || '';
+
       const submitData: Partial<NavItem> = {
         name: values.name,
         url: values.url,
@@ -246,6 +265,7 @@ const NavManagement: React.FC = () => {
         lookAccount: values.lookAccount !== undefined ? values.lookAccount : true,
         nvaAccessSecret: values.nvaAccessSecret || 'tan',
         status: values.status ? 1 : 0, // 转换为数字
+        showPlatform: platformValue || undefined,
       };
 
       if (editingItem) {
@@ -362,6 +382,30 @@ const NavManagement: React.FC = () => {
                 {cat}
               </Tag>
             ))}
+          </Space>
+        );
+      },
+    },
+    {
+      title: '发布页面',
+      dataIndex: 'showPlatform',
+      key: 'showPlatform',
+      width: 150,
+      render: (showPlatform: string) => {
+        if (!showPlatform) {
+          return <Tag color="default">全部</Tag>;
+        }
+        const platformPaths = showPlatform.split(',').map(p => p.trim()).filter(p => p);
+        return (
+          <Space size={[0, 4]} wrap>
+            {platformPaths.map((path, index) => {
+              const platform = platforms.find(p => p.routePath === path);
+              return (
+                <Tag key={index} color="green">
+                  {platform ? platform.name : path}
+                </Tag>
+              );
+            })}
           </Space>
         );
       },
@@ -637,14 +681,20 @@ const NavManagement: React.FC = () => {
 
               {iconPreview && (
                 <div className="flex items-center gap-3 p-3 bg-gray-50 rounded border">
-                  <img
-                    src={iconPreview}
-                    alt="预览"
-                    className="w-12 h-12 object-contain rounded"
-                    onError={(e) => {
-                      e.currentTarget.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDgiIGhlaWdodD0iNDgiIHZpZXdCb3g9IjAgMCA0OCA0OCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iNDgiIGhlaWdodD0iNDgiIGZpbGw9IiNFNUU3RUIiLz48cGF0aCBkPSJNMTYgMTZMMzIgMzJNMzIgMTZMMTYgMzIiIHN0cm9rZT0iIzlDQTNCQSIgc3Ryb2tlLXdpZHRoPSIyIi8+PC9zdmc+';
-                    }}
-                  />
+                  <div
+                    className="flex items-center justify-center bg-white border-2 border-gray-200 rounded"
+                    style={{ width: '64px', height: '64px', minWidth: '64px', minHeight: '64px' }}
+                  >
+                    <img
+                      src={iconPreview}
+                      alt="预览"
+                      className="object-contain rounded"
+                      style={{ maxWidth: '60px', maxHeight: '60px', width: 'auto', height: 'auto' }}
+                      onError={(e) => {
+                        e.currentTarget.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDgiIGhlaWdodD0iNDgiIHZpZXdCb3g9IjAgMCA0OCA0OCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iNDgiIGhlaWdodD0iNDgiIGZpbGw9IiNFNUU3RUIiLz48cGF0aCBkPSJNMTYgMTZMMzIgMzJNMzIgMTZMMTYgMzIiIHN0cm9rZT0iIzlDQTNCQSIgc3Ryb2tlLXdpZHRoPSIyIi8+PC9zdmc+';
+                      }}
+                    />
+                  </div>
                   <div className="flex-1">
                     <div className="text-sm text-gray-600">图标预览</div>
                     <div className="text-xs text-gray-400 mt-1 break-all">
@@ -715,6 +765,25 @@ const NavManagement: React.FC = () => {
 
           <div className="border-t pt-4 mt-4">
             <h4 className="font-medium mb-3">其他设置</h4>
+            <Form.Item
+              name="showPlatform"
+              label="发布页面"
+              tooltip="选择发布页面，支持多选。留空表示在所有导航页显示"
+            >
+              <Select
+                mode="multiple"
+                placeholder="请选择平台（留空表示所有平台）"
+                allowClear
+                showSearch
+                optionFilterProp="children"
+              >
+                {platforms.map((platform) => (
+                  <Select.Option key={platform.id} value={platform.routePath}>
+                    {platform.name}
+                  </Select.Option>
+                ))}
+              </Select>
+            </Form.Item>
             <Form.Item
               name="status"
               label="状态"
