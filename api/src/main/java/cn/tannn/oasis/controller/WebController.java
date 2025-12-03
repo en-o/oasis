@@ -54,14 +54,10 @@ public class WebController {
 
     @ApiMapping(value = "/site",checkToken = false,method = RequestMethod.GET)
     @Operation(summary = "站点信息", description = "详情")
-    public ResultVO<SiteInfo> siteInfo(@RequestParam(value = "admin",required = false) Boolean admin) {
+    public ResultVO<SiteInfo> siteInfo() {
         SysConfigs bean = sysConfigsService.findOnly("configKey", "MAIN")
                 .orElse(SysConfigs.newInstance(defaultSysConfig));
         SiteInfo siteInfo = SiteInfo.to(bean);
-        // 如果admin = false 则强制设置setHideAdminEntry
-        if (admin != null && !admin) {
-            siteInfo.setHideAdminEntry(1);
-        }
         return ResultVO.success(siteInfo);
     }
 
