@@ -157,4 +157,10 @@ export const sitePublishApi = {
 
   // 删除配置 - DELETE /sitePublish/delete/{id}
   delete: (id: number) => request.delete<ResultVO<any>>(`/sitePublish/delete/${id}`),
+
+  // 设置默认页 - PUT /sitePublish/setDefault/{id}
+  setDefaultPage: (id: number) => request.put<ResultVO<string>>(`/sitePublish/setDefault/${id}`),
+
+  // 获取默认页 - GET /sitePublish/default
+  getDefaultPage: () => request.get<ResultVO<SitePublish>>('/sitePublish/default'),
 };

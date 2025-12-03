@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Table, Button, Modal, Form, Input, InputNumber, Switch, Popconfirm, Space, App, Tag, Alert } from 'antd';
-import { Plus, Edit, Trash2, Globe } from 'lucide-react';
+import { Plus, Edit, Trash2, Globe, Star } from 'lucide-react';
 import type { SitePublish } from '@/types';
 import { sitePublishApi } from '@/services/api';
 
@@ -85,6 +85,16 @@ const SitePublishManagement: React.FC = () => {
     }
   };
 
+  const handleSetDefault = async (id: number) => {
+    try {
+      await sitePublishApi.setDefaultPage(id);
+      message.success('设置默认页成功');
+      loadData();
+    } catch (error: any) {
+      console.error('设置默认页失败:', error);
+    }
+  };
+
   const columns = [
     {
       title: '页面名称',
@@ -98,6 +108,19 @@ const SitePublishManagement: React.FC = () => {
       key: 'routePath',
       width: 150,
       render: (path: string) => <code className="bg-gray-100 px-2 py-1 rounded">/{path}</code>,
+    },
+    {
+      title: '默认页',
+      dataIndex: 'defPage',
+      key: 'defPage',
+      width: 100,
+      render: (value: boolean) => (
+        value ? (
+          <Tag icon={<Star className="w-3 h-3" />} color="gold">默认</Tag>
+        ) : (
+          <Tag color="default">-</Tag>
+        )
+      ),
     },
     {
       title: '隐藏管理入口',
@@ -132,10 +155,20 @@ const SitePublishManagement: React.FC = () => {
     {
       title: '操作',
       key: 'action',
-      width: 200,
+      width: 250,
       fixed: 'right' as const,
       render: (_: any, record: SitePublish) => (
         <Space>
+          {!record.defPage && (
+            <Button
+              type="link"
+              size="small"
+              icon={<Star className="w-3 h-3" />}
+              onClick={() => handleSetDefault(record.id!)}
+            >
+              设为默认
+            </Button>
+          )}
           <Button
             type="link"
             size="small"

@@ -164,6 +164,7 @@ export interface SitePublish {
   routePath: string; // 路由路径，如：dev、cp、public
   hideAdminEntry: boolean; // 是否隐藏管理入口
   enabled: boolean; // 是否启用
+  defPage: boolean; // 是否默认页
   sort: number;
   description?: string;
 }
@@ -173,6 +174,7 @@ export interface SitePublishAdd {
   routePath: string;
   hideAdminEntry: boolean;
   enabled: boolean;
+  defPage?: boolean; // 是否默认页
   sort: number;
   description?: string;
 }
@@ -183,6 +185,7 @@ export interface SitePublishEdit {
   routePath: string;
   hideAdminEntry: boolean;
   enabled: boolean;
+  defPage?: boolean; // 是否默认页
   sort: number;
   description?: string;
 }
