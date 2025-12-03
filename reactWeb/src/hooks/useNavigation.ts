@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import type { NavItem, NavCategory, SystemConfig, SitePublish } from '@/types';
 import { webApi, navigationApi, sitePublishApi } from '@/services/api';
 
@@ -14,6 +14,7 @@ const DEFAULT_SYSTEM_CONFIG: SystemConfig = {
 
 export const useNavigation = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   const [navItems, setNavItems] = useState<NavItem[]>([]);
   const [categories, setCategories] = useState<NavCategory[]>([]);
   const [systemConfig, setSystemConfig] = useState<SystemConfig>(DEFAULT_SYSTEM_CONFIG);
@@ -30,65 +31,50 @@ export const useNavigation = () => {
     prevNavItemsRef.current = navItems;
   }, [navItems]);
 
-  const loadNavItems = async (showPlatform?: number | null) => {
+  const loadNavItems = async (routePath?: string) => {
     try {
       console.log('=== 开始调用导航接口 ===');
-      console.log('showPlatform:', showPlatform);
+      console.log('routePath:', routePath);
 
-      let navList: NavItem[] = [];
+      // 使用分页接口获取所有导航
+      const response = await webApi.getNavsPage({
+        page: { pageNum: 1, pageSize: 100 }
+      });
 
-      // 如果有平台过滤，使用平台过滤接口
-      if (showPlatform !== undefined && showPlatform !== null) {
-        const response = await navigationApi.getListByPlatform(showPlatform);
+      if (!response || response.code !== 200 || !response.data || !response.data.rows) {
+        console.error('导航接口响应结构异常:', response);
+        setNavItems([]);
+        return;
+      }
 
-        if (!response || response.code !== 200 || !response.data) {
-          console.error('导航接口响应结构异常:', response);
-          setNavItems([]);
-          return;
-        }
+      let navList = response.data.rows
+        .filter((nav: any) => nav.status === 1)
+        .map((nav: any) => ({
+          id: nav.id,
+          name: nav.name,
+          url: nav.url,
+          sort: nav.sort,
+          category: nav.category,
+          icon: nav.icon,
+          remark: nav.remark,
+          lookAccount: nav.lookAccount,
+          hasAccount: nav.hasAccount,
+          status: nav.status,
+          showPlatform: nav.showPlatform,
+        }));
 
-        navList = response.data
-          .filter((nav: NavItem) => nav.status === 1)
-          .map((nav: NavItem) => ({
-            id: nav.id,
-            name: nav.name,
-            url: nav.url,
-            sort: nav.sort,
-            category: nav.category,
-            icon: nav.icon,
-            remark: nav.remark,
-            lookAccount: nav.lookAccount,
-            hasAccount: nav.hasAccount,
-            status: nav.status,
-            showPlatform: nav.showPlatform,
-          }));
-      } else {
-        // 使用分页接口获取所有导航
-        const response = await webApi.getNavsPage({
-          page: { pageNum: 1, pageSize: 100 }
+      // 如果有 routePath，根据 showPlatform 过滤导航
+      if (routePath) {
+        navList = navList.filter((nav: NavItem) => {
+          // 如果没有设置 showPlatform，则在所有页面显示
+          if (!nav.showPlatform) {
+            return true;
+          }
+          // 检查 showPlatform 是否包含当前 routePath
+          const platforms = nav.showPlatform.split(',').map(p => p.trim()).filter(p => p);
+          return platforms.includes(routePath);
         });
-
-        if (!response || response.code !== 200 || !response.data || !response.data.rows) {
-          console.error('导航接口响应结构异常:', response);
-          setNavItems([]);
-          return;
-        }
-
-        navList = response.data.rows
-          .filter((nav: any) => nav.status === 1)
-          .map((nav: any) => ({
-            id: nav.id,
-            name: nav.name,
-            url: nav.url,
-            sort: nav.sort,
-            category: nav.category,
-            icon: nav.icon,
-            remark: nav.remark,
-            lookAccount: nav.lookAccount,
-            hasAccount: nav.hasAccount,
-            status: nav.status,
-            showPlatform: nav.showPlatform,
-          }));
+        console.log(`按 routePath "${routePath}" 过滤后的导航数量:`, navList.length);
       }
 
       setNavItems(navList);
@@ -177,32 +163,50 @@ export const useNavigation = () => {
 
     console.log('开始加载导航数据...');
 
-    // 1. 获取 SitePublish 配置（如果路径不是根路径）
+    // 1. 验证自定义页面路径（非根路径和非管理路径）
     let sitePublish: SitePublish | null = null;
-    if (location.pathname !== '/' && location.pathname !== '/admin') {
+    const currentPath = location.pathname.startsWith('/') ? location.pathname.substring(1) : location.pathname;
+
+    if (currentPath && currentPath !== 'admin' && !currentPath.startsWith('admin/')) {
       try {
-        console.log('调用 sitePublishApi.getByRoutePath...');
-        const response = await sitePublishApi.getByRoutePath(location.pathname);
-        if (response.code === 200 && response.data && response.data.enabled) {
+        console.log('验证自定义页面路径:', currentPath);
+        const response = await sitePublishApi.getByRoutePath(currentPath);
+
+        if (response.code === 200 && response.data) {
+          // 检查配置是否启用
+          if (!response.data.enabled) {
+            console.warn(`路径 "${currentPath}" 的配置未启用，重定向到根路径`);
+            navigate('/', { replace: true });
+            isLoadingRef.current = false;
+            setLoading(false);
+            return;
+          }
+
           sitePublish = response.data;
           setSitePublishConfig(sitePublish);
-          console.log('SitePublish 配置加载成功:', sitePublish);
+          console.log('SitePublish 配置验证成功:', sitePublish);
         } else {
-          console.log('未找到启用的 SitePublish 配置，使用默认配置');
-          setSitePublishConfig(null);
+          console.warn(`路径 "${currentPath}" 未配置或配置无效，重定向到根路径`);
+          navigate('/', { replace: true });
+          isLoadingRef.current = false;
+          setLoading(false);
+          return;
         }
       } catch (error) {
-        console.error('加载 SitePublish 配置失败:', error);
-        setSitePublishConfig(null);
+        console.error('验证 SitePublish 配置失败，重定向到根路径:', error);
+        navigate('/', { replace: true });
+        isLoadingRef.current = false;
+        setLoading(false);
+        return;
       }
     } else {
       setSitePublishConfig(null);
     }
 
-    // 2. 根据配置加载导航数据
+    // 2. 加载导航数据（如果有 sitePublish，传入 routePath 进行过滤）
     try {
       console.log('调用 loadNavItems...');
-      await loadNavItems(sitePublish?.showPlatform);
+      await loadNavItems(sitePublish?.routePath);
     } catch (error) {
       console.error('loadNavItems 失败:', error);
     }
