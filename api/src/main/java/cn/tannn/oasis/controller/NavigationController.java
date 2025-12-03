@@ -91,9 +91,25 @@ public class NavigationController {
     @PostMapping("edit")
     public ResultVO<String> edit(@RequestBody @Valid NavigationEdit edit) {
         navigationService.getJpaBasicsDao().findById(edit.getId()).ifPresent(jpaBasics -> {
-
-        })
-//        navigationService.update(edit, SQLOperator.EQ);
+            // 通用字段更新（只更新非 null 值）
+            if (edit.getName() != null) jpaBasics.setName(edit.getName());
+            if (edit.getUrl() != null) jpaBasics.setUrl(edit.getUrl());
+            if (edit.getSort() != null) jpaBasics.setSort(edit.getSort());
+            if (edit.getCategory() != null) jpaBasics.setCategory(edit.getCategory());
+            if (edit.getIcon() != null) jpaBasics.setIcon(edit.getIcon());
+            if (edit.getRemark() != null) jpaBasics.setRemark(edit.getRemark());
+            if (edit.getAccount() != null) jpaBasics.setAccount(edit.getAccount());
+            if (edit.getPassword() != null) jpaBasics.setPassword(edit.getPassword());
+            if (edit.getNvaAccessSecret() != null) jpaBasics.setNvaAccessSecret(edit.getNvaAccessSecret());
+            if (edit.getLookAccount() != null) jpaBasics.setLookAccount(edit.getLookAccount());
+            if (edit.getStatus() != null) jpaBasics.setStatus(edit.getStatus());
+            if(edit.getShowPlatform() == null || edit.getShowPlatform().isBlank()){
+                jpaBasics.setShowPlatform(null);
+            }else {
+                jpaBasics.setShowPlatform(edit.getShowPlatform());
+            }
+            navigationService.saveOne(jpaBasics);
+        });
         return ResultVO.success();
     }
 
