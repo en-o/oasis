@@ -96,24 +96,9 @@ public class WebController {
 
         Specification<Navigation> beanWhere = EnhanceSpecification.beanWhere(page, x -> {
             x.eq(true, "status", 1);
-            // 添加 routePath 过滤条件
-            if (StringUtils.hasText(routePath)) {
-                // 使用数据库函数进行精确匹配（支持逗号分隔）
-                x.or(or -> {
-                    // 空值处理
-                    or.isNull("showPlatform");
-                    or.eq(true, "showPlatform", "");
-
-                    // 精确匹配单个值
-                    or.eq(true, "showPlatform", routePath);
-
-                    // like
-                    or.likes(true, "showPlatform", routePath);
-                    or.rlike(true, "showPlatform", routePath);
-                    or.llike(true, "showPlatform", routePath);
-
-                });
-            }
+            x.isNull("showPlatform").or( or -> {
+                or.likes(StringUtils.hasText(routePath), "showPlatform", routePath);
+            });
         });
 
         Page<Navigation> byBean = navigationService.findPage(beanWhere, page.getPage().pageable());
