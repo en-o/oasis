@@ -72,6 +72,16 @@ public class SitePublish extends SerializableBean<SitePublish> {
     @Schema(description = "是否启用，true启用，false禁用")
     private Boolean enabled;
 
+
+    /**
+     * 是否默认页
+     */
+    @Column(columnDefinition = "boolean")
+    @ColumnDefault("false")
+    @Comment("是否默认页")
+    @Schema(description = "是否默认页，true默认页，false正常页")
+    private Boolean defPage;
+
     /**
      * 排序值（越小越靠前）
      */
