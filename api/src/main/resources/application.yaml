@@ -10,6 +10,14 @@ spring:
     multipart:
       max-file-size: ${FILE_MAX_SIZE:500MB}
       max-request-size: ${FILE_MAX_REQUEST:500MB}
+  web:
+    resources:
+      # 静态资源路径模式，避免所有路径都被当作静态资源处理
+      static-locations: classpath:/static/
+  mvc:
+    # Spring Boot 3.2+ 默认将静态资源 404 作为异常抛出
+    # 我们需要捕获这个异常来实现 SPA fallback
+    throw-exception-if-no-handler-found: true
 
 jdevelops:
   jwt:

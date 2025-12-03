@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
  * <p>
  * 用于处理已知的前端路由，避免进入 404 流程：
  * - 这个控制器处理已知的前端路由，直接转发到 index.html
- * - 对于未知的前端路由，会被 SpaFallbackFilter 捕获并转发
+ * - 对于未知的前端路由，会被 SpaFallbackExceptionHandler 捕获并转发
  * - 这样可以提高已知路由的性能
  * </p>
  *
