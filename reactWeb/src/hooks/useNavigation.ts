@@ -36,10 +36,10 @@ export const useNavigation = () => {
       console.log('=== 开始调用导航接口 ===');
       console.log('routePath:', routePath);
 
-      // 使用分页接口获取所有导航
+      // 使用分页接口获取所有导航，传递 routePath 参数
       const response = await webApi.getNavsPage({
         page: { pageNum: 1, pageSize: 100 }
-      });
+      }, routePath);
 
       if (!response || response.code !== 200 || !response.data || !response.data.rows) {
         console.error('导航接口响应结构异常:', response);
@@ -47,7 +47,7 @@ export const useNavigation = () => {
         return;
       }
 
-      let navList = response.data.rows
+      const navList = response.data.rows
         .filter((nav: any) => nav.status === 1)
         .map((nav: any) => ({
           id: nav.id,
@@ -62,20 +62,6 @@ export const useNavigation = () => {
           status: nav.status,
           showPlatform: nav.showPlatform,
         }));
-
-      // 如果有 routePath，根据 showPlatform 过滤导航
-      if (routePath) {
-        navList = navList.filter((nav: NavItem) => {
-          // 如果没有设置 showPlatform，则在所有页面显示
-          if (!nav.showPlatform) {
-            return true;
-          }
-          // 检查 showPlatform 是否包含当前 routePath
-          const platforms = nav.showPlatform.split(',').map(p => p.trim()).filter(p => p);
-          return platforms.includes(routePath);
-        });
-        console.log(`按 routePath "${routePath}" 过滤后的导航数量:`, navList.length);
-      }
 
       setNavItems(navList);
       console.log('导航数据加载成功，数量:', navList.length);
@@ -110,11 +96,12 @@ export const useNavigation = () => {
     }
   };
 
-  const loadSystemConfig = async (sitePublish: SitePublish | null = null) => {
+  const loadSystemConfig = async (routePath?: string) => {
     try {
       console.log('=== 开始调用站点信息接口 ===');
+      console.log('传递 routePath:', routePath);
 
-      const response = await webApi.getSiteInfo();
+      const response = await webApi.getSiteInfo(routePath);
 
       // 检查响应结构
       if (!response || response.code !== 200 || !response.data) {
@@ -126,19 +113,17 @@ export const useNavigation = () => {
       const siteInfo = response.data;
 
       // 转换为 SystemConfig 格式
-      // 如果有 SitePublish 配置，则使用其 hideAdminEntry，否则使用系统配置
-      const hideAdminEntry = sitePublish
-        ? sitePublish.hideAdminEntry
-        : siteInfo.hideAdminEntry === 1;
-
+      // hideAdminEntry 已经由后端根据 routePath 处理好了
       setSystemConfig({
         siteTitle: siteInfo.siteTitle || DEFAULT_SYSTEM_CONFIG.siteTitle,
         siteLogo: siteInfo.siteLogo || DEFAULT_SYSTEM_CONFIG.siteLogo,
         defaultOpenMode: siteInfo.defaultOpenMode === 0 ? 'currentTab' : 'newTab',
-        hideAdminEntry: hideAdminEntry,
+        hideAdminEntry: siteInfo.hideAdminEntry === 1,
         adminUsername: DEFAULT_SYSTEM_CONFIG.adminUsername,
         adminPassword: DEFAULT_SYSTEM_CONFIG.adminPassword,
       });
+
+      console.log('系统配置加载成功, hideAdminEntry:', siteInfo.hideAdminEntry);
 
     } catch (error) {
       console.error('站点信息接口调用失败:', error);
@@ -203,7 +188,7 @@ export const useNavigation = () => {
       setSitePublishConfig(null);
     }
 
-    // 2. 加载导航数据（如果有 sitePublish，传入 routePath 进行过滤）
+    // 2. 加载导航数据（传入 routePath 进行过滤）
     try {
       console.log('调用 loadNavItems...');
       await loadNavItems(sitePublish?.routePath);
@@ -219,10 +204,10 @@ export const useNavigation = () => {
       console.error('loadCategories 失败:', error);
     }
 
-    // 4. 加载系统配置（传入 SitePublish 配置）
+    // 4. 加载系统配置（传入 routePath 获取覆盖后的配置）
     try {
       console.log('调用 loadSystemConfig...');
-      await loadSystemConfig(sitePublish);
+      await loadSystemConfig(sitePublish?.routePath);
     } catch (error) {
       console.error('loadSystemConfig 失败:', error);
     }

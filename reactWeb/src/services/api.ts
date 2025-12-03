@@ -74,11 +74,16 @@ export const sysConfigApi = {
 // Web APIs - 对应 WebController (前端导航页面接口)
 export const webApi = {
   // 获取站点信息 - GET /webs/site (无需token)
-  getSiteInfo: () => request.get<ResultVO<SiteInfo>>('/webs/site'),
+  getSiteInfo: (routePath?: string) => {
+    const params = routePath ? { routePath } : undefined;
+    return request.get<ResultVO<SiteInfo>>('/webs/site', { params });
+  },
 
   // 获取导航列表 - POST /webs/navs (无需token)
-  getNavsPage: (params: NavigationPageRequest) =>
-    request.post<ResultPageVO<NavigationVO>>('/webs/navs', params),
+  getNavsPage: (params: NavigationPageRequest, routePath?: string) => {
+    const queryParams = routePath ? { routePath } : undefined;
+    return request.post<ResultPageVO<NavigationVO>>('/webs/navs', params, { params: queryParams });
+  },
 
   // 获取导航访问信息 - GET /webs/navs/access/{id} (无需token)
   getNavAccess: (id: number, secret?: string) =>

@@ -6,11 +6,13 @@ import cn.tannn.jdevelops.annotations.jpa.enums.SQLConnect;
 import cn.tannn.jdevelops.annotations.jpa.enums.SQLOperatorWrapper;
 import cn.tannn.jdevelops.jpa.request.PagingSorteds;
 import cn.tannn.jdevelops.result.bean.SerializableBean;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.Valid;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import org.springframework.web.bind.annotation.RequestParam;
 
 /**
  * 分页查询导航项表
