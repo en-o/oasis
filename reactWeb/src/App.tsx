@@ -1,16 +1,10 @@
-import React from 'react';
-import { ConfigProvider, App as AntdApp, message } from 'antd';
+import React, { useEffect } from 'react';
+import { ConfigProvider, App as AntdApp } from 'antd';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import zhCN from 'antd/locale/zh_CN';
 import Navigation from '@/pages/Navigation';
 import Admin from '@/pages/Admin';
-
-// 配置 message 全局配置
-message.config({
-  top: 100,
-  duration: 3,
-  maxCount: 3,
-});
+import { setMessageApi } from '@/utils/request';
 
 // 获取基础路径
 const getBasename = () => {
@@ -19,21 +13,41 @@ const getBasename = () => {
   return basePath === '/' ? '' : basePath.replace(/\/$/, '');
 };
 
+// 内部组件，用于访问 App 的静态方法
+const AppContent: React.FC = () => {
+  const { message } = AntdApp.useApp();
+
+  // 在组件挂载时初始化全局 message API
+  useEffect(() => {
+    setMessageApi(message);
+  }, [message]);
+
+  return (
+    <Router basename={getBasename()}>
+      <div className="app">
+        <Routes>
+          <Route path="/" element={<Navigation />} />
+          <Route path="/admin" element={<Admin />} />
+          <Route path="/admin/*" element={<Admin />} />
+          {/* 所有其他路径也显示 Navigation 组件，支持自定义页面 */}
+          <Route path="*" element={<Navigation />} />
+        </Routes>
+      </div>
+    </Router>
+  );
+};
+
 const App: React.FC = () => {
   return (
     <ConfigProvider locale={zhCN}>
-      <AntdApp>
-        <Router basename={getBasename()}>
-          <div className="app">
-            <Routes>
-              <Route path="/" element={<Navigation />} />
-              <Route path="/admin" element={<Admin />} />
-              <Route path="/admin/*" element={<Admin />} />
-              {/* 所有其他路径也显示 Navigation 组件，支持自定义页面 */}
-              <Route path="*" element={<Navigation />} />
-            </Routes>
-          </div>
-        </Router>
+      <AntdApp
+        message={{
+          top: 100,
+          duration: 3,
+          maxCount: 3,
+        }}
+      >
+        <AppContent />
       </AntdApp>
     </ConfigProvider>
   );

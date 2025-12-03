@@ -1,5 +1,47 @@
 import axios, { type AxiosInstance, type AxiosRequestConfig } from 'axios';
-import { message } from 'antd';
+import { App } from 'antd';
+
+// 全局 message 实例
+let messageApi: ReturnType<typeof App.useApp>['message'];
+
+// 导出设置 message 的方法，在 App 组件中调用
+export const setMessageApi = (api: ReturnType<typeof App.useApp>['message']) => {
+  messageApi = api;
+};
+
+// 封装 message 调用，如果没有初始化则降级到 console
+const showMessage = {
+  error: (content: string) => {
+    if (messageApi) {
+      messageApi.error(content);
+    } else {
+      console.error('[Message]', content);
+      // 降级方案：使用原生 alert（仅在 messageApi 未初始化时）
+      alert(content);
+    }
+  },
+  success: (content: string) => {
+    if (messageApi) {
+      messageApi.success(content);
+    } else {
+      console.log('[Message]', content);
+    }
+  },
+  warning: (content: string) => {
+    if (messageApi) {
+      messageApi.warning(content);
+    } else {
+      console.warn('[Message]', content);
+    }
+  },
+  info: (content: string) => {
+    if (messageApi) {
+      messageApi.info(content);
+    } else {
+      console.info('[Message]', content);
+    }
+  }
+};
 
 // 获取 API 基础路径
 // 开发环境：通过 Vite 代理转发到后端
@@ -21,7 +63,7 @@ const AUTH_ERROR_CODES = [401, 402, 403, 405];
 
 // 统一处理认证错误的函数
 const handleAuthError = (errorMessage: string) => {
-  message.error(errorMessage);
+  showMessage.error(errorMessage);
   localStorage.removeItem('nvatoken');
   // 如果在管理页面，不跳转，让 Admin 组件自己处理登录状态
   // 如果在其他页面，跳转到首页
@@ -53,7 +95,7 @@ api.interceptors.request.use(
     return config;
   },
   (error) => {
-    message.error('请求发送失败');
+    showMessage.error('请求发送失败');
     return Promise.reject(error);
   }
 );
@@ -79,7 +121,7 @@ api.interceptors.response.use(
       } else {
         // 其他业务错误，统一弹出错误提示
         // 包括：500 业务逻辑错误、400 参数错误等
-        message.error(errorMessage);
+        showMessage.error(errorMessage);
       }
 
       // 返回 Promise.reject，让调用方的 catch 可以捕获
@@ -123,7 +165,7 @@ api.interceptors.response.use(
       errorMessage = error.message;
     }
 
-    message.error(errorMessage);
+    showMessage.error(errorMessage);
     return Promise.reject(error.response?.data || error);
   }
 );
