@@ -57,11 +57,9 @@ public class NavigationController {
     @PostMapping("page")
     public ResultPageVO<Navigation, JpaPageResult<Navigation>> page(@RequestBody @Valid NavigationPage page) {
 
-        Specification<Navigation> beanWhere = EnhanceSpecification.beanWhere(page, x -> {
-            x.isNull("showPlatform").or( or -> {
-                String routePath = page.getShowPlatform();
-                or.likes(StringUtils.hasText(routePath), "showPlatform", routePath);
-            });
+        Specification<Navigation> beanWhere = EnhanceSpecification.beanWhere(page, and -> {
+            String routePath = page.getShowPlatform();
+            and.likes(StringUtils.hasText(routePath), "showPlatform", routePath);
         });
 
         Page<Navigation> byBean = navigationService.findPage(beanWhere, page.getPage().pageable());
