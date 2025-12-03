@@ -1,6 +1,6 @@
 import React from 'react';
 import { ConfigProvider, App as AntdApp, message } from 'antd';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import zhCN from 'antd/locale/zh_CN';
 import Navigation from '@/pages/Navigation';
 import Admin from '@/pages/Admin';

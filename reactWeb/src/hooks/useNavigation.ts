@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import type { NavItem, NavCategory, SystemConfig, SitePublish } from '@/types';
-import { webApi, navigationApi, sitePublishApi } from '@/services/api';
+import { webApi, sitePublishApi } from '@/services/api';
 
 const DEFAULT_SYSTEM_CONFIG: SystemConfig = {
   siteTitle: 'Oasis 导航',
