@@ -51,7 +51,7 @@ const NavManagement: React.FC = () => {
   const [total, setTotal] = useState(0);
 
   // 搜索条件
-  const [searchParams, setSearchParams] = useState<{ name?: string; category?: string; status?: number }>({});
+  const [searchParams, setSearchParams] = useState<{ name?: string; category?: string; status?: number; showPlatform?: string }>({});
 
   const loadData = async () => {
     setLoading(true);
@@ -111,6 +111,7 @@ const NavManagement: React.FC = () => {
       name: values.name || undefined,
       category: values.category || undefined,
       status: values.status !== undefined ? values.status : undefined,
+      showPlatform: values.showPlatform || undefined,
     });
     setCurrentPage(1); // 搜索时重置到第一页
   };
@@ -504,7 +505,7 @@ const NavManagement: React.FC = () => {
         className="mb-6 bg-gray-50 p-4 rounded-lg"
       >
         <Row gutter={16} align="bottom">
-          <Col span={6}>
+          <Col span={5}>
             <Form.Item name="category" label="分类" className="mb-0">
               <Select
                 placeholder="请选择分类"
@@ -521,12 +522,29 @@ const NavManagement: React.FC = () => {
               </Select>
             </Form.Item>
           </Col>
-          <Col span={6}>
+          <Col span={5}>
+            <Form.Item name="showPlatform" label="发布页面" className="mb-0">
+              <Select
+                placeholder="请选择发布页面"
+                allowClear
+                onChange={() => {
+                  searchForm.submit();
+                }}
+              >
+                {platforms.map((platform) => (
+                  <Select.Option key={platform.id} value={platform.routePath}>
+                    {platform.name}
+                  </Select.Option>
+                ))}
+              </Select>
+            </Form.Item>
+          </Col>
+          <Col span={5}>
             <Form.Item name="name" label="标题" className="mb-0">
               <Input placeholder="请输入导航标题" allowClear />
             </Form.Item>
           </Col>
-          <Col span={6}>
+          <Col span={4}>
             <Form.Item name="status" label="状态" className="mb-0">
               <Select
                 placeholder="请选择状态"
@@ -540,7 +558,7 @@ const NavManagement: React.FC = () => {
               </Select>
             </Form.Item>
           </Col>
-          <Col span={6}>
+          <Col span={5}>
             <Form.Item className="mb-0">
               <Space>
                 <Button
