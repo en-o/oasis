@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Table, Button, Modal, Form, Input, InputNumber, Switch, Popconfirm, Space, App, Tag } from 'antd';
+import { Table, Button, Modal, Form, Input, InputNumber, Switch, Popconfirm, Space, App, Tag, Alert } from 'antd';
 import { Plus, Edit, Trash2, Globe } from 'lucide-react';
 import type { SitePublish } from '@/types';
 import { sitePublishApi } from '@/services/api';
@@ -214,6 +214,25 @@ const SitePublishManagement: React.FC = () => {
           layout="vertical"
           autoComplete="off"
         >
+          <Alert
+            message="路由路径限制"
+            description={
+              <div>
+                <p className="mb-2">路由路径不能使用以下保留路径：</p>
+                <div className="text-xs text-gray-600 bg-gray-50 p-2 rounded">
+                  <code>/ (根路径)</code>、<code>admin</code>、<code>navigation</code>、
+                  <code>navCategory</code>、<code>sysConfigs</code>、<code>webs</code>、
+                  <code>data</code>、<code>sitePublish</code>、<code>login</code>、
+                  <code>init</code>、<code>api</code>、<code>doc</code>、
+                  <code>v3</code>、<code>swagger</code>、<code>webjars</code>
+                </div>
+              </div>
+            }
+            type="warning"
+            showIcon
+            className="mb-4"
+          />
+
           <Form.Item
             label="页面名称"
             name="name"
