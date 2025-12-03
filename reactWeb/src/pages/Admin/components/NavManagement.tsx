@@ -681,14 +681,20 @@ const NavManagement: React.FC = () => {
 
               {iconPreview && (
                 <div className="flex items-center gap-3 p-3 bg-gray-50 rounded border">
-                  <img
-                    src={iconPreview}
-                    alt="预览"
-                    className="w-12 h-12 object-contain rounded"
-                    onError={(e) => {
-                      e.currentTarget.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDgiIGhlaWdodD0iNDgiIHZpZXdCb3g9IjAgMCA0OCA0OCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iNDgiIGhlaWdodD0iNDgiIGZpbGw9IiNFNUU3RUIiLz48cGF0aCBkPSJNMTYgMTZMMzIgMzJNMzIgMTZMMTYgMzIiIHN0cm9rZT0iIzlDQTNCQSIgc3Ryb2tlLXdpZHRoPSIyIi8+PC9zdmc+';
-                    }}
-                  />
+                  <div
+                    className="flex items-center justify-center bg-white border-2 border-gray-200 rounded"
+                    style={{ width: '64px', height: '64px', minWidth: '64px', minHeight: '64px' }}
+                  >
+                    <img
+                      src={iconPreview}
+                      alt="预览"
+                      className="object-contain rounded"
+                      style={{ maxWidth: '60px', maxHeight: '60px', width: 'auto', height: 'auto' }}
+                      onError={(e) => {
+                        e.currentTarget.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDgiIGhlaWdodD0iNDgiIHZpZXdCb3g9IjAgMCA0OCA0OCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iNDgiIGhlaWdodD0iNDgiIGZpbGw9IiNFNUU3RUIiLz48cGF0aCBkPSJNMTYgMTZMMzIgMzJNMzIgMTZMMTYgMzIiIHN0cm9rZT0iIzlDQTNCQSIgc3Ryb2tlLXdpZHRoPSIyIi8+PC9zdmc+';
+                      }}
+                    />
+                  </div>
                   <div className="flex-1">
                     <div className="text-sm text-gray-600">图标预览</div>
                     <div className="text-xs text-gray-400 mt-1 break-all">
