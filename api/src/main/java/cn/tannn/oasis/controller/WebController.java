@@ -105,11 +105,16 @@ public class WebController {
             @RequestBody @Valid NavigationSitePage page) {
 
         // 提取 showPlatform 参数作为过滤条件，然后移除自动 LIKE 查询
-        String routePath = page.getShowPlatform();
+
 
         Specification<Navigation> beanWhere = EnhanceSpecification.beanWhere(page, x -> {
             x.eq(true, "status", 1);
             x.isNull("showPlatform").or( or -> {
+                String routePath = page.getShowPlatform();
+                if(!StringUtils.hasText(routePath)){
+                    SitePublish defaultPage = sitePublishService.getDefaultPage();
+                    routePath = defaultPage.getRoutePath();
+                }
                 or.likes(StringUtils.hasText(routePath), "showPlatform", routePath);
             });
         });
