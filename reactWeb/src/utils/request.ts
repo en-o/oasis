@@ -62,25 +62,28 @@ api.interceptors.response.use(
   (response) => {
     const { data } = response;
 
-    // 后端返回格式: {code: number, message: string, data: any, success: boolean}
+    // 后端返回格式: {code: number, message: string, data: any, success: boolean, ts: number}
     // 优先使用 success 字段判断，如果没有则用 code === 200 判断
     const isSuccess = data.success !== undefined ? data.success : data.code === 200;
 
     if (isSuccess) {
+      // 请求成功，返回数据
       return data;
     } else {
-      // 业务错误，显示后端返回的错误信息
+      // 业务错误 - 统一在这里处理，调用方无需再次处理错误提示
       const errorMessage = data.message || '请求失败';
 
       // 检查是否为认证/授权错误，需要自动登出
       if (AUTH_ERROR_CODES.includes(data.code)) {
         handleAuthError(errorMessage);
       } else {
-        // 其他业务错误，只显示错误消息
+        // 其他业务错误，统一弹出错误提示
+        // 包括：500 业务逻辑错误、400 参数错误等
         message.error(errorMessage);
       }
 
-      // 返回原始数据而不是抛出错误，让调用方可以处理
+      // 返回 Promise.reject，让调用方的 catch 可以捕获
+      // 但调用方无需再次显示错误，错误已经在这里统一显示了
       return Promise.reject(data);
     }
   },
