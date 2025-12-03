@@ -61,6 +61,11 @@ public class SitePublishServiceImpl extends J2ServiceImpl<SitePublishDao, SitePu
             throw new BusinessException("路由路径已被其他配置占用");
         }
 
+        // 如果是默认页，不允许禁用
+        if (entity.getDefPage() && !edit.getEnabled()) {
+            throw new BusinessException("默认页不允许禁用，请先设置其他页面为默认页");
+        }
+
         entity.setName(edit.getName());
         entity.setRoutePath(edit.getRoutePath());
         entity.setHideAdminEntry(edit.getHideAdminEntry());
@@ -100,6 +105,11 @@ public class SitePublishServiceImpl extends J2ServiceImpl<SitePublishDao, SitePu
         // 查询目标配置
         SitePublish target = getJpaBasicsDao().findById(id)
                 .orElseThrow(() -> new BusinessException("站点发布配置不存在"));
+
+        // 如果目标配置未启用，不允许设为默认
+        if (!target.getEnabled()) {
+            throw new BusinessException("禁用的页面不能设置为默认页，请先启用该页面");
+        }
 
         // 查询所有当前的默认页
         List<SitePublish> currentDefaults = getJpaBasicsDao().findAllByDefPageTrue();
