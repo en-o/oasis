@@ -81,8 +81,9 @@ export const webApi = {
 
   // 获取导航列表 - POST /webs/navs (无需token)
   getNavsPage: (params: NavigationPageRequest, routePath?: string) => {
-    const queryParams = routePath ? { routePath } : undefined;
-    return request.post<ResultPageVO<NavigationVO>>('/webs/navs', params, { params: queryParams });
+    // 将 routePath 放到请求体的 showPlatform 字段中
+    const requestBody = routePath ? { ...params, showPlatform: routePath } : params;
+    return request.post<ResultPageVO<NavigationVO>>('/webs/navs', requestBody);
   },
 
   // 获取导航访问信息 - GET /webs/navs/access/{id} (无需token)

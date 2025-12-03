@@ -36,8 +36,9 @@ public class NavigationSitePage extends SerializableBean<NavigationSitePage> {
     @JpaSelectOperator(operatorWrapper = SQLOperatorWrapper.LIKE, connect = SQLConnect.AND)
     private String category;
 
+    //人工处理这个
     @Schema(description = "发布页面，逗号分隔的routePath，如：dev,cp,public")
-    @JpaSelectOperator(operatorWrapper = SQLOperatorWrapper.LIKE, connect = SQLConnect.AND)
+    @JpaSelectIgnoreField
     private String showPlatform;
 
     /**
