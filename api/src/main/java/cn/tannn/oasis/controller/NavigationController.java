@@ -4,6 +4,7 @@ package cn.tannn.oasis.controller;
 import cn.tannn.jdevelops.annotations.web.mapping.PathRestController;
 import cn.tannn.jdevelops.jpa.constant.SQLOperator;
 import cn.tannn.jdevelops.jpa.result.JpaPageResult;
+import cn.tannn.jdevelops.jpa.select.EnhanceSpecification;
 import cn.tannn.jdevelops.result.response.ResultPageVO;
 import cn.tannn.jdevelops.result.response.ResultVO;
 import cn.tannn.oasis.controller.dto.NavigationAdd;
@@ -18,6 +19,8 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -53,7 +56,16 @@ public class NavigationController {
     @Operation(summary = "管理端分页")
     @PostMapping("page")
     public ResultPageVO<Navigation, JpaPageResult<Navigation>> page(@RequestBody @Valid NavigationPage page) {
-        Page<Navigation> byBean = navigationService.findPage(page, page.getPage());
+
+        Specification<Navigation> beanWhere = EnhanceSpecification.beanWhere(page, x -> {
+            x.isNull("showPlatform").or( or -> {
+                String routePath = page.getShowPlatform();
+                or.likes(StringUtils.hasText(routePath), "showPlatform", routePath);
+            });
+        });
+
+        Page<Navigation> byBean = navigationService.findPage(beanWhere, page.getPage().pageable());
+
         JpaPageResult<Navigation> pageResult = JpaPageResult.toPage(byBean);
         return ResultPageVO.success(pageResult, "查询成功");
     }
@@ -78,7 +90,10 @@ public class NavigationController {
     @Operation(summary = "编辑导航项")
     @PostMapping("edit")
     public ResultVO<String> edit(@RequestBody @Valid NavigationEdit edit) {
-        navigationService.update(edit, SQLOperator.EQ);
+        navigationService.getJpaBasicsDao().findById(edit.getId()).ifPresent(jpaBasics -> {
+
+        })
+//        navigationService.update(edit, SQLOperator.EQ);
         return ResultVO.success();
     }
 

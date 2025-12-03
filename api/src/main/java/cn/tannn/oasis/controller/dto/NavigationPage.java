@@ -39,7 +39,7 @@ public class NavigationPage extends SerializableBean<NavigationPage> {
     private Integer status;
 
     @Schema(description = "发布页面，逗号分隔的routePath，如：dev,cp,public")
-    @JpaSelectOperator(operatorWrapper = SQLOperatorWrapper.LIKE, connect = SQLConnect.AND)
+    @JpaSelectIgnoreField
     private String showPlatform;
 
     /**
