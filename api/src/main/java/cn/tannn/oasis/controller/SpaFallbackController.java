@@ -1,7 +1,10 @@
 package cn.tannn.oasis.controller;
 
+import cn.tannn.oasis.entity.SitePublish;
+import cn.tannn.oasis.service.SitePublishService;
 import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.RequiredArgsConstructor;
 import org.springframework.boot.web.servlet.error.ErrorController;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
@@ -11,11 +14,15 @@ import org.springframework.web.bind.annotation.RequestMapping;
  * SPA 回退控制器
  * 处理 404 错误，将前端路由请求转发到 index.html
  * API 请求的 404 正常返回错误，不会被转发
+ * 只有在 SitePublish 中配置的路径才会被转发
  *
  * @author tannn
  */
 @Controller
+@RequiredArgsConstructor
 public class SpaFallbackController implements ErrorController {
+
+    private final SitePublishService sitePublishService;
 
     @RequestMapping("/error")
     public String handleError(HttpServletRequest request) {
@@ -31,13 +38,17 @@ public class SpaFallbackController implements ErrorController {
 
                 // 如果是 API 请求，返回 404 错误而不是转发到 index.html
                 if (isApiRequest(path)) {
-                    // 返回 null 会使用 Spring Boot 默认的错误处理
                     return null;
                 }
 
-                // 非 API 请求（如自定义页面 /test, /dev 等），转发到 index.html
-                // 让前端 React Router 处理
-                return "forward:/index.html";
+                // 检查是否是已配置的自定义页面路径
+                if (isConfiguredRoute(path)) {
+                    // 转发到 index.html，让前端 React Router 处理
+                    return "forward:/index.html";
+                }
+
+                // 未配置的路径，返回 404
+                return null;
             }
         }
 
@@ -59,5 +70,29 @@ public class SpaFallbackController implements ErrorController {
                path.startsWith("/login") ||
                path.startsWith("/init") ||
                path.startsWith("/api");
+    }
+
+    /**
+     * 判断是否是已配置的路由
+     * 检查路径是否在 SitePublish 配置中
+     */
+    private boolean isConfiguredRoute(String path) {
+        // 移除开头的斜杠
+        String routePath = path.startsWith("/") ? path.substring(1) : path;
+
+        // 空路径不处理（首页由 SpaController 处理）
+        if (routePath.isEmpty()) {
+            return false;
+        }
+
+        try {
+            // 查询配置
+            SitePublish config = sitePublishService.getByRoutePath(routePath);
+            // 如果配置存在且启用，则认为是有效路由
+            return config != null && config.getEnabled();
+        } catch (Exception e) {
+            // 查询失败或未找到，返回 false
+            return false;
+        }
     }
 }
