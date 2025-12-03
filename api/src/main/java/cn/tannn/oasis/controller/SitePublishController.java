@@ -1,5 +1,6 @@
 package cn.tannn.oasis.controller;
 
+import cn.tannn.jdevelops.annotations.web.authentication.ApiMapping;
 import cn.tannn.jdevelops.annotations.web.mapping.PathRestController;
 import cn.tannn.jdevelops.jpa.request.Sorteds;
 import cn.tannn.jdevelops.result.response.ResultVO;
@@ -63,7 +64,7 @@ public class SitePublishController {
     }
 
     @Operation(summary = "根据路由路径获取配置")
-    @GetMapping("route/{routePath}")
+    @ApiMapping(value = "route/{routePath}", method = RequestMethod.GET, checkToken = false)
     @Parameter(name = "routePath", description = "路由路径", required = true)
     public ResultVO<SitePublish> getByRoutePath(@PathVariable String routePath) {
         SitePublish config = sitePublishService.getByRoutePath(routePath);
@@ -82,7 +83,7 @@ public class SitePublishController {
     @DeleteMapping("delete/{id}")
     @Parameter(name = "id", description = "配置ID", required = true)
     public ResultVO<String> delete(@PathVariable Integer id) {
-        sitePublishService.deleteEq("id",id);
+        sitePublishService.deleteEq("id", id);
         return ResultVO.success();
     }
 }
