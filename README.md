@@ -33,7 +33,7 @@ admin: http://localhost:3000/admin
 nva: http://localhost:3000
 
 # 自定义发布页面
-> 默认导航加载的是全部和状态为1的
+> 默认导航加载的是 `nav_item.showPlatform is null` 和`nav_item.status = 1` 的
 
 支持为不同场景创建独立的导航页面，每个页面有独立的路由路径和配置：
 - **路由路径**：如 `dev`、`cp`、`public`，访问 `http://localhost:3000/dev`
