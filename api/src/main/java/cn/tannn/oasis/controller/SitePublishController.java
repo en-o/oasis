@@ -86,4 +86,19 @@ public class SitePublishController {
         sitePublishService.deleteEq("id", id);
         return ResultVO.success();
     }
+
+    @Operation(summary = "设置默认页")
+    @PutMapping("setDefault/{id}")
+    @Parameter(name = "id", description = "配置ID", required = true)
+    public ResultVO<String> setDefaultPage(@PathVariable Integer id) {
+        sitePublishService.setDefaultPage(id);
+        return ResultVO.success("默认页设置成功");
+    }
+
+    @Operation(summary = "获取默认页")
+    @GetMapping("default")
+    public ResultVO<SitePublish> getDefaultPage() {
+        SitePublish defaultPage = sitePublishService.getDefaultPage();
+        return ResultVO.success(defaultPage);
+    }
 }

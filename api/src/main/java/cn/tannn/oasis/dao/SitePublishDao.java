@@ -37,4 +37,18 @@ public interface SitePublishDao extends JpaBasicsRepository<SitePublish, Integer
      * @return 是否存在
      */
     boolean existsByRoutePath(String routePath);
+
+    /**
+     * 查询默认页
+     *
+     * @return 默认页配置
+     */
+    Optional<SitePublish> findByDefPageTrue();
+
+    /**
+     * 查询所有默认页（用于确保只有一个默认页）
+     *
+     * @return 默认页列表
+     */
+    List<SitePublish> findAllByDefPageTrue();
 }

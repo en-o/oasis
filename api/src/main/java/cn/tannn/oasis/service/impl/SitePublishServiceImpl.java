@@ -9,6 +9,7 @@ import cn.tannn.oasis.entity.SitePublish;
 import cn.tannn.oasis.service.SitePublishService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -91,5 +92,35 @@ public class SitePublishServiceImpl extends J2ServiceImpl<SitePublishDao, SitePu
         return getJpaBasicsDao().findByRoutePath(routePath)
                 .map(entity -> !entity.getId().equals(excludeId))
                 .orElse(false);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void setDefaultPage(Integer id) {
+        // 查询目标配置
+        SitePublish target = getJpaBasicsDao().findById(id)
+                .orElseThrow(() -> new BusinessException("站点发布配置不存在"));
+
+        // 查询所有当前的默认页
+        List<SitePublish> currentDefaults = getJpaBasicsDao().findAllByDefPageTrue();
+
+        // 将所有默认页设为非默认
+        for (SitePublish defPage : currentDefaults) {
+            if (!defPage.getId().equals(id)) {
+                defPage.setDefPage(false);
+                getJpaBasicsDao().save(defPage);
+                log.info("将站点 [{}] 设置为非默认页", defPage.getName());
+            }
+        }
+
+        // 设置目标配置为默认页
+        target.setDefPage(true);
+        getJpaBasicsDao().save(target);
+        log.info("将站点 [{}] 设置为默认页", target.getName());
+    }
+
+    @Override
+    public SitePublish getDefaultPage() {
+        return getJpaBasicsDao().findByDefPageTrue().orElse(null);
     }
 }

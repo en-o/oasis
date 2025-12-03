@@ -81,6 +81,19 @@ public class WebController {
             } catch (Exception e) {
                 log.warn("查询 SitePublish 配置失败: routePath={}, error={}", routePath, e.getMessage());
             }
+        } else {
+            // 如果 routePath 为空，尝试获取默认页配置
+            try {
+                SitePublish defaultPage = sitePublishService.getDefaultPage();
+                if (defaultPage != null && defaultPage.getEnabled()) {
+                    // 使用默认页的 hideAdminEntry 覆盖系统配置
+                    siteInfo.setHideAdminEntry(defaultPage.getHideAdminEntry() ? 1 : 0);
+                    log.debug("使用默认页配置覆盖 hideAdminEntry: hideAdminEntry={}",
+                            defaultPage.getHideAdminEntry());
+                }
+            } catch (Exception e) {
+                log.warn("查询默认页配置失败: error={}", e.getMessage());
+            }
         }
 
         return ResultVO.success(siteInfo);

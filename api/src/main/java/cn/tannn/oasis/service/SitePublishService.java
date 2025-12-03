@@ -62,4 +62,18 @@ public interface SitePublishService extends J2Service<SitePublish> {
      * @return 是否存在
      */
     boolean routePathExists(String routePath, Integer excludeId);
+
+    /**
+     * 设置默认页（确保只有一个默认页）
+     *
+     * @param id 站点发布配置ID
+     */
+    void setDefaultPage(Integer id);
+
+    /**
+     * 获取默认页
+     *
+     * @return 默认页配置，如果不存在则返回 null
+     */
+    SitePublish getDefaultPage();
 }
