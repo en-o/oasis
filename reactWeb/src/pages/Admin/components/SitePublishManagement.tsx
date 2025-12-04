@@ -189,9 +189,14 @@ const SitePublishManagement: React.FC = () => {
       title: '描述',
       dataIndex: 'description',
       key: 'description',
-      ellipsis: true,
+      width: 200,
+      ellipsis: {
+        showTitle: false,
+      },
       render: (text: string) => (
-        <span className="text-gray-600 text-sm">{text || '-'}</span>
+        <Tooltip placement="topLeft" title={text || '-'}>
+          <span className="text-gray-600 text-sm">{text || '-'}</span>
+        </Tooltip>
       ),
     },
     {
@@ -272,7 +277,7 @@ const SitePublishManagement: React.FC = () => {
             className: 'px-4 py-3',
           }}
           className="site-publish-table"
-          scroll={{ y: 'calc(100vh - 320px)' }}
+          scroll={{ x: 1000, y: 'calc(100vh - 320px)' }}
         />
       </div>
 
