@@ -166,7 +166,7 @@ const Admin: React.FC = () => {
           <div className="admin-sidebar flex-shrink-0">
             <AdminSidebar currentAdminTab={currentTab} onChangeTab={setCurrentTab} />
           </div>
-          <div className="flex-1 admin-content overflow-auto">
+          <div className="flex-1 admin-content">
             {currentTab === 'nav-management' && <NavManagement />}
             {currentTab === 'category-management' && <CategoryManagement />}
             {currentTab === 'site-publish-management' && <SitePublishManagement />}

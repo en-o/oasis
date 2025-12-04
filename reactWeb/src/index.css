@@ -298,6 +298,7 @@ code {
   padding: 2rem;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   border: 1px solid rgba(0, 0, 0, 0.06);
+  height: calc(100vh - 120px);
 }
 
 .admin-sidebar {
@@ -316,6 +317,8 @@ code {
   padding: 2rem;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   border: 1px solid rgba(0, 0, 0, 0.06);
+  overflow-y: auto;
+  scrollbar-gutter: stable;
 }
 
 @keyframes spin {
