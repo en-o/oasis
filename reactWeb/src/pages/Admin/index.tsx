@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from 'antd';
-import { ArrowLeft, LogOut, Settings, Shield } from 'lucide-react';
+import { ArrowLeft, LogOut, Shield } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import AdminSidebar from '@/components/AdminSidebar';
 import NavManagement from './components/NavManagement';
