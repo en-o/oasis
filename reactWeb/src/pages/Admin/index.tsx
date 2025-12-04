@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from 'antd';
-import { ArrowLeft, LogOut } from 'lucide-react';
+import { ArrowLeft, LogOut, Settings, Shield } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import AdminSidebar from '@/components/AdminSidebar';
 import NavManagement from './components/NavManagement';
@@ -110,24 +110,49 @@ const Admin: React.FC = () => {
 
   return (
     <div className="admin-container">
-      <header className="admin-header">
+      <header className="admin-header bg-gradient-to-r from-blue-600 via-blue-500 to-indigo-600 shadow-lg">
         <div className="nav-header-content">
-          <div className="flex items-center justify-between">
-            <h1 className="text-2xl font-bold text-gray-800">管理后台</h1>
-            <div className="flex items-center space-x-4">
+          <div className="flex items-center justify-between py-4">
+            {/* 左侧：Logo 和标题 */}
+            <div className="flex items-center gap-4">
+              <Shield className="w-7 h-7 text-white" />
+              <h1 className="text-2xl font-bold text-white tracking-tight">
+                管理后台
+              </h1>
+            </div>
+
+            {/* 右侧：操作按钮组 */}
+            <div className="flex items-center gap-6">
               <Button
+                size="large"
                 icon={<ArrowLeft className="w-4 h-4" />}
                 onClick={handleBackToNavigation}
-                className="flex items-center"
+                className="
+                  bg-white/10 border-white/30 text-white
+                  hover:bg-white/20 hover:border-white/40
+                  backdrop-blur-sm
+                  flex items-center gap-2
+                  font-medium
+                  shadow-sm hover:shadow-md
+                  transition-all duration-200
+                "
               >
                 返回导航
               </Button>
               <Button
                 type="primary"
                 danger
+                size="large"
                 icon={<LogOut className="w-4 h-4" />}
                 onClick={handleLogout}
-                className="flex items-center"
+                className="
+                  flex items-center gap-2
+                  font-medium
+                  bg-red-500 border-red-500
+                  hover:bg-red-600 hover:border-red-600
+                  shadow-sm hover:shadow-md
+                  transition-all duration-200
+                "
               >
                 退出登录
               </Button>
