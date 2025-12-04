@@ -299,6 +299,44 @@ const SitePublishManagement: React.FC = () => {
       </div>
 
       <div className="flex-1 bg-white rounded-lg shadow-sm overflow-hidden">
+        <style>{`
+          /* 自定义滚动条样式 - 现代化设计 */
+          .site-publish-table .ant-table-body::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+          }
+
+          .site-publish-table .ant-table-body::-webkit-scrollbar-track {
+            background: #f5f5f5;
+            border-radius: 4px;
+          }
+
+          .site-publish-table .ant-table-body::-webkit-scrollbar-thumb {
+            background: linear-gradient(180deg, #cbd5e1 0%, #94a3b8 100%);
+            border-radius: 4px;
+            transition: all 0.3s ease;
+          }
+
+          .site-publish-table .ant-table-body::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(180deg, #94a3b8 0%, #64748b 100%);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+          }
+
+          .site-publish-table .ant-table-body::-webkit-scrollbar-thumb:active {
+            background: linear-gradient(180deg, #64748b 0%, #475569 100%);
+          }
+
+          /* 滚动条交叉处理 */
+          .site-publish-table .ant-table-body::-webkit-scrollbar-corner {
+            background: #f5f5f5;
+          }
+
+          /* Firefox 滚动条样式 */
+          .site-publish-table .ant-table-body {
+            scrollbar-width: thin;
+            scrollbar-color: #94a3b8 #f5f5f5;
+          }
+        `}</style>
         <Table
           columns={columns}
           dataSource={getCurrentPageData()}
