@@ -38,7 +38,7 @@ export const useNavigation = () => {
 
       // 使用分页接口获取所有导航，传递 routePath 参数
       const response = await webApi.getNavsPage({
-        page: { pageNum: 1, pageSize: 100 }
+        page: { pageIndex: 1, pageSize: 100 }
       }, routePath);
 
       if (!response || response.code !== 200 || !response.data || !response.data.rows) {

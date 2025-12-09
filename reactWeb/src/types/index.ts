@@ -110,7 +110,7 @@ export interface NavigationPageRequest {
   name?: string;
   category?: string;
   page: {
-    pageNum: number;
+    pageIndex: number;
     pageSize: number;
   };
 }
