@@ -18,5 +18,6 @@ INSERT INTO `nav_item` (`ID`, `ACCOUNT`, `CATEGORY`, `ICON`, `LOOK_ACCOUNT`, `NA
 INSERT INTO `nav_item` (`ID`, `ACCOUNT`, `CATEGORY`, `ICON`, `LOOK_ACCOUNT`, `NAME`, `NVA_ACCESS_SECRET`, `PASSWORD`, `REMARK`, `SORT`, `STATUS`, `URL`) VALUES (3, '', '工具', 'https://excalidraw.com/apple-touch-icon.png', 1, '会议白板', 'tan', '', '绘制手绘风格图标的虚拟白板', 5, 1, 'https://excalidraw.com/');
 
 
-INSERT INTO `site_publish` (`ID`, `DESCRIPTION`, `ENABLED`, `HIDE_ADMIN_ENTRY`, `NAME`, `ROUTE_PATH`, `SORT`) VALUES (1, '开发组用的', 1, 0, '开发运维', 'dev', 1);
-INSERT INTO `site_publish` (`ID`, `DESCRIPTION`, `ENABLED`, `HIDE_ADMIN_ENTRY`, `NAME`, `ROUTE_PATH`, `SORT`) VALUES (2, '销售，产品，老板用的（默认访问的页面也是这个', 1, 1, '产品', 'pro', 2);
+INSERT INTO `site_publish` (`ID`, `DESCRIPTION`, `ENABLED`, `HIDE_ADMIN_ENTRY`, `NAME`, `ROUTE_PATH`, `SORT`, `DEF_PAGE`) VALUES (1, '运维组用的', 1, 0, '运维', 'dev', 1, 0);
+INSERT INTO `site_publish` (`ID`, `DESCRIPTION`, `ENABLED`, `HIDE_ADMIN_ENTRY`, `NAME`, `ROUTE_PATH`, `SORT`, `DEF_PAGE`) VALUES (2, '销售，产品，老板用的（默认访问的页面也是这个', 1, 1, '产品', 'pro', 2, 1);
+INSERT INTO `site_publish` (`ID`, `DESCRIPTION`, `ENABLED`, `HIDE_ADMIN_ENTRY`, `NAME`, `ROUTE_PATH`, `SORT`, `DEF_PAGE`) VALUES (3, '集合页面-作用于开发人员', 1, 0, '集合', 'all', 1, 0);
