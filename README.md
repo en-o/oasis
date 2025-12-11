@@ -1,5 +1,5 @@
-# Oasis · 专属绿洲
-在信息纷繁复杂的数字荒漠中，您需要一片宁静、高效且专属于自我的空间。
+# Oasis · 站点导航
+
 
 # 快速使用
 > https://hub.docker.com/r/tannnn/oasis
