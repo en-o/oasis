@@ -218,7 +218,12 @@
 
     function switchTab(tab) {
       document.querySelectorAll('.tab-button').forEach(b => b.classList.remove('active'));
-      event.target.classList.add('active');
+
+      // 找到对应的标签按钮并激活
+      const targetButton = document.querySelector(`.tab-button[data-tab="${tab}"]`);
+      if (targetButton) {
+        targetButton.classList.add('active');
+      }
 
       document.getElementById('categoryManage').style.display = tab === 'category' ? 'block' : 'none';
       document.getElementById('siteManage').style.display = tab === 'site' ? 'block' : 'none';
@@ -729,8 +734,80 @@
       document.addEventListener('DOMContentLoaded', () => {
         bindEventListeners();
         init();
+        checkPendingAddSite();
       });
     } else {
       bindEventListeners();
       init();
+      checkPendingAddSite();
+    }
+
+    // 监听来自 background.js 的消息
+    if (typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.onMessage) {
+      chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+        console.log('收到消息:', request);
+        if (request.action === 'addSiteFromContext') {
+          // 打开管理模态框，切换到网站管理标签，预填数据
+          openManageModal();
+          setTimeout(() => {
+            switchTab('site');
+            preFillSiteForm(request.url, request.name);
+          }, 50);
+          sendResponse({ success: true });
+        }
+        return true; // 保持消息通道开放
+      });
+    }
+
+    // 检查是否有待添加的网站（从右键菜单触发）
+    async function checkPendingAddSite() {
+      try {
+        if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local) {
+          const result = await new Promise((resolve) => {
+            chrome.storage.local.get(['pendingAddSite'], resolve);
+          });
+
+          if (result.pendingAddSite) {
+            const pending = result.pendingAddSite;
+            console.log('检测到待添加网站:', pending);
+            // 检查时间戳，避免处理过期的数据（5分钟内有效）
+            if (Date.now() - pending.timestamp < 5 * 60 * 1000) {
+              // 打开管理模态框，切换到网站管理标签，预填数据
+              openManageModal();
+              setTimeout(() => {
+                switchTab('site');
+                preFillSiteForm(pending.url, pending.name);
+              }, 50);
+            }
+            // 清除已处理的数据
+            chrome.storage.local.remove(['pendingAddSite']);
+          }
+        }
+      } catch (error) {
+        console.error('检查待添加网站失败:', error);
+      }
+    }
+
+    // 预填网站表单
+    function preFillSiteForm(url, name) {
+      // 使用 setTimeout 确保 DOM 已更新
+      setTimeout(() => {
+        // 确保在网站管理标签
+        document.getElementById('siteName').value = name;
+        document.getElementById('siteUrl').value = url;
+        // 清空其他字段
+        document.getElementById('siteDesc').value = name;
+        document.getElementById('siteIcon').value = '🌐';
+
+        // 清空编辑状态
+        editingCategory = null;
+        editingIndex = null;
+        document.getElementById('saveSiteBtn').textContent = '添加网站';
+        document.getElementById('cancelEditBtn').style.display = 'none';
+
+        // 滚动到表单顶部
+        document.getElementById('siteManage').scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+        console.log('✅ 已预填网站信息:', name, url);
+      }, 100);
     }
