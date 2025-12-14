@@ -10,5 +10,9 @@
   "extensionTitle": {
     "message": "Smart Navigation",
     "description": "Extension title shown in browser action"
+  },
+  "tabsPermissionReason": {
+    "message": "Used to open search results and navigate to websites in the current tab",
+    "description": "Reason for requesting tabs permission"
   }
 }

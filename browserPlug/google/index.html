@@ -784,11 +784,18 @@
     function performSearch() {
       const query = document.getElementById('searchInput').value.trim();
       if (!query) return;
-      
+
       const engine = data.engines.find(e => e.name === currentEngine);
       if (engine) {
         const url = engine.url.replace('{query}', encodeURIComponent(query));
-        window.location.href = url;
+
+        // 尝试使用 Chrome API 在当前标签页打开
+        if (typeof chrome !== 'undefined' && chrome.tabs && chrome.tabs.update) {
+          chrome.tabs.update({ url: url });
+        } else {
+          // 降级方案
+          window.location.href = url;
+        }
       }
     }
 
@@ -829,7 +836,13 @@
     }
 
     function openSite(url) {
-      window.location.href = url;
+      // 尝试使用 Chrome API 在当前标签页打开
+      if (typeof chrome !== 'undefined' && chrome.tabs && chrome.tabs.update) {
+        chrome.tabs.update({ url: url });
+      } else {
+        // 降级方案
+        window.location.href = url;
+      }
     }
 
     // 模态框管理

@@ -10,5 +10,9 @@
   "extensionTitle": {
     "message": "智能导航助手",
     "description": "Extension title shown in browser action"
+  },
+  "tabsPermissionReason": {
+    "message": "用于在当前标签页中打开搜索结果和导航网站",
+    "description": "Reason for requesting tabs permission"
   }
 }

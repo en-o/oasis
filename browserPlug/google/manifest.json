@@ -7,7 +7,8 @@
   "author": "tan",
   "homepage_url": "https://gitee.com/tanoo/oasis.git",
   "permissions": [
-    "storage"
+    "storage",
+    "tabs"
   ],
   "chrome_url_overrides": {
     "newtab": "index.html"
