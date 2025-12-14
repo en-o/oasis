@@ -519,7 +519,7 @@
           <!-- 动态生成选项 -->
         </select>
         <input type="text" class="search-input" id="searchInput" placeholder="输入搜索内容...">
-        <button class="search-btn" onclick="performSearch()">搜索</button>
+        <button class="search-btn" id="searchBtn">搜索</button>
       </div>
     </div>
 
@@ -531,7 +531,7 @@
   </div>
 
   <!-- 管理按钮 -->
-  <button class="manage-btn" onclick="openManageModal()">
+  <button class="manage-btn" id="manageBtn">
     <span>⚙️</span>
     <span>管理</span>
   </button>
@@ -541,14 +541,14 @@
     <div class="modal-content">
       <div class="modal-header">
         <h2 class="modal-title">管理设置</h2>
-        <button class="close-btn" onclick="closeManageModal()">×</button>
+        <button class="close-btn" id="closeModalBtn">×</button>
       </div>
 
-      <div class="tab-buttons">
-        <button class="tab-button active" onclick="switchTab('category')">分类管理</button>
-        <button class="tab-button" onclick="switchTab('site')">网站管理</button>
-        <button class="tab-button" onclick="switchTab('engine')">搜索引擎</button>
-        <button class="tab-button" onclick="switchTab('sync')">数据同步</button>
+      <div class="tab-buttons" id="tabButtons">
+        <button class="tab-button active" data-tab="category">分类管理</button>
+        <button class="tab-button" data-tab="site">网站管理</button>
+        <button class="tab-button" data-tab="engine">搜索引擎</button>
+        <button class="tab-button" data-tab="sync">数据同步</button>
       </div>
 
       <!-- 分类管理 -->
@@ -557,7 +557,7 @@
           <label class="form-label">分类名称</label>
           <input type="text" class="form-input" id="categoryName">
         </div>
-        <button class="btn btn-primary" onclick="addCategory()">添加分类</button>
+        <button class="btn btn-primary" id="addCategoryBtn">添加分类</button>
         <div id="categoryList" style="margin-top: 20px;"></div>
       </div>
 
@@ -588,10 +588,10 @@
           <div class="account-fields" id="accountFields">
             <!-- 动态生成账号字段 -->
           </div>
-          <button class="add-field-btn" onclick="addAccountField()">+ 添加字段</button>
+          <button class="add-field-btn" id="addFieldBtn">+ 添加字段</button>
         </div>
-        <button class="btn btn-primary" onclick="saveSite()" id="saveSiteBtn">添加网站</button>
-        <button class="btn btn-secondary" onclick="cancelEdit()" id="cancelEditBtn" style="display: none;">取消编辑</button>
+        <button class="btn btn-primary" id="saveSiteBtn">添加网站</button>
+        <button class="btn btn-secondary" id="cancelEditBtn" style="display: none;">取消编辑</button>
         <div id="siteList" style="margin-top: 20px;"></div>
       </div>
 
@@ -605,7 +605,7 @@
           <label class="form-label">搜索URL (用 {query} 代替搜索词)</label>
           <input type="text" class="form-input" id="engineUrl" placeholder="https://www.google.com/search?q={query}">
         </div>
-        <button class="btn btn-primary" onclick="addEngine()">添加搜索引擎</button>
+        <button class="btn btn-primary" id="addEngineBtn">添加搜索引擎</button>
         <div id="engineList" style="margin-top: 20px;"></div>
       </div>
 
@@ -624,14 +624,14 @@
         <div class="form-group">
           <label class="form-label">手动备份与恢复</label>
           <div style="display: flex; gap: 8px; margin-top: 12px;">
-            <button class="btn btn-primary" onclick="exportData()" style="flex: 1;">
+            <button class="btn btn-primary" id="exportDataBtn" style="flex: 1;">
               📥 导出数据
             </button>
-            <button class="btn btn-secondary" onclick="document.getElementById('importFile').click()" style="flex: 1;">
+            <button class="btn btn-secondary" id="importDataBtn" style="flex: 1;">
               📤 导入数据
             </button>
           </div>
-          <input type="file" id="importFile" accept=".json" style="display: none;" onchange="importData(event)">
+          <input type="file" id="importFile" accept=".json" style="display: none;">
           <div style="font-size: 12px; color: #5f6368; margin-top: 8px;">
             导出的 JSON 文件可用于备份或迁移到其他浏览器
           </div>
@@ -646,7 +646,7 @@
 
         <div class="form-group">
           <label class="form-label" style="color: #d93025;">危险操作</label>
-          <button class="btn" onclick="clearAllData()" style="background: #fff; color: #d93025; border: 1px solid #d93025;">
+          <button class="btn" id="clearDataBtn" style="background: #fff; color: #d93025; border: 1px solid #d93025;">
             🗑️ 清空所有数据
           </button>
           <div style="font-size: 12px; color: #5f6368; margin-top: 8px;">
@@ -806,10 +806,17 @@
     // 渲染分类
     function renderCategories() {
       const container = document.getElementById('categoryTabs');
-      container.innerHTML = data.categories.map(c => 
+      container.innerHTML = data.categories.map(c =>
         `<button class="category-tab ${c === currentCategory ? 'active' : ''}"
-                onclick="selectCategory('${c}')">${c}</button>`
+                data-category="${c}">${c}</button>`
       ).join('');
+
+      // 绑定分类点击事件
+      container.querySelectorAll('.category-tab').forEach(tab => {
+        tab.addEventListener('click', (e) => {
+          selectCategory(e.target.dataset.category);
+        });
+      });
     }
 
     function selectCategory(name) {
@@ -829,7 +836,7 @@
           : '';
 
         return `
-          <div class="site-card" onclick="openSite('${site.url}')">
+          <div class="site-card" data-url="${site.url}">
             <div class="site-avatar">${site.icon}</div>
             <div class="site-name">${site.name}</div>
             ${site.desc ? `<div class="site-url">${site.desc}</div>` : ''}
@@ -837,6 +844,13 @@
           </div>
         `;
       }).join('');
+
+      // 绑定网站卡片点击事件
+      container.querySelectorAll('.site-card').forEach(card => {
+        card.addEventListener('click', () => {
+          openSite(card.dataset.url);
+        });
+      });
     }
 
     function openSite(url) {
@@ -890,15 +904,21 @@
       const container = document.getElementById('accountFields');
       const index = container.children.length;
 
-      const fieldHtml = `
-        <div class="account-field-item" data-index="${index}">
-          <input type="text" placeholder="字段名(如: 账号、密码)" value="${key}" class="field-key">
-          <input type="text" placeholder="字段值" value="${value}" class="field-value">
-          <button class="remove-field-btn" onclick="removeAccountField(${index})">×</button>
-        </div>
+      const fieldDiv = document.createElement('div');
+      fieldDiv.className = 'account-field-item';
+      fieldDiv.dataset.index = index;
+      fieldDiv.innerHTML = `
+        <input type="text" placeholder="字段名(如: 账号、密码)" value="${key}" class="field-key">
+        <input type="text" placeholder="字段值" value="${value}" class="field-value">
+        <button class="remove-field-btn" data-remove-index="${index}">×</button>
       `;
 
-      container.insertAdjacentHTML('beforeend', fieldHtml);
+      container.appendChild(fieldDiv);
+
+      // 绑定删除按钮事件
+      fieldDiv.querySelector('.remove-field-btn').addEventListener('click', (e) => {
+        removeAccountField(e.target.dataset.removeIndex);
+      });
     }
 
     // 移除账号字段
@@ -929,13 +949,13 @@
       categoryList.innerHTML = data.categories.map((c, i) => `
         <div class="list-item">
           <span>${c}</span>
-          <button class="delete-btn" onclick="deleteCategory(${i})">删除</button>
+          <button class="delete-btn" data-action="delete-category" data-index="${i}">删除</button>
         </div>
       `).join('');
 
       // 渲染网站选择分类
       const siteCategory = document.getElementById('siteCategory');
-      siteCategory.innerHTML = data.categories.map(c => 
+      siteCategory.innerHTML = data.categories.map(c =>
         `<option value="${c}">${c}</option>`
       ).join('');
 
@@ -947,8 +967,8 @@
         <div class="list-item">
           <span>${s.icon} ${s.name}</span>
           <div>
-            <button class="edit-btn" onclick="editSite('${category}', ${i})">编辑</button>
-            <button class="delete-btn" onclick="deleteSite('${category}', ${i})">删除</button>
+            <button class="edit-btn" data-action="edit-site" data-category="${category}" data-index="${i}">编辑</button>
+            <button class="delete-btn" data-action="delete-site" data-category="${category}" data-index="${i}">删除</button>
           </div>
         </div>
       `).join('');
@@ -958,9 +978,36 @@
       engineList.innerHTML = data.engines.map((e, i) => `
         <div class="list-item">
           <span>${e.name}</span>
-          <button class="delete-btn" onclick="deleteEngine(${i})">删除</button>
+          <button class="delete-btn" data-action="delete-engine" data-index="${i}">删除</button>
         </div>
       `).join('');
+
+      // 绑定事件
+      categoryList.addEventListener('click', handleManageAction);
+      siteList.addEventListener('click', handleManageAction);
+      engineList.addEventListener('click', handleManageAction);
+    }
+
+    function handleManageAction(e) {
+      const target = e.target;
+      const action = target.dataset.action;
+      const index = parseInt(target.dataset.index);
+      const category = target.dataset.category;
+
+      switch(action) {
+        case 'delete-category':
+          deleteCategory(index);
+          break;
+        case 'edit-site':
+          editSite(category, index);
+          break;
+        case 'delete-site':
+          deleteSite(category, index);
+          break;
+        case 'delete-engine':
+          deleteEngine(index);
+          break;
+      }
     }
 
     // 添加功能
@@ -1257,10 +1304,57 @@
       if (e.key === 'Enter') performSearch();
     });
 
+    // 绑定所有事件监听器
+    function bindEventListeners() {
+      // 搜索按钮
+      document.getElementById('searchBtn').addEventListener('click', performSearch);
+
+      // 管理按钮
+      document.getElementById('manageBtn').addEventListener('click', openManageModal);
+      document.getElementById('closeModalBtn').addEventListener('click', closeManageModal);
+
+      // Tab 切换
+      document.getElementById('tabButtons').addEventListener('click', (e) => {
+        if (e.target.classList.contains('tab-button')) {
+          switchTab(e.target.dataset.tab);
+        }
+      });
+
+      // 分类管理
+      document.getElementById('addCategoryBtn').addEventListener('click', addCategory);
+
+      // 网站管理
+      document.getElementById('addFieldBtn').addEventListener('click', () => addAccountField());
+      document.getElementById('saveSiteBtn').addEventListener('click', saveSite);
+      document.getElementById('cancelEditBtn').addEventListener('click', cancelEdit);
+
+      // 搜索引擎管理
+      document.getElementById('addEngineBtn').addEventListener('click', addEngine);
+
+      // 数据同步
+      document.getElementById('exportDataBtn').addEventListener('click', exportData);
+      document.getElementById('importDataBtn').addEventListener('click', () => {
+        document.getElementById('importFile').click();
+      });
+      document.getElementById('importFile').addEventListener('change', importData);
+      document.getElementById('clearDataBtn').addEventListener('click', clearAllData);
+
+      // 模态框背景点击关闭
+      document.getElementById('manageModal').addEventListener('click', (e) => {
+        if (e.target.id === 'manageModal') {
+          closeManageModal();
+        }
+      });
+    }
+
     // 页面加载完成后初始化
     if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', init);
+      document.addEventListener('DOMContentLoaded', () => {
+        bindEventListeners();
+        init();
+      });
     } else {
+      bindEventListeners();
       init();
     }
   </script>
