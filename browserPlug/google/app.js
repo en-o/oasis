@@ -639,11 +639,6 @@
       }
     }
 
-    // 回车搜索
-    document.getElementById('searchInput').addEventListener('keypress', (e) => {
-      if (e.key === 'Enter') performSearch();
-    });
-
     // 绑定所有事件监听器
     function bindEventListeners() {
       // 搜索按钮
@@ -652,4 +647,53 @@
       // 管理按钮
       document.getElementById('manageBtn').addEventListener('click', openManageModal);
       document.getElementById('closeModalBtn').addEventListener('click', closeManageModal);
+
+      // Tab 切换
+      document.getElementById('tabButtons').addEventListener('click', (e) => {
+        if (e.target.classList.contains('tab-button')) {
+          switchTab(e.target.dataset.tab);
+        }
+      });
+
+      // 分类管理
+      document.getElementById('addCategoryBtn').addEventListener('click', addCategory);
+
+      // 网站管理
+      document.getElementById('addFieldBtn').addEventListener('click', () => addAccountField());
+      document.getElementById('saveSiteBtn').addEventListener('click', saveSite);
+      document.getElementById('cancelEditBtn').addEventListener('click', cancelEdit);
+
+      // 搜索引擎管理
+      document.getElementById('addEngineBtn').addEventListener('click', addEngine);
+
+      // 数据同步
+      document.getElementById('exportDataBtn').addEventListener('click', exportData);
+      document.getElementById('importDataBtn').addEventListener('click', () => {
+        document.getElementById('importFile').click();
+      });
+      document.getElementById('importFile').addEventListener('change', importData);
+      document.getElementById('clearDataBtn').addEventListener('click', clearAllData);
+
+      // 模态框背景点击关闭
+      document.getElementById('manageModal').addEventListener('click', (e) => {
+        if (e.target.id === 'manageModal') {
+          closeManageModal();
+        }
+      });
+
+      // 回车搜索
+      document.getElementById('searchInput').addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') performSearch();
+      });
+    }
+
+    // 页面加载完成后初始化
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', () => {
+        bindEventListeners();
+        init();
+      });
+    } else {
+      bindEventListeners();
+      init();
     }
