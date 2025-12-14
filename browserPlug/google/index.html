@@ -548,6 +548,7 @@
         <button class="tab-button active" onclick="switchTab('category')">分类管理</button>
         <button class="tab-button" onclick="switchTab('site')">网站管理</button>
         <button class="tab-button" onclick="switchTab('engine')">搜索引擎</button>
+        <button class="tab-button" onclick="switchTab('sync')">数据同步</button>
       </div>
 
       <!-- 分类管理 -->
@@ -607,6 +608,52 @@
         <button class="btn btn-primary" onclick="addEngine()">添加搜索引擎</button>
         <div id="engineList" style="margin-top: 20px;"></div>
       </div>
+
+      <!-- 数据同步 -->
+      <div id="syncManage" class="tab-content" style="display: none;">
+        <div style="margin-bottom: 24px; padding: 16px; background: #e8f0fe; border-radius: 8px; border-left: 4px solid #1a73e8;">
+          <div style="font-size: 14px; color: #202124; margin-bottom: 8px;">
+            <strong>🔄 自动云端同步</strong>
+          </div>
+          <div style="font-size: 13px; color: #5f6368; line-height: 1.5;">
+            当您登录 Chrome/Edge 账号后，所有数据会自动同步到云端。<br>
+            在其他设备上安装此插件并登录相同账号，即可自动同步所有设置。
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">手动备份与恢复</label>
+          <div style="display: flex; gap: 8px; margin-top: 12px;">
+            <button class="btn btn-primary" onclick="exportData()" style="flex: 1;">
+              📥 导出数据
+            </button>
+            <button class="btn btn-secondary" onclick="document.getElementById('importFile').click()" style="flex: 1;">
+              📤 导入数据
+            </button>
+          </div>
+          <input type="file" id="importFile" accept=".json" style="display: none;" onchange="importData(event)">
+          <div style="font-size: 12px; color: #5f6368; margin-top: 8px;">
+            导出的 JSON 文件可用于备份或迁移到其他浏览器
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">存储信息</label>
+          <div style="padding: 12px; background: #f8f9fa; border-radius: 4px; font-size: 13px; color: #5f6368;" id="storageInfo">
+            加载中...
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" style="color: #d93025;">危险操作</label>
+          <button class="btn" onclick="clearAllData()" style="background: #fff; color: #d93025; border: 1px solid #d93025;">
+            🗑️ 清空所有数据
+          </button>
+          <div style="font-size: 12px; color: #5f6368; margin-top: 8px;">
+            此操作将删除所有分类、网站和搜索引擎，且不可恢复
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -636,20 +683,89 @@
     let editingIndex = null;
 
     // 初始化
-    function init() {
-      const stored = localStorage.getItem('navData');
-      if (stored) {
-        data = JSON.parse(stored);
-      } else {
-        saveData();
-      }
+    async function init() {
+      await loadData();
       renderEngines();
       renderCategories();
       renderSites();
     }
 
-    function saveData() {
-      localStorage.setItem('navData', JSON.stringify(data));
+    // 加载数据（从同步存储）
+    async function loadData() {
+      try {
+        // 尝试从 Chrome Sync Storage 加载
+        if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.sync) {
+          const result = await new Promise((resolve) => {
+            chrome.storage.sync.get(['navData'], resolve);
+          });
+
+          if (result.navData) {
+            data = result.navData;
+            console.log('✅ 数据已从云端同步加载');
+            return;
+          }
+        }
+
+        // 降级到 localStorage（用于兼容性或迁移）
+        const stored = localStorage.getItem('navData');
+        if (stored) {
+          data = JSON.parse(stored);
+          // 迁移数据到 sync storage
+          await saveData();
+          console.log('✅ 数据已从本地迁移到云端同步');
+          return;
+        }
+
+        // 使用默认数据
+        await saveData();
+        console.log('✅ 使用默认数据');
+      } catch (error) {
+        console.error('❌ 加载数据失败:', error);
+        // 降级到 localStorage
+        const stored = localStorage.getItem('navData');
+        if (stored) {
+          data = JSON.parse(stored);
+        }
+      }
+    }
+
+    // 保存数据（到同步存储）
+    async function saveData() {
+      try {
+        // 保存到 Chrome Sync Storage
+        if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.sync) {
+          await new Promise((resolve, reject) => {
+            chrome.storage.sync.set({ navData: data }, () => {
+              if (chrome.runtime.lastError) {
+                reject(chrome.runtime.lastError);
+              } else {
+                resolve();
+              }
+            });
+          });
+          console.log('✅ 数据已同步到云端');
+        }
+
+        // 同时保存到 localStorage 作为备份
+        localStorage.setItem('navData', JSON.stringify(data));
+      } catch (error) {
+        console.error('❌ 保存数据失败:', error);
+        // 降级到 localStorage
+        localStorage.setItem('navData', JSON.stringify(data));
+      }
+    }
+
+    // 监听来自其他设备的同步更新
+    if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.onChanged) {
+      chrome.storage.onChanged.addListener((changes, areaName) => {
+        if (areaName === 'sync' && changes.navData) {
+          console.log('🔄 检测到数据同步更新');
+          data = changes.navData.newValue;
+          renderEngines();
+          renderCategories();
+          renderSites();
+        }
+      });
     }
 
     // 渲染搜索引擎
@@ -733,10 +849,16 @@
       document.getElementById('categoryManage').style.display = tab === 'category' ? 'block' : 'none';
       document.getElementById('siteManage').style.display = tab === 'site' ? 'block' : 'none';
       document.getElementById('engineManage').style.display = tab === 'engine' ? 'block' : 'none';
+      document.getElementById('syncManage').style.display = tab === 'sync' ? 'block' : 'none';
 
       // 切换到网站管理时，初始化账号字段
       if (tab === 'site') {
         initAccountFields();
+      }
+
+      // 切换到数据同步时，更新存储信息
+      if (tab === 'sync') {
+        updateStorageInfo();
       }
     }
 
@@ -987,6 +1109,130 @@
       saveData();
       renderEngines();
       renderManageLists();
+    }
+
+    // 数据同步功能
+
+    // 导出数据
+    function exportData() {
+      try {
+        const dataStr = JSON.stringify(data, null, 2);
+        const blob = new Blob([dataStr], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        const timestamp = new Date().toISOString().slice(0, 10);
+        link.href = url;
+        link.download = `oasis-backup-${timestamp}.json`;
+        link.click();
+        URL.revokeObjectURL(url);
+        alert('✅ 数据导出成功！');
+      } catch (error) {
+        console.error('导出失败:', error);
+        alert('❌ 数据导出失败，请重试');
+      }
+    }
+
+    // 导入数据
+    function importData(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = async (e) => {
+        try {
+          const importedData = JSON.parse(e.target.result);
+
+          // 验证数据格式
+          if (!importedData.engines || !importedData.categories || !importedData.sites) {
+            throw new Error('数据格式不正确');
+          }
+
+          if (!confirm('导入数据将覆盖当前所有设置，是否继续？')) {
+            event.target.value = '';
+            return;
+          }
+
+          data = importedData;
+          await saveData();
+          renderEngines();
+          renderCategories();
+          renderSites();
+          renderManageLists();
+
+          alert('✅ 数据导入成功！');
+        } catch (error) {
+          console.error('导入失败:', error);
+          alert('❌ 数据导入失败，请确保文件格式正确');
+        }
+        event.target.value = '';
+      };
+      reader.readAsText(file);
+    }
+
+    // 更新存储信息
+    async function updateStorageInfo() {
+      try {
+        const dataSize = new Blob([JSON.stringify(data)]).size;
+        const sitesCount = Object.values(data.sites).reduce((sum, arr) => sum + arr.length, 0);
+
+        let syncStatus = '❌ 未启用';
+        let quota = '未知';
+
+        if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.sync) {
+          syncStatus = '✅ 已启用';
+
+          // 获取存储配额信息
+          try {
+            const QUOTA_BYTES = chrome.storage.sync.QUOTA_BYTES || 102400;
+            const usagePercent = ((dataSize / QUOTA_BYTES) * 100).toFixed(1);
+            quota = `${(dataSize / 1024).toFixed(2)} KB / ${(QUOTA_BYTES / 1024).toFixed(0)} KB (${usagePercent}%)`;
+          } catch (e) {
+            quota = `${(dataSize / 1024).toFixed(2)} KB`;
+          }
+        }
+
+        const infoHtml = `
+          <div style="display: grid; gap: 8px;">
+            <div><strong>云端同步状态:</strong> ${syncStatus}</div>
+            <div><strong>数据大小:</strong> ${quota}</div>
+            <div><strong>分类数量:</strong> ${data.categories.length} 个</div>
+            <div><strong>网站数量:</strong> ${sitesCount} 个</div>
+            <div><strong>搜索引擎:</strong> ${data.engines.length} 个</div>
+          </div>
+        `;
+
+        document.getElementById('storageInfo').innerHTML = infoHtml;
+      } catch (error) {
+        console.error('更新存储信息失败:', error);
+        document.getElementById('storageInfo').textContent = '❌ 获取信息失败';
+      }
+    }
+
+    // 清空所有数据
+    async function clearAllData() {
+      if (!confirm('⚠️ 警告：此操作将删除所有数据，且不可恢复！\n\n确定要继续吗？')) {
+        return;
+      }
+
+      if (!confirm('请再次确认：真的要删除所有分类、网站和搜索引擎吗？')) {
+        return;
+      }
+
+      try {
+        data = JSON.parse(JSON.stringify(defaultData));
+        await saveData();
+
+        renderEngines();
+        renderCategories();
+        renderSites();
+        renderManageLists();
+        updateStorageInfo();
+
+        alert('✅ 所有数据已清空，已恢复为默认设置');
+      } catch (error) {
+        console.error('清空数据失败:', error);
+        alert('❌ 清空数据失败，请重试');
+      }
     }
 
     // 回车搜索
