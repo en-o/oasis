@@ -716,7 +716,8 @@
           return;
         }
 
-        // 使用默认数据
+        // 使用默认数据 - 重要：确保 data 包含默认数据
+        data = JSON.parse(JSON.stringify(defaultData));
         await saveData();
         console.log('✅ 使用默认数据');
       } catch (error) {
@@ -725,6 +726,9 @@
         const stored = localStorage.getItem('navData');
         if (stored) {
           data = JSON.parse(stored);
+        } else {
+          // 最终降级：使用默认数据
+          data = JSON.parse(JSON.stringify(defaultData));
         }
       }
     }
@@ -1253,7 +1257,12 @@
       if (e.key === 'Enter') performSearch();
     });
 
-    init();
+    // 页面加载完成后初始化
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', init);
+    } else {
+      init();
+    }
   </script>
 </body>
 </html>
