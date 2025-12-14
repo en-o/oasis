@@ -207,18 +207,21 @@
     /* 管理按钮 */
     .manage-btn {
       position: fixed;
-      bottom: 24px;
+      top: 20px;
       right: 24px;
-      width: 56px;
-      height: 56px;
-      border-radius: 50%;
+      padding: 8px 16px;
       background: #fff;
       color: #5f6368;
       border: 1px solid #dadce0;
       cursor: pointer;
-      font-size: 20px;
+      font-size: 14px;
+      border-radius: 4px;
       box-shadow: 0 1px 2px 0 rgba(60, 64, 67, 0.3), 0 1px 3px 1px rgba(60, 64, 67, 0.15);
       transition: all 0.2s;
+      font-family: arial, sans-serif;
+      display: flex;
+      align-items: center;
+      gap: 6px;
     }
 
     .manage-btn:hover {
@@ -444,16 +447,16 @@
 
     <!-- 导航区域 -->
     <div class="nav-section">
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-        <div class="category-tabs" id="categoryTabs" style="margin-bottom: 0; border-bottom: none; padding-bottom: 0; flex: 1;"></div>
-        <button class="search-btn" onclick="openManageModal()" style="padding: 10px 20px; margin-left: 10px;">⚙️ 管理</button>
-      </div>
+      <div class="category-tabs" id="categoryTabs"></div>
       <div class="sites-grid" id="sitesGrid"></div>
     </div>
   </div>
 
   <!-- 管理按钮 -->
-  <button class="manage-btn" onclick="openManageModal()">⚙️</button>
+  <button class="manage-btn" onclick="openManageModal()">
+    <span>⚙️</span>
+    <span>管理</span>
+  </button>
 
   <!-- 管理模态框 -->
   <div class="modal" id="manageModal">
