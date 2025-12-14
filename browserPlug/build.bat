@@ -32,27 +32,53 @@ echo    版本号: %VERSION%
 echo    输出文件: %ZIP_NAME%
 echo.
 
+REM 优先使用 PowerShell 脚本（最可靠）
+if exist "%SCRIPT_DIR%build.ps1" (
+    echo 使用 PowerShell 脚本打包...
+    powershell.exe -ExecutionPolicy Bypass -File "%SCRIPT_DIR%build.ps1"
+    goto :end
+)
+
 REM 检查是否安装了 7-Zip
 where 7z >nul 2>&1
 if %errorlevel% equ 0 (
     REM 使用 7-Zip 打包
     cd /d "%SOURCE_DIR%"
     7z a -tzip "%OUTPUT_DIR%\%ZIP_NAME%" * -xr!.git* -xr!.DS_Store -xr!Thumbs.db -xr!*.bak >nul
-    echo ✅ 打包完成！使用 7-Zip
-) else (
-    REM 使用 Windows 内置压缩（通过 tar 命令，Windows 10+）
+    if %errorlevel% equ 0 (
+        echo ✅ 打包完成！使用 7-Zip
+        goto :success
+    )
+)
+
+REM 尝试使用 Windows tar 命令（Windows 10+）
+where tar >nul 2>&1
+if %errorlevel% equ 0 (
     cd /d "%SOURCE_DIR%"
     tar -a -c -f "%OUTPUT_DIR%\%ZIP_NAME%" *
     if %errorlevel% equ 0 (
         echo ✅ 打包完成！使用 Windows tar
-    ) else (
-        echo ❌ 打包失败
-        echo 请手动压缩 google 文件夹中的所有文件
-        pause
-        exit /b 1
+        goto :success
     )
 )
 
+REM 所有方法都失败
+echo ❌ 打包失败
+echo.
+echo 💡 解决方案：
+echo    方法1: 在 PowerShell 中运行此脚本
+echo           powershell -ExecutionPolicy Bypass -File build.ps1
+echo.
+echo    方法2: 安装 7-Zip
+echo           下载地址: https://www.7-zip.org/
+echo.
+echo    方法3: 手动压缩
+echo           右键 google 文件夹内的所有文件 → 发送到 → 压缩文件夹
+echo.
+pause
+exit /b 1
+
+:success
 echo.
 echo 📄 输出文件: %OUTPUT_DIR%\%ZIP_NAME%
 for %%A in ("%OUTPUT_DIR%\%ZIP_NAME%") do echo 📊 文件大小: %%~zA 字节
@@ -80,4 +106,5 @@ echo.
 echo    3. 上传文件: %ZIP_NAME%
 echo.
 
+:end
 pause

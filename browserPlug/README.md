@@ -16,6 +16,15 @@
 4. 填写商品详情（与 Chrome 类似）
 5. 提交审核（通常 3-7 天）
 
+## 火狐
+> https://developer.aliyun.com/article/1650354
+
+1. 访问 https://addons.mozilla.org/zh-CN/developers
+2. 创建新提交
+3. 上传相同的 ZIP 包
+4. 填写商品详情
+5. 提交审核
+
 ## google （要钱我就没弄
 1. 访问 https://chrome.google.com/webstore/devconsole
 2. 点击"新增项目"
