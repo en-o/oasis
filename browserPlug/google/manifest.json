@@ -1,8 +1,10 @@
 {
   "manifest_version": 3,
-  "name": "智能导航助手",
-  "version": "0.0.1",
-  "description": "自定义搜索引擎和网站导航管理工具",
+  "name": "智能导航助手 - Oasis",
+  "version": "1.0.0",
+  "description": "优雅的新标签页，支持自定义搜索引擎、网站导航管理、账号信息保存。Google 风格设计，简洁高效。",
+  "author": "tan",
+  "homepage_url": "https://gitee.com/tanoo/oasis.git",
   "permissions": [
     "storage"
   ],
@@ -13,5 +15,8 @@
     "16": "icon16.png",
     "48": "icon48.png",
     "128": "icon128.png"
+  },
+  "action": {
+    "default_title": "智能导航助手"
   }
 }
