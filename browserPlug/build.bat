@@ -21,7 +21,7 @@ for /f "tokens=2 delims=:, " %%a in ('findstr /C:"\"version\"" "%SOURCE_DIR%\man
     set VERSION=!VERSION:"=!
 )
 
-set "ZIP_NAME=smart-navigation-v%VERSION%.zip"
+set "ZIP_NAME=oasis-navigation-v%VERSION%.zip"
 
 REM 创建输出目录
 if not exist "%OUTPUT_DIR%" mkdir "%OUTPUT_DIR%"
@@ -53,7 +53,7 @@ echo.
 REM 创建带时间戳的备份
 set TIMESTAMP=%date:~0,4%%date:~5,2%%date:~8,2%_%time:~0,2%%time:~3,2%%time:~6,2%
 set TIMESTAMP=%TIMESTAMP: =0%
-set "BACKUP_NAME=smart-navigation-v%VERSION%_%TIMESTAMP%.zip"
+set "BACKUP_NAME=oasis-navigation-v%VERSION%_%TIMESTAMP%.zip"
 copy "%OUTPUT_DIR%\%ZIP_NAME%" "%OUTPUT_DIR%\%BACKUP_NAME%" >nul
 echo 💾 备份文件: %OUTPUT_DIR%\%BACKUP_NAME%
 echo.

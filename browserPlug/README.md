@@ -9,6 +9,7 @@
 
 # 发布
 ## 微软
+> https://blog.csdn.net/ouyyan/article/details/145378358
 1. 访问 https://partner.microsoft.com/dashboard/microsoftedge/overview
 2. 创建新提交
 3. 上传相同的 ZIP 包

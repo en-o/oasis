@@ -16,7 +16,7 @@ SOURCE_DIR="$SCRIPT_DIR/google"
 OUTPUT_DIR="$SCRIPT_DIR/dist"
 TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
 VERSION=$(grep -o '"version": "[^"]*"' "$SOURCE_DIR/manifest.json" | cut -d'"' -f4)
-ZIP_NAME="smart-navigation-v${VERSION}.zip"
+ZIP_NAME="oasis-navigation-v${VERSION}.zip"
 
 # 创建输出目录
 mkdir -p "$OUTPUT_DIR"
@@ -46,7 +46,7 @@ echo "📊 文件大小: $(du -h "$OUTPUT_DIR/$ZIP_NAME" | cut -f1)"
 echo ""
 
 # 同时创建带时间戳的备份
-BACKUP_NAME="smart-navigation-v${VERSION}_${TIMESTAMP}.zip"
+BACKUP_NAME="oasis-navigation-v${VERSION}_${TIMESTAMP}.zip"
 cp "$OUTPUT_DIR/$ZIP_NAME" "$OUTPUT_DIR/$BACKUP_NAME"
 echo "💾 备份文件: $OUTPUT_DIR/$BACKUP_NAME"
 echo ""
