@@ -428,6 +428,68 @@
       background: #fef7f7;
       border-color: #d93025;
     }
+
+    /* 账号信息键值对 */
+    .account-fields {
+      margin-bottom: 16px;
+    }
+
+    .account-field-item {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 8px;
+      align-items: center;
+    }
+
+    .account-field-item input {
+      flex: 1;
+      padding: 8px 12px;
+      border: 1px solid #dadce0;
+      border-radius: 4px;
+      font-size: 14px;
+      outline: none;
+      color: #202124;
+      font-family: arial, sans-serif;
+    }
+
+    .account-field-item input:focus {
+      border-color: #1a73e8;
+      box-shadow: 0 0 0 1px #1a73e8;
+    }
+
+    .remove-field-btn {
+      background: #fff;
+      color: #d93025;
+      border: 1px solid #dadce0;
+      padding: 8px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 18px;
+      line-height: 1;
+      transition: all 0.1s;
+    }
+
+    .remove-field-btn:hover {
+      background: #fef7f7;
+      border-color: #d93025;
+    }
+
+    .add-field-btn {
+      background: #f8f9fa;
+      color: #3c4043;
+      border: 1px solid #dadce0;
+      padding: 8px 16px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+      font-family: arial, sans-serif;
+      transition: all 0.1s;
+      width: 100%;
+    }
+
+    .add-field-btn:hover {
+      background: #f1f3f4;
+    }
   </style>
 </head>
 <body>
@@ -491,6 +553,10 @@
           <input type="text" class="form-input" id="siteName">
         </div>
         <div class="form-group">
+          <label class="form-label">网站描述</label>
+          <input type="text" class="form-input" id="siteDesc" placeholder="简短描述此网站">
+        </div>
+        <div class="form-group">
           <label class="form-label">网站图标(emoji 或文字)</label>
           <input type="text" class="form-input" id="siteIcon" placeholder="🌐">
         </div>
@@ -500,7 +566,10 @@
         </div>
         <div class="form-group">
           <label class="form-label">账号信息(可选)</label>
-          <textarea class="form-input form-textarea" id="siteInfo" placeholder="账号: xxx&#10;密码: xxx&#10;备注: xxx"></textarea>
+          <div class="account-fields" id="accountFields">
+            <!-- 动态生成账号字段 -->
+          </div>
+          <button class="add-field-btn" onclick="addAccountField()">+ 添加字段</button>
         </div>
         <button class="btn btn-primary" onclick="addSite()">添加网站</button>
         <div id="siteList" style="margin-top: 20px;"></div>
@@ -533,8 +602,8 @@
       categories: ['常用', '工作', '娱乐'],
       sites: {
         '常用': [
-          { name: 'Google', icon: '🔍', url: 'https://www.google.com', info: '' },
-          { name: 'GitHub', icon: '💻', url: 'https://github.com', info: '' }
+          { name: 'Google', icon: '🔍', url: 'https://www.google.com', desc: '搜索引擎', accountInfo: {} },
+          { name: 'GitHub', icon: '💻', url: 'https://github.com', desc: '代码托管', accountInfo: {} }
         ],
         '工作': [],
         '娱乐': []
@@ -605,15 +674,21 @@
     function renderSites() {
       const container = document.getElementById('sitesGrid');
       const sites = data.sites[currentCategory] || [];
-      
-      container.innerHTML = sites.map((site, i) => `
-        <div class="site-card" onclick="openSite('${site.url}')">
-          <div class="site-avatar">${site.icon}</div>
-          <div class="site-name">${site.name}</div>
-          <div class="site-url">${site.url}</div>
-          ${site.info ? `<div class="site-info">${site.info.replace(/\n/g, '<br>')}</div>` : ''}
-        </div>
-      `).join('');
+
+      container.innerHTML = sites.map((site, i) => {
+        const accountInfoHtml = site.accountInfo && Object.keys(site.accountInfo).length > 0
+          ? `<div class="site-info">${Object.entries(site.accountInfo).map(([k, v]) => `${k}: ${v}`).join('<br>')}</div>`
+          : '';
+
+        return `
+          <div class="site-card" onclick="openSite('${site.url}')">
+            <div class="site-avatar">${site.icon}</div>
+            <div class="site-name">${site.name}</div>
+            ${site.desc ? `<div class="site-url">${site.desc}</div>` : ''}
+            ${accountInfoHtml}
+          </div>
+        `;
+      }).join('');
     }
 
     function openSite(url) {
@@ -633,10 +708,59 @@
     function switchTab(tab) {
       document.querySelectorAll('.tab-button').forEach(b => b.classList.remove('active'));
       event.target.classList.add('active');
-      
+
       document.getElementById('categoryManage').style.display = tab === 'category' ? 'block' : 'none';
       document.getElementById('siteManage').style.display = tab === 'site' ? 'block' : 'none';
       document.getElementById('engineManage').style.display = tab === 'engine' ? 'block' : 'none';
+
+      // 切换到网站管理时，初始化账号字段
+      if (tab === 'site') {
+        initAccountFields();
+      }
+    }
+
+    // 初始化账号字段
+    function initAccountFields() {
+      const container = document.getElementById('accountFields');
+      container.innerHTML = '';
+    }
+
+    // 添加账号字段
+    function addAccountField(key = '', value = '') {
+      const container = document.getElementById('accountFields');
+      const index = container.children.length;
+
+      const fieldHtml = `
+        <div class="account-field-item" data-index="${index}">
+          <input type="text" placeholder="字段名(如: 账号、密码)" value="${key}" class="field-key">
+          <input type="text" placeholder="字段值" value="${value}" class="field-value">
+          <button class="remove-field-btn" onclick="removeAccountField(${index})">×</button>
+        </div>
+      `;
+
+      container.insertAdjacentHTML('beforeend', fieldHtml);
+    }
+
+    // 移除账号字段
+    function removeAccountField(index) {
+      const item = document.querySelector(`.account-field-item[data-index="${index}"]`);
+      if (item) item.remove();
+    }
+
+    // 获取账号信息
+    function getAccountInfo() {
+      const fields = document.querySelectorAll('.account-field-item');
+      const accountInfo = {};
+
+      fields.forEach(field => {
+        const key = field.querySelector('.field-key').value.trim();
+        const value = field.querySelector('.field-value').value.trim();
+        if (key && value) {
+          accountInfo[key] = value;
+        }
+      });
+
+      return accountInfo;
     }
 
     function renderManageLists() {
@@ -693,23 +817,25 @@
     function addSite() {
       const category = document.getElementById('siteCategory').value;
       const name = document.getElementById('siteName').value.trim();
+      const desc = document.getElementById('siteDesc').value.trim();
       const icon = document.getElementById('siteIcon').value.trim() || '🌐';
       const url = document.getElementById('siteUrl').value.trim();
-      const info = document.getElementById('siteInfo').value.trim();
-      
+      const accountInfo = getAccountInfo();
+
       if (!name || !url) return alert('请填写网站名称和地址');
-      
+
       if (!data.sites[category]) data.sites[category] = [];
-      data.sites[category].push({ name, icon, url, info });
-      
+      data.sites[category].push({ name, icon, url, desc, accountInfo });
+
       saveData();
       renderSites();
       renderManageLists();
-      
+
       document.getElementById('siteName').value = '';
+      document.getElementById('siteDesc').value = '';
       document.getElementById('siteIcon').value = '';
       document.getElementById('siteUrl').value = '';
-      document.getElementById('siteInfo').value = '';
+      initAccountFields();
     }
 
     function addEngine() {
