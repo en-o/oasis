@@ -206,9 +206,6 @@
 
     /* 管理按钮 */
     .manage-btn {
-      position: fixed;
-      top: 20px;
-      right: 24px;
       padding: 8px 16px;
       background: transparent;
       color: #5f6368;
@@ -221,6 +218,7 @@
       display: flex;
       align-items: center;
       gap: 6px;
+      white-space: nowrap;
     }
 
     .manage-btn:hover {
@@ -531,12 +529,12 @@
   </div>
 
   <!-- 右上角按钮组 -->
-  <div style="position: fixed; top: 20px; right: 24px; display: flex; gap: 12px; align-items: center;">
-    <button class="manage-btn" id="openModeBtn" style="padding: 8px 12px;">
+  <div style="position: fixed; top: 20px; right: 24px; display: flex; flex-direction: row; gap: 12px; align-items: center; z-index: 100;">
+    <button class="manage-btn" id="openModeBtn">
       <span id="openModeIcon">🔗</span>
       <span id="openModeText">新标签页</span>
     </button>
-    <button class="manage-btn" id="manageBtn" style="padding: 8px 16px;">
+    <button class="manage-btn" id="manageBtn">
       <span>⚙️</span>
       <span>管理</span>
     </button>

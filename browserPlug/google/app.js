@@ -669,7 +669,7 @@
         text.textContent = '新标签页';
       } else {
         icon.textContent = '📄';
-        text.textContent = '当前页';
+        text.textContent = '当前标签页';
       }
     }
 
