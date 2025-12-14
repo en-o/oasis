@@ -490,6 +490,24 @@
     .add-field-btn:hover {
       background: #f1f3f4;
     }
+
+    .edit-btn {
+      background: #fff;
+      color: #1a73e8;
+      border: 1px solid #dadce0;
+      padding: 6px 16px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 13px;
+      font-family: arial, sans-serif;
+      transition: all 0.1s;
+      margin-right: 8px;
+    }
+
+    .edit-btn:hover {
+      background: #f7fbff;
+      border-color: #1a73e8;
+    }
   </style>
 </head>
 <body>
@@ -571,7 +589,8 @@
           </div>
           <button class="add-field-btn" onclick="addAccountField()">+ 添加字段</button>
         </div>
-        <button class="btn btn-primary" onclick="addSite()">添加网站</button>
+        <button class="btn btn-primary" onclick="saveSite()" id="saveSiteBtn">添加网站</button>
+        <button class="btn btn-secondary" onclick="cancelEdit()" id="cancelEditBtn" style="display: none;">取消编辑</button>
         <div id="siteList" style="margin-top: 20px;"></div>
       </div>
 
@@ -613,6 +632,8 @@
     let data = JSON.parse(JSON.stringify(defaultData));
     let currentEngine = 'Google';
     let currentCategory = '常用';
+    let editingCategory = null;
+    let editingIndex = null;
 
     // 初始化
     function init() {
@@ -786,7 +807,10 @@
       siteList.innerHTML = sites.map((s, i) => `
         <div class="list-item">
           <span>${s.icon} ${s.name}</span>
-          <button class="delete-btn" onclick="deleteSite('${category}', ${i})">删除</button>
+          <div>
+            <button class="edit-btn" onclick="editSite('${category}', ${i})">编辑</button>
+            <button class="delete-btn" onclick="deleteSite('${category}', ${i})">删除</button>
+          </div>
         </div>
       `).join('');
 
@@ -831,6 +855,86 @@
       renderSites();
       renderManageLists();
 
+      clearSiteForm();
+    }
+
+    function saveSite() {
+      if (editingCategory !== null && editingIndex !== null) {
+        // 编辑模式
+        updateSite();
+      } else {
+        // 添加模式
+        addSite();
+      }
+    }
+
+    function editSite(category, index) {
+      const site = data.sites[category][index];
+
+      editingCategory = category;
+      editingIndex = index;
+
+      // 填充表单
+      document.getElementById('siteCategory').value = category;
+      document.getElementById('siteName').value = site.name;
+      document.getElementById('siteDesc').value = site.desc || '';
+      document.getElementById('siteIcon').value = site.icon;
+      document.getElementById('siteUrl').value = site.url;
+
+      // 填充账号信息
+      initAccountFields();
+      if (site.accountInfo && Object.keys(site.accountInfo).length > 0) {
+        Object.entries(site.accountInfo).forEach(([key, value]) => {
+          addAccountField(key, value);
+        });
+      }
+
+      // 更新按钮状态
+      document.getElementById('saveSiteBtn').textContent = '保存修改';
+      document.getElementById('cancelEditBtn').style.display = 'inline-block';
+
+      // 滚动到表单顶部
+      document.getElementById('siteManage').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    function updateSite() {
+      const category = document.getElementById('siteCategory').value;
+      const name = document.getElementById('siteName').value.trim();
+      const desc = document.getElementById('siteDesc').value.trim();
+      const icon = document.getElementById('siteIcon').value.trim() || '🌐';
+      const url = document.getElementById('siteUrl').value.trim();
+      const accountInfo = getAccountInfo();
+
+      if (!name || !url) return alert('请填写网站名称和地址');
+
+      // 如果分类改变，需要从旧分类删除并添加到新分类
+      if (category !== editingCategory) {
+        data.sites[editingCategory].splice(editingIndex, 1);
+        if (!data.sites[category]) data.sites[category] = [];
+        data.sites[category].push({ name, icon, url, desc, accountInfo });
+      } else {
+        // 同一分类，直接更新
+        data.sites[category][editingIndex] = { name, icon, url, desc, accountInfo };
+      }
+
+      saveData();
+      renderSites();
+      renderManageLists();
+
+      cancelEdit();
+    }
+
+    function cancelEdit() {
+      editingCategory = null;
+      editingIndex = null;
+
+      clearSiteForm();
+
+      document.getElementById('saveSiteBtn').textContent = '添加网站';
+      document.getElementById('cancelEditBtn').style.display = 'none';
+    }
+
+    function clearSiteForm() {
       document.getElementById('siteName').value = '';
       document.getElementById('siteDesc').value = '';
       document.getElementById('siteIcon').value = '';
