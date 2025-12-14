@@ -1,0 +1,14 @@
+{
+  "extensionName": {
+    "message": "智能导航助手 - Oasis",
+    "description": "Extension name"
+  },
+  "extensionDescription": {
+    "message": "优雅的新标签页，支持自定义搜索引擎、网站导航管理、账号信息保存。Google 风格设计，简洁高效。",
+    "description": "Extension description"
+  },
+  "extensionTitle": {
+    "message": "智能导航助手",
+    "description": "Extension title shown in browser action"
+  }
+}
