@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>智能导航助手</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 40px 20px;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    /* 搜索栏样式 */
+    .search-section {
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 16px;
+      padding: 30px;
+      margin-bottom: 30px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+    }
+
+    .search-box {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .engine-select {
+      padding: 15px 20px;
+      border: 2px solid #e0e0e0;
+      border-radius: 25px;
+      font-size: 16px;
+      outline: none;
+      background: white;
+      cursor: pointer;
+      transition: border-color 0.3s;
+      min-width: 140px;
+    }
+
+    .engine-select:focus {
+      border-color: #667eea;
+    }
+
+    .search-input {
+      flex: 1;
+      padding: 15px 20px;
+      border: 2px solid #e0e0e0;
+      border-radius: 25px;
+      font-size: 16px;
+      outline: none;
+      transition: border-color 0.3s;
+    }
+
+    .search-input:focus {
+      border-color: #667eea;
+    }
+
+    .search-btn {
+      padding: 15px 30px;
+      background: #667eea;
+      color: white;
+      border: none;
+      border-radius: 25px;
+      cursor: pointer;
+      font-size: 16px;
+      transition: background 0.3s;
+      white-space: nowrap;
+    }
+
+    .search-btn:hover {
+      background: #5568d3;
+    }
+
+    /* 分类和导航样式 */
+    .nav-section {
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 16px;
+      padding: 30px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+    }
+
+    .category-tabs {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+      border-bottom: 2px solid #e0e0e0;
+      padding-bottom: 10px;
+      flex-wrap: wrap;
+    }
+
+    .category-tab {
+      padding: 10px 20px;
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      font-size: 15px;
+      color: #666;
+      transition: all 0.3s;
+      border-radius: 8px 8px 0 0;
+    }
+
+    .category-tab.active {
+      background: #667eea;
+      color: white;
+    }
+
+    .sites-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 20px;
+      margin-top: 20px;
+    }
+
+    .site-card {
+      background: white;
+      border-radius: 12px;
+      padding: 20px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.3s;
+      border: 2px solid transparent;
+      position: relative;
+    }
+
+    .site-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+      border-color: #667eea;
+    }
+
+    .site-avatar {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      margin: 0 auto 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+    }
+
+    .site-name {
+      font-weight: 600;
+      margin-bottom: 5px;
+      color: #333;
+    }
+
+    .site-url {
+      font-size: 12px;
+      color: #999;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .site-info {
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1px solid #f0f0f0;
+      font-size: 12px;
+      color: #666;
+    }
+
+    /* 管理按钮 */
+    .manage-btn {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background: #667eea;
+      color: white;
+      border: none;
+      cursor: pointer;
+      font-size: 24px;
+      box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+      transition: all 0.3s;
+    }
+
+    .manage-btn:hover {
+      transform: scale(1.1);
+    }
+
+    /* 模态框样式 */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal.active {
+      display: flex;
+    }
+
+    .modal-content {
+      background: white;
+      border-radius: 16px;
+      padding: 30px;
+      max-width: 600px;
+      width: 90%;
+      max-height: 80vh;
+      overflow-y: auto;
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .modal-title {
+      font-size: 24px;
+      font-weight: 600;
+    }
+
+    .close-btn {
+      background: none;
+      border: none;
+      font-size: 24px;
+      cursor: pointer;
+      color: #999;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 500;
+      color: #333;
+    }
+
+    .form-input {
+      width: 100%;
+      padding: 10px 15px;
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      font-size: 14px;
+      outline: none;
+    }
+
+    .form-input:focus {
+      border-color: #667eea;
+    }
+
+    .form-textarea {
+      min-height: 100px;
+      resize: vertical;
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    .btn {
+      flex: 1;
+      padding: 12px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 16px;
+      transition: all 0.3s;
+    }
+
+    .btn-primary {
+      background: #667eea;
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: #5568d3;
+    }
+
+    .btn-secondary {
+      background: #e0e0e0;
+      color: #666;
+    }
+
+    .tab-buttons {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .tab-button {
+      flex: 1;
+      padding: 10px;
+      border: 2px solid #e0e0e0;
+      background: white;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    .tab-button.active {
+      background: #667eea;
+      color: white;
+      border-color: #667eea;
+    }
+
+    .list-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px;
+      border: 1px solid #e0e0e0;
+      border-radius: 8px;
+      margin-bottom: 10px;
+    }
+
+    .delete-btn {
+      background: #ff4757;
+      color: white;
+      border: none;
+      padding: 5px 15px;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- 搜索区域 -->
+    <div class="search-section">
+      <div class="search-box">
+        <select class="engine-select" id="engineSelect">
+          <!-- 动态生成选项 -->
+        </select>
+        <input type="text" class="search-input" id="searchInput" placeholder="输入搜索内容...">
+        <button class="search-btn" onclick="performSearch()">搜索</button>
+      </div>
+    </div>
+
+    <!-- 导航区域 -->
+    <div class="nav-section">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <div class="category-tabs" id="categoryTabs" style="margin-bottom: 0; border-bottom: none; padding-bottom: 0; flex: 1;"></div>
+        <button class="search-btn" onclick="openManageModal()" style="padding: 10px 20px; margin-left: 10px;">⚙️ 管理</button>
+      </div>
+      <div class="sites-grid" id="sitesGrid"></div>
+    </div>
+  </div>
+
+  <!-- 管理按钮 -->
+  <button class="manage-btn" onclick="openManageModal()">⚙️</button>
+
+  <!-- 管理模态框 -->
+  <div class="modal" id="manageModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 class="modal-title">管理设置</h2>
+        <button class="close-btn" onclick="closeManageModal()">×</button>
+      </div>
+
+      <div class="tab-buttons">
+        <button class="tab-button active" onclick="switchTab('category')">分类管理</button>
+        <button class="tab-button" onclick="switchTab('site')">网站管理</button>
+        <button class="tab-button" onclick="switchTab('engine')">搜索引擎</button>
+      </div>
+
+      <!-- 分类管理 -->
+      <div id="categoryManage" class="tab-content">
+        <div class="form-group">
+          <label class="form-label">分类名称</label>
+          <input type="text" class="form-input" id="categoryName">
+        </div>
+        <button class="btn btn-primary" onclick="addCategory()">添加分类</button>
+        <div id="categoryList" style="margin-top: 20px;"></div>
+      </div>
+
+      <!-- 网站管理 -->
+      <div id="siteManage" class="tab-content" style="display: none;">
+        <div class="form-group">
+          <label class="form-label">选择分类</label>
+          <select class="form-input" id="siteCategory"></select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">网站名称</label>
+          <input type="text" class="form-input" id="siteName">
+        </div>
+        <div class="form-group">
+          <label class="form-label">网站图标(emoji 或文字)</label>
+          <input type="text" class="form-input" id="siteIcon" placeholder="🌐">
+        </div>
+        <div class="form-group">
+          <label class="form-label">网站地址</label>
+          <input type="text" class="form-input" id="siteUrl" placeholder="https://example.com">
+        </div>
+        <div class="form-group">
+          <label class="form-label">账号信息(可选)</label>
+          <textarea class="form-input form-textarea" id="siteInfo" placeholder="账号: xxx&#10;密码: xxx&#10;备注: xxx"></textarea>
+        </div>
+        <button class="btn btn-primary" onclick="addSite()">添加网站</button>
+        <div id="siteList" style="margin-top: 20px;"></div>
+      </div>
+
+      <!-- 搜索引擎管理 -->
+      <div id="engineManage" class="tab-content" style="display: none;">
+        <div class="form-group">
+          <label class="form-label">引擎名称</label>
+          <input type="text" class="form-input" id="engineName">
+        </div>
+        <div class="form-group">
+          <label class="form-label">搜索URL (用 {query} 代替搜索词)</label>
+          <input type="text" class="form-input" id="engineUrl" placeholder="https://www.google.com/search?q={query}">
+        </div>
+        <button class="btn btn-primary" onclick="addEngine()">添加搜索引擎</button>
+        <div id="engineList" style="margin-top: 20px;"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // 默认数据
+    const defaultData = {
+      engines: [
+        { name: 'Google', url: 'https://www.google.com/search?q={query}' },
+        { name: 'Bing', url: 'https://www.bing.com/search?q={query}' },
+        { name: 'Baidu', url: 'https://www.baidu.com/s?wd={query}' }
+      ],
+      categories: ['常用', '工作', '娱乐'],
+      sites: {
+        '常用': [
+          { name: 'Google', icon: '🔍', url: 'https://www.google.com', info: '' },
+          { name: 'GitHub', icon: '💻', url: 'https://github.com', info: '' }
+        ],
+        '工作': [],
+        '娱乐': []
+      }
+    };
+
+    let data = JSON.parse(JSON.stringify(defaultData));
+    let currentEngine = 'Google';
+    let currentCategory = '常用';
+
+    // 初始化
+    function init() {
+      const stored = localStorage.getItem('navData');
+      if (stored) {
+        data = JSON.parse(stored);
+      } else {
+        saveData();
+      }
+      renderEngines();
+      renderCategories();
+      renderSites();
+    }
+
+    function saveData() {
+      localStorage.setItem('navData', JSON.stringify(data));
+    }
+
+    // 渲染搜索引擎
+    function renderEngines() {
+      const select = document.getElementById('engineSelect');
+      select.innerHTML = data.engines.map(e => 
+        `<option value="${e.name}" ${e.name === currentEngine ? 'selected' : ''}>${e.name}</option>`
+      ).join('');
+      
+      // 监听下拉选择变化
+      select.onchange = function() {
+        currentEngine = this.value;
+      };
+    }
+
+    function performSearch() {
+      const query = document.getElementById('searchInput').value.trim();
+      if (!query) return;
+      
+      const engine = data.engines.find(e => e.name === currentEngine);
+      if (engine) {
+        const url = engine.url.replace('{query}', encodeURIComponent(query));
+        window.location.href = url;
+      }
+    }
+
+    // 渲染分类
+    function renderCategories() {
+      const container = document.getElementById('categoryTabs');
+      container.innerHTML = data.categories.map(c => 
+        `<button class="category-tab ${c === currentCategory ? 'active' : ''}"
+                onclick="selectCategory('${c}')">${c}</button>`
+      ).join('');
+    }
+
+    function selectCategory(name) {
+      currentCategory = name;
+      renderCategories();
+      renderSites();
+    }
+
+    // 渲染网站
+    function renderSites() {
+      const container = document.getElementById('sitesGrid');
+      const sites = data.sites[currentCategory] || [];
+      
+      container.innerHTML = sites.map((site, i) => `
+        <div class="site-card" onclick="openSite('${site.url}')">
+          <div class="site-avatar">${site.icon}</div>
+          <div class="site-name">${site.name}</div>
+          <div class="site-url">${site.url}</div>
+          ${site.info ? `<div class="site-info">${site.info.replace(/\n/g, '<br>')}</div>` : ''}
+        </div>
+      `).join('');
+    }
+
+    function openSite(url) {
+      window.location.href = url;
+    }
+
+    // 模态框管理
+    function openManageModal() {
+      document.getElementById('manageModal').classList.add('active');
+      renderManageLists();
+    }
+
+    function closeManageModal() {
+      document.getElementById('manageModal').classList.remove('active');
+    }
+
+    function switchTab(tab) {
+      document.querySelectorAll('.tab-button').forEach(b => b.classList.remove('active'));
+      event.target.classList.add('active');
+      
+      document.getElementById('categoryManage').style.display = tab === 'category' ? 'block' : 'none';
+      document.getElementById('siteManage').style.display = tab === 'site' ? 'block' : 'none';
+      document.getElementById('engineManage').style.display = tab === 'engine' ? 'block' : 'none';
+    }
+
+    function renderManageLists() {
+      // 渲染分类列表
+      const categoryList = document.getElementById('categoryList');
+      categoryList.innerHTML = data.categories.map((c, i) => `
+        <div class="list-item">
+          <span>${c}</span>
+          <button class="delete-btn" onclick="deleteCategory(${i})">删除</button>
+        </div>
+      `).join('');
+
+      // 渲染网站选择分类
+      const siteCategory = document.getElementById('siteCategory');
+      siteCategory.innerHTML = data.categories.map(c => 
+        `<option value="${c}">${c}</option>`
+      ).join('');
+
+      // 渲染网站列表
+      const siteList = document.getElementById('siteList');
+      const category = siteCategory.value || data.categories[0];
+      const sites = data.sites[category] || [];
+      siteList.innerHTML = sites.map((s, i) => `
+        <div class="list-item">
+          <span>${s.icon} ${s.name}</span>
+          <button class="delete-btn" onclick="deleteSite('${category}', ${i})">删除</button>
+        </div>
+      `).join('');
+
+      // 渲染搜索引擎列表
+      const engineList = document.getElementById('engineList');
+      engineList.innerHTML = data.engines.map((e, i) => `
+        <div class="list-item">
+          <span>${e.name}</span>
+          <button class="delete-btn" onclick="deleteEngine(${i})">删除</button>
+        </div>
+      `).join('');
+    }
+
+    // 添加功能
+    function addCategory() {
+      const name = document.getElementById('categoryName').value.trim();
+      if (!name) return alert('请输入分类名称');
+      if (data.categories.includes(name)) return alert('分类已存在');
+      
+      data.categories.push(name);
+      data.sites[name] = [];
+      saveData();
+      renderCategories();
+      renderManageLists();
+      document.getElementById('categoryName').value = '';
+    }
+
+    function addSite() {
+      const category = document.getElementById('siteCategory').value;
+      const name = document.getElementById('siteName').value.trim();
+      const icon = document.getElementById('siteIcon').value.trim() || '🌐';
+      const url = document.getElementById('siteUrl').value.trim();
+      const info = document.getElementById('siteInfo').value.trim();
+      
+      if (!name || !url) return alert('请填写网站名称和地址');
+      
+      if (!data.sites[category]) data.sites[category] = [];
+      data.sites[category].push({ name, icon, url, info });
+      
+      saveData();
+      renderSites();
+      renderManageLists();
+      
+      document.getElementById('siteName').value = '';
+      document.getElementById('siteIcon').value = '';
+      document.getElementById('siteUrl').value = '';
+      document.getElementById('siteInfo').value = '';
+    }
+
+    function addEngine() {
+      const name = document.getElementById('engineName').value.trim();
+      const url = document.getElementById('engineUrl').value.trim();
+      
+      if (!name || !url) return alert('请填写引擎名称和URL');
+      if (!url.includes('{query}')) return alert('URL必须包含 {query}');
+      
+      data.engines.push({ name, url });
+      saveData();
+      renderEngines();
+      renderManageLists();
+      
+      document.getElementById('engineName').value = '';
+      document.getElementById('engineUrl').value = '';
+    }
+
+    // 删除功能
+    function deleteCategory(index) {
+      if (!confirm('确定删除此分类及其所有网站?')) return;
+      const category = data.categories[index];
+      data.categories.splice(index, 1);
+      delete data.sites[category];
+      if (currentCategory === category) {
+        currentCategory = data.categories[0];
+      }
+      saveData();
+      renderCategories();
+      renderSites();
+      renderManageLists();
+    }
+
+    function deleteSite(category, index) {
+      if (!confirm('确定删除此网站?')) return;
+      data.sites[category].splice(index, 1);
+      saveData();
+      renderSites();
+      renderManageLists();
+    }
+
+    function deleteEngine(index) {
+      if (!confirm('确定删除此搜索引擎?')) return;
+      data.engines.splice(index, 1);
+      saveData();
+      renderEngines();
+      renderManageLists();
+    }
+
+    // 回车搜索
+    document.getElementById('searchInput').addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') performSearch();
+    });
+
+    init();
+  </script>
+</body>
+</html>
