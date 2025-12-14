@@ -31,15 +31,22 @@ echo ""
 cd "$SOURCE_DIR"
 
 # 打包文件（排除不必要的文件）
-zip -r "$OUTPUT_DIR/$ZIP_NAME" . \
-  -x "*.git*" \
-  -x "*.DS_Store" \
-  -x "*Thumbs.db" \
-  -x "*.bak" \
-  -x "*~" \
-  > /dev/null
+# 使用 tar 命令，兼容性更好
+tar -a -c -f "$OUTPUT_DIR/$ZIP_NAME" \
+  --exclude=".git*" \
+  --exclude=".DS_Store" \
+  --exclude="Thumbs.db" \
+  --exclude="*.bak" \
+  --exclude="*~" \
+  *
 
-echo "✅ 打包完成！"
+if [ $? -eq 0 ]; then
+  echo "✅ 打包完成！"
+else
+  echo "❌ 打包失败"
+  echo "请手动压缩 google 文件夹中的所有文件"
+  exit 1
+fi
 echo ""
 echo "📄 输出文件: $OUTPUT_DIR/$ZIP_NAME"
 echo "📊 文件大小: $(du -h "$OUTPUT_DIR/$ZIP_NAME" | cut -f1)"

@@ -40,9 +40,17 @@ if %errorlevel% equ 0 (
     7z a -tzip "%OUTPUT_DIR%\%ZIP_NAME%" * -xr!.git* -xr!.DS_Store -xr!Thumbs.db -xr!*.bak >nul
     echo ✅ 打包完成！使用 7-Zip
 ) else (
-    REM 使用 PowerShell 打包
-    powershell -Command "Compress-Archive -Path '%SOURCE_DIR%\*' -DestinationPath '%OUTPUT_DIR%\%ZIP_NAME%' -Force"
-    echo ✅ 打包完成！使用 PowerShell
+    REM 使用 Windows 内置压缩（通过 tar 命令，Windows 10+）
+    cd /d "%SOURCE_DIR%"
+    tar -a -c -f "%OUTPUT_DIR%\%ZIP_NAME%" *
+    if %errorlevel% equ 0 (
+        echo ✅ 打包完成！使用 Windows tar
+    ) else (
+        echo ❌ 打包失败
+        echo 请手动压缩 google 文件夹中的所有文件
+        pause
+        exit /b 1
+    )
 )
 
 echo.
