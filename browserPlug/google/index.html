@@ -530,11 +530,17 @@
     </div>
   </div>
 
-  <!-- 管理按钮 -->
-  <button class="manage-btn" id="manageBtn">
-    <span>⚙️</span>
-    <span>管理</span>
-  </button>
+  <!-- 右上角按钮组 -->
+  <div style="position: fixed; top: 20px; right: 24px; display: flex; gap: 12px; align-items: center;">
+    <button class="manage-btn" id="openModeBtn" style="padding: 8px 12px;">
+      <span id="openModeIcon">🔗</span>
+      <span id="openModeText">新标签页</span>
+    </button>
+    <button class="manage-btn" id="manageBtn" style="padding: 8px 16px;">
+      <span>⚙️</span>
+      <span>管理</span>
+    </button>
+  </div>
 
   <!-- 管理模态框 -->
   <div class="modal" id="manageModal">

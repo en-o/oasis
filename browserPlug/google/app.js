@@ -21,10 +21,12 @@
     let currentCategory = '常用';
     let editingCategory = null;
     let editingIndex = null;
+    let openInNewTab = true; // 默认新标签页打开
 
     // 初始化
     async function init() {
       await loadData();
+      loadOpenMode(); // 加载打开模式设置
       renderEngines();
       renderCategories();
       renderSites();
@@ -132,14 +134,7 @@
       const engine = data.engines.find(e => e.name === currentEngine);
       if (engine) {
         const url = engine.url.replace('{query}', encodeURIComponent(query));
-
-        // 尝试使用 Chrome API 在当前标签页打开
-        if (typeof chrome !== 'undefined' && chrome.tabs && chrome.tabs.update) {
-          chrome.tabs.update({ url: url });
-        } else {
-          // 降级方案
-          window.location.href = url;
-        }
+        openSite(url);
       }
     }
 
@@ -194,12 +189,20 @@
     }
 
     function openSite(url) {
-      // 尝试使用 Chrome API 在当前标签页打开
-      if (typeof chrome !== 'undefined' && chrome.tabs && chrome.tabs.update) {
-        chrome.tabs.update({ url: url });
+      if (openInNewTab) {
+        // 新标签页打开
+        if (typeof chrome !== 'undefined' && chrome.tabs && chrome.tabs.create) {
+          chrome.tabs.create({ url: url });
+        } else {
+          window.open(url, '_blank');
+        }
       } else {
-        // 降级方案
-        window.location.href = url;
+        // 当前标签页打开
+        if (typeof chrome !== 'undefined' && chrome.tabs && chrome.tabs.update) {
+          chrome.tabs.update({ url: url });
+        } else {
+          window.location.href = url;
+        }
       }
     }
 
@@ -639,10 +642,44 @@
       }
     }
 
+    // 切换打开模式
+    function toggleOpenMode() {
+      openInNewTab = !openInNewTab;
+      saveOpenMode();
+      updateOpenModeUI();
+    }
+
+    function saveOpenMode() {
+      localStorage.setItem('openInNewTab', JSON.stringify(openInNewTab));
+    }
+
+    function loadOpenMode() {
+      const saved = localStorage.getItem('openInNewTab');
+      if (saved !== null) {
+        openInNewTab = JSON.parse(saved);
+      }
+      updateOpenModeUI();
+    }
+
+    function updateOpenModeUI() {
+      const icon = document.getElementById('openModeIcon');
+      const text = document.getElementById('openModeText');
+      if (openInNewTab) {
+        icon.textContent = '🔗';
+        text.textContent = '新标签页';
+      } else {
+        icon.textContent = '📄';
+        text.textContent = '当前页';
+      }
+    }
+
     // 绑定所有事件监听器
     function bindEventListeners() {
       // 搜索按钮
       document.getElementById('searchBtn').addEventListener('click', performSearch);
+
+      // 打开模式切换
+      document.getElementById('openModeBtn').addEventListener('click', toggleOpenMode);
 
       // 管理按钮
       document.getElementById('manageBtn').addEventListener('click', openManageModal);
