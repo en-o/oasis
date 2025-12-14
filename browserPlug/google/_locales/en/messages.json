@@ -1,0 +1,14 @@
+{
+  "extensionName": {
+    "message": "Smart Navigation - Oasis",
+    "description": "Extension name"
+  },
+  "extensionDescription": {
+    "message": "Elegant new tab page with custom search engines, website navigation, and account management. Google-inspired design, clean and efficient.",
+    "description": "Extension description"
+  },
+  "extensionTitle": {
+    "message": "Smart Navigation",
+    "description": "Extension title shown in browser action"
+  }
+}
