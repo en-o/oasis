@@ -2,11 +2,11 @@
 chcp 65001 >nul
 setlocal enabledelayedexpansion
 
-REM 智能导航助手 - 打包脚本 (Windows)
+REM 导航助手 - 打包脚本 (Windows)
 REM 用于打包 Chrome/Edge 扩展
 
 echo ========================================
-echo   智能导航助手 - 扩展打包工具
+echo   导航助手 - 扩展打包工具
 echo ========================================
 echo.
 

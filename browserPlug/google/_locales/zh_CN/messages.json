@@ -1,6 +1,6 @@
 {
   "extensionName": {
-    "message": "智能导航助手(Oasis)",
+    "message": "导航助手(Oasis)",
     "description": "Extension name"
   },
   "extensionDescription": {
@@ -8,7 +8,7 @@
     "description": "Extension description"
   },
   "extensionTitle": {
-    "message": "智能导航助手",
+    "message": "导航助手",
     "description": "Extension title shown in browser action"
   },
   "tabsPermissionReason": {
