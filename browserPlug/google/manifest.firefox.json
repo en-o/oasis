@@ -17,7 +17,10 @@
   "browser_specific_settings": {
     "gecko": {
       "id": "oasis-navigation@tannn.cn",
-      "strict_min_version": "78.0"
+      "strict_min_version": "78.0",
+      "data_collection_permissions": {
+        "required": []
+      }
     }
   },
   "chrome_url_overrides": {
