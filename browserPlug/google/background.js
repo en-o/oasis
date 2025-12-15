@@ -66,3 +66,33 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
     });
   }
 });
+
+// 监听来自页面的下载请求（用于百度网盘同步，绕过CORS限制）
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+  if (request.action === 'downloadFile') {
+    console.log('收到下载请求:', request.url);
+
+    // 在后台脚本中下载文件，不受CORS限制
+    fetch(request.url, {
+      method: 'GET',
+      credentials: 'include'
+    })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error(`下载失败: HTTP ${response.status}`);
+        }
+        return response.text();
+      })
+      .then(content => {
+        console.log('下载成功，文件大小:', content.length);
+        sendResponse({ success: true, content: content });
+      })
+      .catch(error => {
+        console.error('下载失败:', error);
+        sendResponse({ success: false, error: error.message });
+      });
+
+    // 返回true表示异步响应
+    return true;
+  }
+});

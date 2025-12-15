@@ -946,24 +946,33 @@
 
         console.log('找到备份文件:', backupFile);
 
-        // 第二步：使用PCS API下载文件内容
+        // 第二步：使用后台脚本下载文件内容（绕过CORS限制）
         const downloadUrl = `${BAIDU_PCS_URL}/rest/2.0/pcs/file?method=download&app_id=250528&clienttype=0&web=1&path=${encodeURIComponent(BAIDU_BACKUP_PATH)}`;
 
-        const downloadResponse = await fetch(downloadUrl, {
-          method: 'GET',
-          credentials: 'include'
+        console.log('发送下载请求到后台脚本...');
+
+        // 通过chrome.runtime.sendMessage发送到background.js
+        const downloadResult = await new Promise((resolve, reject) => {
+          chrome.runtime.sendMessage({
+            action: 'downloadFile',
+            url: downloadUrl
+          }, (response) => {
+            if (chrome.runtime.lastError) {
+              reject(new Error(chrome.runtime.lastError.message));
+            } else {
+              resolve(response);
+            }
+          });
         });
 
-        if (!downloadResponse.ok) {
-          throw new Error(`下载失败: HTTP ${downloadResponse.status}`);
+        if (!downloadResult.success) {
+          throw new Error(downloadResult.error || '下载失败');
         }
 
-        // 获取文件内容（文本格式）
-        const fileContent = await downloadResponse.text();
-        console.log('下载的文件内容:', fileContent);
+        console.log('下载成功，文件大小:', downloadResult.content.length);
 
         // 解析JSON数据
-        const downloadedData = JSON.parse(fileContent);
+        const downloadedData = JSON.parse(downloadResult.content);
         console.log('解析后的数据:', downloadedData);
 
         // 验证数据格式
