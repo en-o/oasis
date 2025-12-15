@@ -217,6 +217,11 @@
     // 模态框管理
     function openManageModal() {
       document.getElementById('manageModal').classList.add('active');
+      // 重置分类选择框，确保使用当前主界面的分类
+      const siteCategory = document.getElementById('siteCategory');
+      if (siteCategory) {
+        siteCategory.value = '';
+      }
       renderManageLists();
     }
 
