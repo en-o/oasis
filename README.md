@@ -103,3 +103,14 @@ docker run -d \
   --restart unless-stopped \
   tannnn/oasis:latest
 ```
+
+
+
+# [浏览器插件](browserPlug/README.md)
+> browserPlug 更当前的项目关系不大，一个纯html的浏览器导航插件
+> ![img.png](browserPlug/image/img.png)
+
+1. 我发布了 火狐和edge 还在审核中， 名字叫：导航助手(Oasis)
+2. 压缩包安装：
+- 打开 `edge://extensions/` `chrome://extensions/` `about:debugging#/runtime/this-firefox`
+- 将[dist](browserPlug/dist)下的压缩包拉进去就好了
