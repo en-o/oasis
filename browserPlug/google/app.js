@@ -604,6 +604,63 @@
 
     // 数据同步功能
 
+    // 统一的数据合并函数 - 只添加新数据，不覆盖现有数据
+    function mergeData(importedData) {
+      // 验证数据格式
+      if (!importedData.engines || !importedData.categories || !importedData.sites) {
+        throw new Error('数据格式不正确');
+      }
+
+      let mergeReport = {
+        engines: { added: 0, skipped: 0 },
+        categories: { added: 0, skipped: 0 },
+        sites: { added: 0, skipped: 0 }
+      };
+
+      // 1. 合并搜索引擎 - 根据名称判断是否已存在
+      importedData.engines.forEach(engine => {
+        const exists = data.engines.some(e => e.name === engine.name);
+        if (!exists) {
+          data.engines.push(engine);
+          mergeReport.engines.added++;
+        } else {
+          mergeReport.engines.skipped++;
+        }
+      });
+
+      // 2. 合并分类 - 只添加新分类
+      importedData.categories.forEach(category => {
+        if (!data.categories.includes(category)) {
+          data.categories.push(category);
+          data.sites[category] = [];
+          mergeReport.categories.added++;
+        } else {
+          mergeReport.categories.skipped++;
+        }
+      });
+
+      // 3. 合并网站 - 在每个分类下，根据URL判断是否已存在
+      Object.keys(importedData.sites).forEach(category => {
+        // 确保分类存在
+        if (!data.sites[category]) {
+          data.sites[category] = [];
+        }
+
+        importedData.sites[category].forEach(site => {
+          // 根据URL判断网站是否已存在
+          const exists = data.sites[category].some(s => s.url === site.url);
+          if (!exists) {
+            data.sites[category].push(site);
+            mergeReport.sites.added++;
+          } else {
+            mergeReport.sites.skipped++;
+          }
+        });
+      });
+
+      return mergeReport;
+    }
+
     // 导出数据
     function exportData() {
       try {
@@ -638,19 +695,42 @@
             throw new Error('数据格式不正确');
           }
 
-          if (!confirm('导入数据将覆盖当前所有设置，是否继续？')) {
-            event.target.value = '';
-            return;
+          // 询问用户是合并还是覆盖
+          const message = '请选择导入方式：\n\n' +
+            '【确定】= 合并数据（只添加新内容，保留现有数据）\n' +
+            '【取消】= 完全覆盖（删除现有数据，使用导入的数据替换）\n\n' +
+            '⚠️ 建议选择"合并数据"以避免数据丢失';
+
+          const shouldMerge = confirm(message);
+
+          if (shouldMerge) {
+            // 合并模式
+            const mergeReport = mergeData(importedData);
+            await saveData();
+            renderEngines();
+            renderCategories();
+            renderSites();
+            renderManageLists();
+
+            const reportMessage = '✅ 数据合并成功！\n\n' +
+              `✨ 新增搜索引擎: ${mergeReport.engines.added} 个 (跳过重复: ${mergeReport.engines.skipped})\n` +
+              `📁 新增分类: ${mergeReport.categories.added} 个 (跳过重复: ${mergeReport.categories.skipped})\n` +
+              `🌐 新增网站: ${mergeReport.sites.added} 个 (跳过重复: ${mergeReport.sites.skipped})`;
+
+            alert(reportMessage);
+          } else {
+            // 覆盖模式 - 二次确认
+            if (confirm('⚠️ 警告：此操作将删除所有现有数据！\n\n确定要完全覆盖吗？')) {
+              data = importedData;
+              await saveData();
+              renderEngines();
+              renderCategories();
+              renderSites();
+              renderManageLists();
+
+              alert('✅ 数据已完全覆盖导入！');
+            }
           }
-
-          data = importedData;
-          await saveData();
-          renderEngines();
-          renderCategories();
-          renderSites();
-          renderManageLists();
-
-          alert('✅ 数据导入成功！');
         } catch (error) {
           console.error('导入失败:', error);
           alert('❌ 数据导入失败，请确保文件格式正确');
@@ -857,6 +937,21 @@
         return;
       }
 
+      // 备份前的详细警告
+      const warningMessage = '⚠️ 重要提示：备份到百度网盘\n\n' +
+        '📤 此操作将把【当前浏览器】的数据上传到百度网盘，并【覆盖】云端已有的备份文件。\n\n' +
+        '✅ 请确认：\n' +
+        '1. 当前浏览器的数据是最新的\n' +
+        '2. 您希望用当前数据覆盖云端备份\n\n' +
+        '💡 如果您不确定哪边数据更新，建议：\n' +
+        '• 先点击"从百度网盘恢复"查看云端数据\n' +
+        '• 或先"导出数据"到本地作为额外备份\n\n' +
+        '确定要继续备份吗？';
+
+      if (!confirm(warningMessage)) {
+        return;
+      }
+
       updateBaiduStatus('正在备份到百度网盘...');
 
       try {
@@ -908,8 +1003,20 @@
         return;
       }
 
-      if (!confirm('从百度网盘恢复数据将覆盖当前所有设置，是否继续？')) {
-        return;
+      // 询问用户是合并还是覆盖
+      const message = '📥 从百度网盘恢复数据\n\n' +
+        '请选择恢复方式：\n\n' +
+        '【确定】= 合并数据（只添加新内容，保留现有数据）\n' +
+        '【取消】= 完全覆盖（删除现有数据，使用云端数据替换）\n\n' +
+        '⚠️ 建议选择"合并数据"以避免数据丢失';
+
+      const shouldMerge = confirm(message);
+
+      if (!shouldMerge) {
+        // 覆盖模式需要二次确认
+        if (!confirm('⚠️ 警告：此操作将删除所有现有数据！\n\n确定要完全覆盖吗？')) {
+          return;
+        }
       }
 
       updateBaiduStatus('正在从百度网盘恢复...');
@@ -980,17 +1087,37 @@
           throw new Error('备份数据格式不正确');
         }
 
-        // 恢复数据
-        data = downloadedData;
-        await saveData();
+        // 根据用户选择的模式处理数据
+        if (shouldMerge) {
+          // 合并模式
+          const mergeReport = mergeData(downloadedData);
+          await saveData();
 
-        renderEngines();
-        renderCategories();
-        renderSites();
-        renderManageLists();
+          renderEngines();
+          renderCategories();
+          renderSites();
+          renderManageLists();
 
-        updateBaiduStatus('✅ 恢复成功 - ' + new Date().toLocaleString());
-        alert('✅ 数据已成功从百度网盘恢复！');
+          const reportMessage = '✅ 数据从百度网盘合并成功！\n\n' +
+            `✨ 新增搜索引擎: ${mergeReport.engines.added} 个 (跳过重复: ${mergeReport.engines.skipped})\n` +
+            `📁 新增分类: ${mergeReport.categories.added} 个 (跳过重复: ${mergeReport.categories.skipped})\n` +
+            `🌐 新增网站: ${mergeReport.sites.added} 个 (跳过重复: ${mergeReport.sites.skipped})`;
+
+          updateBaiduStatus('✅ 合并成功 - ' + new Date().toLocaleString());
+          alert(reportMessage);
+        } else {
+          // 覆盖模式
+          data = downloadedData;
+          await saveData();
+
+          renderEngines();
+          renderCategories();
+          renderSites();
+          renderManageLists();
+
+          updateBaiduStatus('✅ 恢复成功 - ' + new Date().toLocaleString());
+          alert('✅ 数据已从百度网盘完全覆盖恢复！');
+        }
       } catch (error) {
         console.error('百度网盘恢复失败:', error);
         updateBaiduStatus('❌ 恢复失败');
