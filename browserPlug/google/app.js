@@ -170,9 +170,17 @@
           ? `<div class="site-info">${Object.entries(site.accountInfo).map(([k, v]) => `${k}: ${v}`).join('<br>')}</div>`
           : '';
 
+        // 根据图标类型渲染不同的内容
+        let iconHtml = '';
+        if (site.iconType === 'url' && site.iconUrl) {
+          iconHtml = `<img src="${site.iconUrl}" alt="${site.name}" onerror="this.style.display='none'; this.parentElement.textContent='🌐';">`;
+        } else {
+          iconHtml = site.icon || '🌐';
+        }
+
         return `
           <div class="site-card" data-url="${site.url}">
-            <div class="site-avatar">${site.icon}</div>
+            <div class="site-avatar">${iconHtml}</div>
             <div class="site-name">${site.name}</div>
             ${site.desc ? `<div class="site-url">${site.desc}</div>` : ''}
             ${accountInfoHtml}
@@ -335,15 +343,25 @@
       const siteList = document.getElementById('siteList');
       const category = siteCategory.value || data.categories[0];
       const sites = data.sites[category] || [];
-      siteList.innerHTML = sites.map((s, i) => `
-        <div class="list-item">
-          <span>${s.icon} ${s.name}</span>
-          <div>
-            <button class="edit-btn" data-action="edit-site" data-category="${category}" data-index="${i}">编辑</button>
-            <button class="delete-btn" data-action="delete-site" data-category="${category}" data-index="${i}">删除</button>
+      siteList.innerHTML = sites.map((s, i) => {
+        // 根据图标类型显示不同的图标
+        let iconDisplay = '';
+        if (s.iconType === 'url' && s.iconUrl) {
+          iconDisplay = `<img src="${s.iconUrl}" alt="${s.name}" style="width: 20px; height: 20px; vertical-align: middle; margin-right: 8px; border-radius: 4px;" onerror="this.style.display='none';">`;
+        } else {
+          iconDisplay = `<span style="margin-right: 8px;">${s.icon || '🌐'}</span>`;
+        }
+
+        return `
+          <div class="list-item">
+            <span>${iconDisplay}${s.name}</span>
+            <div>
+              <button class="edit-btn" data-action="edit-site" data-category="${category}" data-index="${i}">编辑</button>
+              <button class="delete-btn" data-action="delete-site" data-category="${category}" data-index="${i}">删除</button>
+            </div>
           </div>
-        </div>
-      `).join('');
+        `;
+      }).join('');
     }
 
     function handleManageAction(e) {
@@ -386,14 +404,19 @@
       const category = document.getElementById('siteCategory').value;
       const name = document.getElementById('siteName').value.trim();
       const desc = document.getElementById('siteDesc').value.trim();
-      const icon = document.getElementById('siteIcon').value.trim() || '🌐';
       const url = document.getElementById('siteUrl').value.trim();
       const accountInfo = getAccountInfo();
 
+      // 获取图标类型
+      const iconType = document.querySelector('input[name="iconType"]:checked').value;
+      const icon = iconType === 'text' ? (document.getElementById('siteIcon').value.trim() || '🌐') : '🌐';
+      const iconUrl = iconType === 'url' ? document.getElementById('siteIconUrl').value.trim() : '';
+
       if (!name || !url) return alert('请填写网站名称和地址');
+      if (iconType === 'url' && !iconUrl) return alert('请填写图标地址');
 
       if (!data.sites[category]) data.sites[category] = [];
-      data.sites[category].push({ name, icon, url, desc, accountInfo });
+      data.sites[category].push({ name, icon, iconType, iconUrl, url, desc, accountInfo });
 
       saveData();
       renderSites();
@@ -422,8 +445,21 @@
       document.getElementById('siteCategory').value = category;
       document.getElementById('siteName').value = site.name;
       document.getElementById('siteDesc').value = site.desc || '';
-      document.getElementById('siteIcon').value = site.icon;
       document.getElementById('siteUrl').value = site.url;
+
+      // 填充图标信息
+      const iconType = site.iconType || 'text';
+      if (iconType === 'url') {
+        document.getElementById('iconTypeUrl').checked = true;
+        document.getElementById('siteIconUrl').value = site.iconUrl || '';
+        document.getElementById('siteIcon').value = '';
+        toggleIconInputs();
+      } else {
+        document.getElementById('iconTypeText').checked = true;
+        document.getElementById('siteIcon').value = site.icon || '';
+        document.getElementById('siteIconUrl').value = '';
+        toggleIconInputs();
+      }
 
       // 填充账号信息
       initAccountFields();
@@ -445,20 +481,25 @@
       const category = document.getElementById('siteCategory').value;
       const name = document.getElementById('siteName').value.trim();
       const desc = document.getElementById('siteDesc').value.trim();
-      const icon = document.getElementById('siteIcon').value.trim() || '🌐';
       const url = document.getElementById('siteUrl').value.trim();
       const accountInfo = getAccountInfo();
 
+      // 获取图标类型
+      const iconType = document.querySelector('input[name="iconType"]:checked').value;
+      const icon = iconType === 'text' ? (document.getElementById('siteIcon').value.trim() || '🌐') : '🌐';
+      const iconUrl = iconType === 'url' ? document.getElementById('siteIconUrl').value.trim() : '';
+
       if (!name || !url) return alert('请填写网站名称和地址');
+      if (iconType === 'url' && !iconUrl) return alert('请填写图标地址');
 
       // 如果分类改变，需要从旧分类删除并添加到新分类
       if (category !== editingCategory) {
         data.sites[editingCategory].splice(editingIndex, 1);
         if (!data.sites[category]) data.sites[category] = [];
-        data.sites[category].push({ name, icon, url, desc, accountInfo });
+        data.sites[category].push({ name, icon, iconType, iconUrl, url, desc, accountInfo });
       } else {
         // 同一分类，直接更新
-        data.sites[category][editingIndex] = { name, icon, url, desc, accountInfo };
+        data.sites[category][editingIndex] = { name, icon, iconType, iconUrl, url, desc, accountInfo };
       }
 
       saveData();
@@ -482,8 +523,29 @@
       document.getElementById('siteName').value = '';
       document.getElementById('siteDesc').value = '';
       document.getElementById('siteIcon').value = '';
+      document.getElementById('siteIconUrl').value = '';
       document.getElementById('siteUrl').value = '';
+      document.getElementById('iconTypeText').checked = true;
+      toggleIconInputs();
       initAccountFields();
+    }
+
+    // 切换图标输入框显示
+    function toggleIconInputs() {
+      const iconType = document.querySelector('input[name="iconType"]:checked').value;
+      const siteIcon = document.getElementById('siteIcon');
+      const siteIconUrl = document.getElementById('siteIconUrl');
+      const iconTypeHint = document.getElementById('iconTypeHint');
+
+      if (iconType === 'url') {
+        siteIcon.style.display = 'none';
+        siteIconUrl.style.display = 'block';
+        iconTypeHint.textContent = '输入图标的完整URL地址（如 https://example.com/favicon.ico）';
+      } else {
+        siteIcon.style.display = 'block';
+        siteIconUrl.style.display = 'none';
+        iconTypeHint.textContent = '输入表情符号或1-2个文字作为图标';
+      }
     }
 
     function addEngine() {
@@ -715,6 +777,11 @@
       document.getElementById('saveSiteBtn').addEventListener('click', saveSite);
       document.getElementById('cancelEditBtn').addEventListener('click', cancelEdit);
 
+      // 图标类型切换
+      document.querySelectorAll('input[name="iconType"]').forEach(radio => {
+        radio.addEventListener('change', toggleIconInputs);
+      });
+
       // 搜索引擎管理
       document.getElementById('addEngineBtn').addEventListener('click', addEngine);
 
@@ -761,7 +828,7 @@
           openManageModal();
           setTimeout(() => {
             switchTab('site');
-            preFillSiteForm(request.url, request.name);
+            preFillSiteForm(request.url, request.name, request.faviconUrl);
           }, 50);
           sendResponse({ success: true });
         }
@@ -786,7 +853,7 @@
               openManageModal();
               setTimeout(() => {
                 switchTab('site');
-                preFillSiteForm(pending.url, pending.name);
+                preFillSiteForm(pending.url, pending.name, pending.faviconUrl);
               }, 50);
             }
             // 清除已处理的数据
@@ -799,15 +866,28 @@
     }
 
     // 预填网站表单
-    function preFillSiteForm(url, name) {
+    function preFillSiteForm(url, name, faviconUrl) {
       // 使用 setTimeout 确保 DOM 已更新
       setTimeout(() => {
         // 确保在网站管理标签
         document.getElementById('siteName').value = name;
         document.getElementById('siteUrl').value = url;
-        // 清空其他字段
         document.getElementById('siteDesc').value = name;
-        document.getElementById('siteIcon').value = '🌐';
+
+        // 处理图标
+        if (faviconUrl && faviconUrl.trim()) {
+          // 如果有 favicon URL，使用在线图标模式
+          document.getElementById('iconTypeUrl').checked = true;
+          document.getElementById('siteIconUrl').value = faviconUrl;
+          document.getElementById('siteIcon').value = '';
+          toggleIconInputs();
+        } else {
+          // 否则使用默认文字图标
+          document.getElementById('iconTypeText').checked = true;
+          document.getElementById('siteIcon').value = '🌐';
+          document.getElementById('siteIconUrl').value = '';
+          toggleIconInputs();
+        }
 
         // 清空编辑状态
         editingCategory = null;
@@ -818,6 +898,6 @@
         // 滚动到表单顶部
         document.getElementById('siteManage').scrollIntoView({ behavior: 'smooth', block: 'start' });
 
-        console.log('✅ 已预填网站信息:', name, url);
+        console.log('✅ 已预填网站信息:', name, url, faviconUrl);
       }, 100);
     }
