@@ -9,7 +9,10 @@
   "permissions": [
     "storage",
     "tabs",
-    "contextMenus"
+    "contextMenus",
+    "cookies",
+    "https://pan.baidu.com/*",
+    "https://c2.pcs.baidu.com/*"
   ],
   "background": {
     "scripts": ["background.js"]

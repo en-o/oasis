@@ -248,9 +248,10 @@
         initAccountFields();
       }
 
-      // 切换到数据同步时，更新存储信息
+      // 切换到数据同步时，更新存储信息和百度网盘状态
       if (tab === 'sync') {
         updateStorageInfo();
+        loadBaiduStatus();
       }
     }
 
@@ -725,6 +726,269 @@
       }
     }
 
+
+    // 百度网盘同步功能（基于Cookie）
+    const BAIDU_BACKUP_FILENAME = 'oasis-navigation-backup.json';
+    const BAIDU_BACKUP_PATH = '/apps/oasis-nav/' + BAIDU_BACKUP_FILENAME;
+    const BAIDU_PCS_URL = 'https://c2.pcs.baidu.com';
+
+    // 登录百度网盘并获取Cookie
+    async function loginBaidu() {
+      updateBaiduStatus('正在打开百度网盘登录页面...');
+
+      try {
+        // 打开百度网盘登录页面
+        const loginUrl = 'https://pan.baidu.com';
+        const width = 800;
+        const height = 700;
+        const left = (screen.width - width) / 2;
+        const top = (screen.height - height) / 2;
+
+        const loginWindow = window.open(
+          loginUrl,
+          '百度网盘登录',
+          `width=${width},height=${height},left=${left},top=${top}`
+        );
+
+        if (!loginWindow) {
+          updateBaiduStatus('❌ 无法打开登录窗口');
+          alert('❌ 请允许弹出窗口以完成登录');
+          return;
+        }
+
+        updateBaiduStatus('请在弹出窗口中登录百度网盘...');
+
+        // 持续检测登录状态
+        const checkInterval = setInterval(async () => {
+          // 如果窗口被关闭，停止检测
+          if (loginWindow.closed) {
+            clearInterval(checkInterval);
+            // 最后检查一次登录状态
+            await checkBaiduLogin(false);
+            return;
+          }
+
+          // 检查是否已经登录成功
+          const isLoggedIn = await checkBaiduLogin(true);
+          if (isLoggedIn) {
+            clearInterval(checkInterval);
+            // 自动关闭登录窗口
+            loginWindow.close();
+            updateBaiduStatus('✅ 已登录');
+            alert('✅ 百度网盘登录成功！');
+          }
+        }, 2000); // 每2秒检测一次
+
+      } catch (error) {
+        console.error('打开登录窗口失败:', error);
+        updateBaiduStatus('❌ 登录失败');
+        alert('❌ 登录失败：' + error.message);
+      }
+    }
+
+    // 检查百度网盘登录状态
+    async function checkBaiduLogin(silent = false) {
+      try {
+        if (typeof chrome !== 'undefined' && chrome.cookies) {
+          // 获取百度网盘的关键Cookie（BDUSS）
+          const bduss = await new Promise((resolve) => {
+            chrome.cookies.get({
+              url: 'https://pan.baidu.com',
+              name: 'BDUSS'
+            }, (cookie) => {
+              resolve(cookie ? cookie.value : null);
+            });
+          });
+
+          if (bduss) {
+            // 保存Cookie标记
+            localStorage.setItem('baiduLoggedIn', 'true');
+            if (!silent) {
+              updateBaiduStatus('✅ 已登录');
+              alert('✅ 百度网盘登录成功！');
+            }
+            return true;
+          } else {
+            if (!silent) {
+              updateBaiduStatus('❌ 未检测到登录信息');
+              alert('❌ 未检测到登录信息，请确保已成功登录百度网盘');
+            }
+            return false;
+          }
+        } else {
+          if (!silent) {
+            updateBaiduStatus('❌ 浏览器不支持Cookie访问');
+            alert('❌ 当前浏览器不支持Cookie访问功能');
+          }
+          return false;
+        }
+      } catch (error) {
+        console.error('检查登录状态失败:', error);
+        if (!silent) {
+          updateBaiduStatus('❌ 检查登录失败');
+        }
+        return false;
+      }
+    }
+
+    // 加载百度网盘登录状态
+    function loadBaiduStatus() {
+      const loggedIn = localStorage.getItem('baiduLoggedIn');
+      if (loggedIn === 'true') {
+        updateBaiduStatus('✅ 已登录');
+      } else {
+        updateBaiduStatus('未登录');
+      }
+    }
+
+    // 更新百度网盘状态显示
+    function updateBaiduStatus(status) {
+      const statusEl = document.getElementById('baiduSyncStatus');
+      if (statusEl) {
+        statusEl.textContent = status;
+      }
+    }
+
+    // 备份到百度网盘
+    async function syncToBaidu() {
+      const loggedIn = localStorage.getItem('baiduLoggedIn');
+      if (loggedIn !== 'true') {
+        alert('❌ 请先登录百度网盘');
+        return;
+      }
+
+      updateBaiduStatus('正在备份到百度网盘...');
+
+      try {
+        // 准备上传的数据
+        const dataStr = JSON.stringify(data, null, 2);
+        const blob = new Blob([dataStr], { type: 'application/json' });
+
+        // 使用FormData上传
+        const formData = new FormData();
+        formData.append('file', blob, BAIDU_BACKUP_FILENAME);
+
+        // 构造上传URL - 使用百度PCS简单上传接口
+        const uploadUrl = `${BAIDU_PCS_URL}/rest/2.0/pcs/file?method=upload&app_id=250528&channel=chunlei&clienttype=0&web=1&path=${encodeURIComponent(BAIDU_BACKUP_PATH)}&ondup=overwrite`;
+
+        const response = await fetch(uploadUrl, {
+          method: 'POST',
+          body: formData,
+          credentials: 'include' // 包含Cookie
+        });
+
+        if (!response.ok) {
+          const errorText = await response.text();
+          console.error('上传失败响应:', errorText);
+          throw new Error(`上传失败: HTTP ${response.status}`);
+        }
+
+        const result = await response.json();
+        console.log('上传响应:', result);
+
+        // 百度PCS API 成功时 返回path等信息
+        if (result.path || result.error_code === 0 || response.ok) {
+          updateBaiduStatus('✅ 备份成功 - ' + new Date().toLocaleString());
+          alert('✅ 数据已成功备份到百度网盘！');
+        } else {
+          throw new Error(result.error_msg || result.errmsg || '上传失败');
+        }
+      } catch (error) {
+        console.error('百度网盘备份失败:', error);
+        updateBaiduStatus('❌ 备份失败');
+        alert('❌ 备份失败：' + error.message + '\n\n请确保已登录百度网盘，或重新登录后再试');
+      }
+    }
+
+    // 从百度网盘恢复
+    async function syncFromBaidu() {
+      const loggedIn = localStorage.getItem('baiduLoggedIn');
+      if (loggedIn !== 'true') {
+        alert('❌ 请先登录百度网盘');
+        return;
+      }
+
+      if (!confirm('从百度网盘恢复数据将覆盖当前所有设置，是否继续？')) {
+        return;
+      }
+
+      updateBaiduStatus('正在从百度网盘恢复...');
+
+      try {
+        // 第一步：获取文件列表，得到文件的fs_id
+        const listUrl = `https://pan.baidu.com/api/list?app_id=250528&clienttype=0&web=1&dir=${encodeURIComponent('/apps/oasis-nav')}&num=100&order=name`;
+
+        const listResponse = await fetch(listUrl, {
+          method: 'GET',
+          credentials: 'include'
+        });
+
+        if (!listResponse.ok) {
+          throw new Error(`获取文件列表失败: HTTP ${listResponse.status}`);
+        }
+
+        const listResult = await listResponse.json();
+        console.log('文件列表响应:', listResult);
+
+        if (listResult.errno !== 0) {
+          throw new Error(listResult.errmsg || '获取文件列表失败');
+        }
+
+        // 查找备份文件
+        const backupFile = listResult.list?.find(file =>
+          file.server_filename === BAIDU_BACKUP_FILENAME ||
+          file.path === BAIDU_BACKUP_PATH
+        );
+
+        if (!backupFile) {
+          throw new Error('未找到备份文件，请先备份数据到百度网盘');
+        }
+
+        console.log('找到备份文件:', backupFile);
+
+        // 第二步：使用PCS API下载文件内容
+        const downloadUrl = `${BAIDU_PCS_URL}/rest/2.0/pcs/file?method=download&app_id=250528&clienttype=0&web=1&path=${encodeURIComponent(BAIDU_BACKUP_PATH)}`;
+
+        const downloadResponse = await fetch(downloadUrl, {
+          method: 'GET',
+          credentials: 'include'
+        });
+
+        if (!downloadResponse.ok) {
+          throw new Error(`下载失败: HTTP ${downloadResponse.status}`);
+        }
+
+        // 获取文件内容（文本格式）
+        const fileContent = await downloadResponse.text();
+        console.log('下载的文件内容:', fileContent);
+
+        // 解析JSON数据
+        const downloadedData = JSON.parse(fileContent);
+        console.log('解析后的数据:', downloadedData);
+
+        // 验证数据格式
+        if (!downloadedData.engines || !downloadedData.categories || !downloadedData.sites) {
+          throw new Error('备份数据格式不正确');
+        }
+
+        // 恢复数据
+        data = downloadedData;
+        await saveData();
+
+        renderEngines();
+        renderCategories();
+        renderSites();
+        renderManageLists();
+
+        updateBaiduStatus('✅ 恢复成功 - ' + new Date().toLocaleString());
+        alert('✅ 数据已成功从百度网盘恢复！');
+      } catch (error) {
+        console.error('百度网盘恢复失败:', error);
+        updateBaiduStatus('❌ 恢复失败');
+        alert('❌ 恢复失败：' + error.message + '\n\n请确保已登录百度网盘且备份文件存在，或重新登录后再试');
+      }
+    }
+
     // 切换打开模式
     function toggleOpenMode() {
       openInNewTab = !openInNewTab;
@@ -798,6 +1062,11 @@
       });
       document.getElementById('importFile').addEventListener('change', importData);
       document.getElementById('clearDataBtn').addEventListener('click', clearAllData);
+
+      // 百度网盘同步
+      document.getElementById('baiduLoginBtn').addEventListener('click', loginBaidu);
+      document.getElementById('syncToBaiduBtn').addEventListener('click', syncToBaidu);
+      document.getElementById('syncFromBaiduBtn').addEventListener('click', syncFromBaidu);
 
       // 模态框背景点击关闭
       document.getElementById('manageModal').addEventListener('click', (e) => {

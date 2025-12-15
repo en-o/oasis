@@ -9,7 +9,12 @@
   "permissions": [
     "storage",
     "tabs",
-    "contextMenus"
+    "contextMenus",
+    "cookies"
+  ],
+  "host_permissions": [
+    "https://pan.baidu.com/*",
+    "https://c2.pcs.baidu.com/*"
   ],
   "background": {
     "service_worker": "background.js"
