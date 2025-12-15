@@ -308,18 +308,10 @@
       ).join('');
 
       // 渲染网站列表
-      const siteList = document.getElementById('siteList');
-      const category = siteCategory.value || data.categories[0];
-      const sites = data.sites[category] || [];
-      siteList.innerHTML = sites.map((s, i) => `
-        <div class="list-item">
-          <span>${s.icon} ${s.name}</span>
-          <div>
-            <button class="edit-btn" data-action="edit-site" data-category="${category}" data-index="${i}">编辑</button>
-            <button class="delete-btn" data-action="delete-site" data-category="${category}" data-index="${i}">删除</button>
-          </div>
-        </div>
-      `).join('');
+      renderSiteListByCategory();
+
+      // 监听分类选择变化（使用直接赋值避免重复绑定）
+      siteCategory.onchange = renderSiteListByCategory;
 
       // 渲染搜索引擎列表
       const engineList = document.getElementById('engineList');
@@ -332,8 +324,26 @@
 
       // 绑定事件
       categoryList.addEventListener('click', handleManageAction);
+      const siteList = document.getElementById('siteList');
       siteList.addEventListener('click', handleManageAction);
       engineList.addEventListener('click', handleManageAction);
+    }
+
+    // 根据选择的分类渲染网站列表
+    function renderSiteListByCategory() {
+      const siteCategory = document.getElementById('siteCategory');
+      const siteList = document.getElementById('siteList');
+      const category = siteCategory.value || data.categories[0];
+      const sites = data.sites[category] || [];
+      siteList.innerHTML = sites.map((s, i) => `
+        <div class="list-item">
+          <span>${s.icon} ${s.name}</span>
+          <div>
+            <button class="edit-btn" data-action="edit-site" data-category="${category}" data-index="${i}">编辑</button>
+            <button class="delete-btn" data-action="delete-site" data-category="${category}" data-index="${i}">删除</button>
+          </div>
+        </div>
+      `).join('');
     }
 
     function handleManageAction(e) {
