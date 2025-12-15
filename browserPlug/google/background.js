@@ -14,8 +14,10 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
     // 获取当前页面的 URL 和标题
     const url = info.pageUrl || tab.url;
     const title = tab.title;
+    // 获取 favicon URL
+    const faviconUrl = tab.favIconUrl || '';
 
-    console.log('右键菜单被点击:', { url, title });
+    console.log('右键菜单被点击:', { url, title, faviconUrl });
 
     // 发送消息到新标签页，通知打开管理页面并预填数据
     chrome.tabs.query({ url: chrome.runtime.getURL('index.html') }, (tabs) => {
@@ -25,7 +27,8 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
         chrome.tabs.sendMessage(tabs[0].id, {
           action: 'addSiteFromContext',
           url: url,
-          name: title
+          name: title,
+          faviconUrl: faviconUrl
         }, (response) => {
           if (chrome.runtime.lastError) {
             console.error('发送消息失败:', chrome.runtime.lastError);
@@ -34,6 +37,7 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
               pendingAddSite: {
                 url: url,
                 name: title,
+                faviconUrl: faviconUrl,
                 timestamp: Date.now()
               }
             });
@@ -50,6 +54,7 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
           pendingAddSite: {
             url: url,
             name: title,
+            faviconUrl: faviconUrl,
             timestamp: Date.now()
           }
         }, () => {
