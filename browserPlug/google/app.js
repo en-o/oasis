@@ -309,10 +309,11 @@
         </div>
       `).join('');
 
-      // 渲染网站选择分类
+      // 渲染网站选择分类，如果已有选中的分类则保持，否则使用当前分类
       const siteCategory = document.getElementById('siteCategory');
+      const previousSelected = siteCategory.value || currentCategory;
       siteCategory.innerHTML = data.categories.map(c =>
-        `<option value="${c}">${c}</option>`
+        `<option value="${c}" ${c === previousSelected ? 'selected' : ''}>${c}</option>`
       ).join('');
 
       // 渲染网站列表
