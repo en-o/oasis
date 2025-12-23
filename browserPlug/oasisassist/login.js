@@ -135,7 +135,24 @@ async function handleLogin(e) {
           console.log('发送消息失败（这是正常的）:', e.message);
         }
 
-        window.close();
+        // 关闭所有 add.html 窗口
+        browserAPI.windows.getAll({ windowTypes: ['popup'] }, (windows) => {
+          windows.forEach((win) => {
+            browserAPI.tabs.query({ windowId: win.id }, (tabs) => {
+              tabs.forEach((tab) => {
+                if (tab.url && tab.url.includes('add.html')) {
+                  console.log('关闭 add.html 窗口:', win.id);
+                  browserAPI.windows.remove(win.id);
+                }
+              });
+            });
+          });
+        });
+
+        // 最后关闭登录窗口
+        setTimeout(() => {
+          window.close();
+        }, 500);
       }, 1500);
     } else {
       console.error('登录失败，响应数据:', result);

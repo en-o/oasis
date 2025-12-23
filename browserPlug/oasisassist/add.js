@@ -21,8 +21,21 @@ document.addEventListener('DOMContentLoaded', async () => {
   browserAPI.storage.local.get(['pendingNavigation'], (result) => {
     if (result.pendingNavigation) {
       const pageInfo = result.pendingNavigation;
-      document.getElementById('name').value = pageInfo.name || pageInfo.pageTitle || '';
-      document.getElementById('url').value = pageInfo.url || pageInfo.pageUrl || '';
+      const pageName = pageInfo.name || pageInfo.pageTitle || '';
+      const url = pageInfo.url || pageInfo.pageUrl || '';
+
+      document.getElementById('name').value = pageName;
+      document.getElementById('url').value = url;
+
+      // 将网页名称填充到备注
+      if (pageName) {
+        document.getElementById('remark').value = pageName;
+      }
+
+      // 自动获取并填充网站图标
+      if (url) {
+        autoFillFavicon(url);
+      }
 
       // 清除存储
       browserAPI.storage.local.remove(['pendingNavigation']);
@@ -40,6 +53,117 @@ async function getConfig() {
       resolve(result);
     });
   });
+}
+
+// 自动填充网站图标
+function autoFillFavicon(url) {
+  try {
+    const urlObj = new URL(url);
+
+    // 检查是否是本地地址或特殊地址，如果是则不自动填充图标
+    const isLocalhost = urlObj.hostname === 'localhost' ||
+                        urlObj.hostname === '127.0.0.1' ||
+                        urlObj.hostname.startsWith('192.168.') ||
+                        urlObj.hostname.startsWith('10.') ||
+                        urlObj.hostname.endsWith('.local');
+
+    if (isLocalhost) {
+      console.log('检测到本地地址，跳过自动获取图标:', url);
+      // 保持默认的"无图标"选项
+      document.querySelector('input[name="iconType"][value="none"]').checked = true;
+      return;
+    }
+
+    const faviconUrl = `${urlObj.protocol}//${urlObj.host}/favicon.ico`;
+    console.log('尝试获取网站图标:', faviconUrl);
+
+    // 预加载图标以验证是否存在
+    const img = new Image();
+
+    // 设置超时，避免长时间等待
+    const timeout = setTimeout(() => {
+      console.log('图标加载超时，设置为无图标');
+      img.src = ''; // 取消加载
+      // 保持默认的"无图标"选项
+      document.querySelector('input[name="iconType"][value="none"]').checked = true;
+    }, 5000); // 5秒超时
+
+    img.onload = () => {
+      clearTimeout(timeout);
+      console.log('图标加载成功:', faviconUrl);
+
+      // 检查图标尺寸，有些网站返回的是 1x1 的占位图
+      if (img.width <= 1 || img.height <= 1) {
+        console.log('图标尺寸无效，尝试备用方案');
+        tryGoogleFavicon(urlObj);
+      } else {
+        // 选择 URL 类型的图标
+        document.querySelector('input[name="iconType"][value="url"]').checked = true;
+        document.getElementById('iconUrlInput').style.display = 'block';
+        document.getElementById('iconUploadInput').style.display = 'none';
+
+        // 填充图标 URL
+        document.getElementById('iconUrl').value = faviconUrl;
+        updateIconPreview(faviconUrl);
+      }
+    };
+
+    img.onerror = () => {
+      clearTimeout(timeout);
+      console.log('默认图标不存在，尝试 Google favicon 服务');
+      tryGoogleFavicon(urlObj);
+    };
+
+    img.src = faviconUrl;
+  } catch (error) {
+    console.error('获取网站图标失败:', error);
+    // 保持默认的"无图标"选项
+    document.querySelector('input[name="iconType"][value="none"]').checked = true;
+  }
+}
+
+// 尝试使用 Google Favicon 服务
+function tryGoogleFavicon(urlObj) {
+  const googleFaviconUrl = `https://www.google.com/s2/favicons?domain=${urlObj.hostname}&sz=64`;
+  console.log('尝试 Google favicon 服务:', googleFaviconUrl);
+
+  const img = new Image();
+
+  const timeout = setTimeout(() => {
+    console.log('Google favicon 服务超时，设置为无图标');
+    img.src = '';
+    document.querySelector('input[name="iconType"][value="none"]').checked = true;
+  }, 5000);
+
+  img.onload = () => {
+    clearTimeout(timeout);
+
+    // 检查是否是有效图标（Google 返回的默认图标尺寸通常是 16x16 或更大）
+    if (img.width > 1 && img.height > 1) {
+      console.log('Google favicon 加载成功');
+
+      // 选择 URL 类型的图标
+      document.querySelector('input[name="iconType"][value="url"]').checked = true;
+      document.getElementById('iconUrlInput').style.display = 'block';
+      document.getElementById('iconUploadInput').style.display = 'none';
+
+      // 填充图标 URL
+      document.getElementById('iconUrl').value = googleFaviconUrl;
+      updateIconPreview(googleFaviconUrl);
+    } else {
+      console.log('Google favicon 尺寸无效，设置为无图标');
+      document.querySelector('input[name="iconType"][value="none"]').checked = true;
+    }
+  };
+
+  img.onerror = () => {
+    clearTimeout(timeout);
+    console.log('Google favicon 加载失败，设置为无图标');
+    // 保持默认的"无图标"选项
+    document.querySelector('input[name="iconType"][value="none"]').checked = true;
+  };
+
+  img.src = googleFaviconUrl;
 }
 
 // 获取Token
