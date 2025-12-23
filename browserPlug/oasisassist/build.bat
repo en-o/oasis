@@ -34,6 +34,8 @@ copy /Y popup.html temp-chrome\ >nul
 copy /Y popup.js temp-chrome\ >nul
 copy /Y add.html temp-chrome\ >nul
 copy /Y add.js temp-chrome\ >nul
+copy /Y login.html temp-chrome\ >nul
+copy /Y login.js temp-chrome\ >nul
 copy /Y options.html temp-chrome\ >nul
 copy /Y options.js temp-chrome\ >nul
 
@@ -55,6 +57,8 @@ copy /Y popup.html temp-firefox\ >nul
 copy /Y popup.js temp-firefox\ >nul
 copy /Y add.html temp-firefox\ >nul
 copy /Y add.js temp-firefox\ >nul
+copy /Y login.html temp-firefox\ >nul
+copy /Y login.js temp-firefox\ >nul
 copy /Y options.html temp-firefox\ >nul
 copy /Y options.js temp-firefox\ >nul
 

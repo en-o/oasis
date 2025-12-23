@@ -85,6 +85,19 @@ async function handleLogin(e) {
       })
     });
 
+    // 检查响应状态
+    if (!response.ok) {
+      throw new Error(`HTTP错误：${response.status} ${response.statusText}`);
+    }
+
+    // 检查响应内容类型
+    const contentType = response.headers.get('content-type');
+    if (!contentType || !contentType.includes('application/json')) {
+      const text = await response.text();
+      console.error('非JSON响应:', text);
+      throw new Error(`服务器返回非JSON格式数据。可能的原因：\n1. API地址错误\n2. 服务器未正常运行\n3. 跨域问题\n\n响应内容: ${text.substring(0, 100)}`);
+    }
+
     const result = await response.json();
 
     if (result.code === 200 && result.data && result.data.token) {
@@ -103,11 +116,22 @@ async function handleLogin(e) {
         window.close();
       }, 1500);
     } else {
-      showAlert(result.message || '登录失败，请检查用户名和密码', 'error');
+      showAlert(result.message || result.msg || '登录失败，请检查用户名和密码', 'error');
     }
   } catch (error) {
     console.error('登录请求失败:', error);
-    showAlert('登录失败：' + error.message, 'error');
+
+    // 更详细的错误信息
+    let errorMessage = '登录失败：';
+    if (error.message.includes('Failed to fetch')) {
+      errorMessage += '无法连接到服务器，请检查：\n1. API地址是否正确\n2. 服务器是否运行\n3. 网络连接是否正常';
+    } else if (error.message.includes('JSON')) {
+      errorMessage += error.message;
+    } else {
+      errorMessage += error.message;
+    }
+
+    showAlert(errorMessage, 'error');
   } finally {
     setLoading(false);
   }
