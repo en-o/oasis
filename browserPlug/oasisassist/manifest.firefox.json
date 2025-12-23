@@ -8,8 +8,8 @@
     "tabs",
     "activeTab",
     "storage",
-    "http://localhost:9527/*",
-    "http://127.0.0.1:9527/*",
+    "http://localhost:3000/*",
+    "http://127.0.0.1:3000/*",
     "http://*/*",
     "https://*/*"
   ],

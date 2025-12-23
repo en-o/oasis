@@ -350,7 +350,7 @@ const BrowserExtension: React.FC = () => {
                   </div>
                 </div>
                 <p className="text-xs text-gray-500 ml-4">
-                  或直接输入：<code className="bg-white px-2 py-0.5 rounded">http://localhost:9527</code>（本地开发）
+                  或直接输入：<code className="bg-white px-2 py-0.5 rounded">http://localhost:3000</code>（本地开发）
                 </p>
               </div>
             </li>

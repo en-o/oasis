@@ -81,7 +81,7 @@ function loadConfig() {
     if (result.apiUrl) {
       document.getElementById('apiUrl').value = result.apiUrl;
     } else {
-      document.getElementById('apiUrl').value = 'http://localhost:9527';
+      document.getElementById('apiUrl').value = 'http://localhost:3000';
     }
   });
 }

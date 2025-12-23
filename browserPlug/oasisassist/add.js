@@ -2,13 +2,13 @@
 const browserAPI = typeof chrome !== 'undefined' ? chrome : browser;
 
 // 从存储中获取API基础URL
-let API_BASE_URL = 'http://localhost:9527';
+let API_BASE_URL = 'http://localhost:3000';
 
 // 初始化页面
 document.addEventListener('DOMContentLoaded', async () => {
   // 加载配置
   const config = await getConfig();
-  API_BASE_URL = config.apiUrl || 'http://localhost:9527';
+  API_BASE_URL = config.apiUrl || 'http://localhost:3000';
 
   // 加载分类和平台列表
   await loadCategories();
