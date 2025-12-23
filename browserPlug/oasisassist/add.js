@@ -39,10 +39,21 @@ async function getConfig() {
   });
 }
 
+// 构建API URL - 确保正确处理基础路径
+function buildApiUrl(endpoint) {
+  // 移除API_BASE_URL末尾的斜杠（如果有）
+  let baseUrl = API_BASE_URL.replace(/\/$/, '');
+
+  // 移除endpoint开头的斜杠（如果有）
+  endpoint = endpoint.replace(/^\//, '');
+
+  return `${baseUrl}/${endpoint}`;
+}
+
 // 加载分类列表
 async function loadCategories() {
   try {
-    const response = await fetch(`${API_BASE_URL}/oasis/navCategory/list`, {
+    const response = await fetch(buildApiUrl('oasis/navCategory/list'), {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json'
@@ -73,7 +84,7 @@ async function loadCategories() {
 // 加载平台列表
 async function loadPlatforms() {
   try {
-    const response = await fetch(`${API_BASE_URL}/oasis/sitePublish/list`, {
+    const response = await fetch(buildApiUrl('oasis/sitePublish/list'), {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json'
@@ -236,7 +247,7 @@ async function handleSubmit(e) {
   document.getElementById('submitBtn').disabled = true;
 
   try {
-    const response = await fetch(`${API_BASE_URL}/oasis/navigation/save`, {
+    const response = await fetch(buildApiUrl('oasis/navigation/save'), {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
