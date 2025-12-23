@@ -327,7 +327,33 @@ const BrowserExtension: React.FC = () => {
           <ol className="list-decimal list-inside space-y-1 text-sm text-gray-700 ml-2">
             <li>安装插件后，点击浏览器工具栏上的插件图标</li>
             <li>点击"设置"按钮</li>
-            <li>输入 API 服务器地址（例如：<code className="bg-white px-2 py-0.5 rounded">http://localhost:9527</code>）</li>
+            <li>
+              输入 API 服务器地址
+              <div className="mt-2 ml-4 space-y-2">
+                <div className="bg-white p-3 rounded border border-gray-300">
+                  <p className="text-xs font-semibold text-blue-700 mb-2">💡 快速获取 API 地址方法：</p>
+                  <ol className="list-decimal list-inside space-y-1 text-xs text-gray-600 ml-2">
+                    <li>在当前 Oasis 管理页面按 <kbd className="px-1.5 py-0.5 bg-gray-100 border border-gray-300 rounded text-xs">F12</kbd> 打开开发者工具</li>
+                    <li>切换到 Network（网络）标签页</li>
+                    <li>刷新页面或点击任意菜单，查看接口请求</li>
+                    <li>找到任意以 <code className="bg-blue-50 px-1 py-0.5 rounded text-blue-700">/api/</code> 开头的接口</li>
+                    <li>复制接口 URL 的前缀部分作为 API 地址</li>
+                  </ol>
+                  <div className="mt-2 p-2 bg-blue-50 rounded">
+                    <p className="text-xs text-gray-600 mb-1">示例：</p>
+                    <p className="text-xs">
+                      接口地址：<code className="text-blue-600">http://localhost:3000/api/navCategory/lists</code>
+                    </p>
+                    <p className="text-xs mt-1">
+                      插件配置：<code className="text-green-600 font-semibold">http://localhost:3000/api</code>
+                    </p>
+                  </div>
+                </div>
+                <p className="text-xs text-gray-500 ml-4">
+                  或直接输入：<code className="bg-white px-2 py-0.5 rounded">http://localhost:9527</code>（本地开发）
+                </p>
+              </div>
+            </li>
             <li>点击"测试连接"确认连接成功</li>
             <li>保存设置</li>
           </ol>
