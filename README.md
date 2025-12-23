@@ -2,6 +2,19 @@
 
 
 # 快速使用
+> node 20+
+> jdk 17
+
+## dev
+```shell
+# api
+run [ApiApplication.java](api/src/main/java/cn/tannn/oasis/ApiApplication.java)
+
+# web
+cd reactWeb && npm run dev
+```
+
+## docker
 > https://hub.docker.com/r/tannnn/oasis
 ```yaml
 docker run -d \
@@ -16,6 +29,8 @@ docker run -d \
   --restart unless-stopped \
   tannnn/oasis:0.0.3.6
 ```
+
+
 
 # H2
 浏览器访问 http://localhost:1249/h2
