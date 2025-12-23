@@ -1,6 +1,6 @@
 import React from 'react';
-import { Button, Card, Row, Col, App } from 'antd';
-import { Download, Chrome } from 'lucide-react';
+import { Button, Card, Row, Col, App, Modal } from 'antd';
+import { Download } from 'lucide-react';
 
 const BrowserExtension: React.FC = () => {
   const { message } = App.useApp();
@@ -32,37 +32,111 @@ const BrowserExtension: React.FC = () => {
   // 打开浏览器插件管理页面
   const openExtensionPage = (browser: 'chrome' | 'firefox') => {
     let extensionUrl = '';
+    let browserName = '';
 
     if (browser === 'chrome') {
       // 检测是 Chrome 还是 Edge
       const userAgent = navigator.userAgent.toLowerCase();
       if (userAgent.includes('edg/')) {
-        // Edge 浏览器
+        browserName = 'Edge';
         extensionUrl = 'edge://extensions/';
       } else {
-        // Chrome 浏览器
+        browserName = 'Chrome';
         extensionUrl = 'chrome://extensions/';
       }
     } else {
-      // Firefox 浏览器
+      browserName = 'Firefox';
       extensionUrl = 'about:debugging#/runtime/this-firefox';
     }
 
-    // 尝试在新标签页打开插件管理页面
-    const newWindow = window.open(extensionUrl, '_blank');
-
-    // 如果无法打开（某些浏览器不允许通过 JS 打开特殊协议），则给出提示
-    if (!newWindow) {
-      message.info({
-        content: (
-          <div>
-            <p>请手动打开浏览器插件管理页面：</p>
-            <p className="mt-2 text-blue-600 font-mono text-sm">{extensionUrl}</p>
-          </div>
-        ),
-        duration: 8,
+    // 尝试复制到剪贴板
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(extensionUrl).then(() => {
+        message.success({
+          content: `✅ 已将 ${browserName} 插件管理地址复制到剪贴板！请粘贴到地址栏访问`,
+          duration: 3,
+        });
+      }).catch(() => {
+        // 复制失败，显示弹窗
+        showExtensionGuide(extensionUrl, browser, browserName);
       });
+    } else {
+      // 不支持剪贴板，显示弹窗
+      showExtensionGuide(extensionUrl, browser, browserName);
     }
+
+    // 延迟显示详细引导
+    setTimeout(() => {
+      showExtensionGuide(extensionUrl, browser, browserName);
+    }, 500);
+  };
+
+  // 显示插件安装引导
+  const showExtensionGuide = (extensionUrl: string, browser: 'chrome' | 'firefox', browserName: string) => {
+    const steps = browser === 'firefox'
+      ? [
+          '1. 在 Firefox 地址栏输入下方地址',
+          '2. 点击"临时加载附加组件"按钮',
+          '3. ⚡ 快捷方式：直接选择 ZIP 压缩包（推荐，无需解压）',
+          '   或 📂 传统方式：解压后选择其中的 manifest.json 文件'
+        ]
+      : [
+          '1. 在浏览器地址栏输入下方地址',
+          '2. 开启"开发者模式"开关',
+          '3. ⚡ 快捷方式：直接拖拽 ZIP 压缩包到页面（推荐，无需解压）',
+          '   或 📂 传统方式：解压后点击"加载已解压的扩展程序"选择文件夹'
+        ];
+
+    Modal.info({
+      title: (
+        <div className="flex items-center gap-2">
+          <span className="text-2xl">{browser === 'firefox' ? '🦊' : '🌐'}</span>
+          <span>{browserName} 插件安装步骤</span>
+        </div>
+      ),
+      width: 650,
+      content: (
+        <div className="py-4">
+          <div className="mb-4 space-y-2">
+            {steps.map((step, index) => (
+              <p key={index} className="text-gray-700 leading-relaxed">{step}</p>
+            ))}
+          </div>
+          <div className="bg-blue-50 p-4 rounded-lg border border-blue-200 mb-3">
+            <div className="flex items-start justify-between gap-2">
+              <div className="flex-1">
+                <p className="text-xs text-gray-600 mb-2">📋 插件管理页面地址（已复制到剪贴板）：</p>
+                <code className="text-sm text-blue-700 font-mono break-all select-all bg-white px-3 py-2 rounded block">
+                  {extensionUrl}
+                </code>
+              </div>
+              <Button
+                size="small"
+                type="primary"
+                onClick={() => {
+                  navigator.clipboard.writeText(extensionUrl).then(() => {
+                    message.success('已复制到剪贴板');
+                  });
+                }}
+              >
+                复制
+              </Button>
+            </div>
+          </div>
+          <div className="bg-yellow-50 p-3 rounded border border-yellow-200">
+            <p className="text-sm text-gray-700">
+              <span className="font-semibold">💡 操作提示：</span>
+              {browser === 'firefox'
+                ? ' 由于浏览器安全限制，无法自动打开，请手动复制上方地址到 Firefox 地址栏访问。'
+                : ' 请在浏览器地址栏按 Ctrl+V (Mac: Cmd+V) 粘贴并访问上方地址。'
+              }
+            </p>
+          </div>
+        </div>
+      ),
+      okText: '我知道了',
+      centered: true,
+    });
   };
 
   return (
@@ -83,7 +157,8 @@ const BrowserExtension: React.FC = () => {
             <div className="text-center">
               <div className="mb-4 flex justify-center">
                 <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center">
-                  <Chrome className="w-8 h-8 text-blue-600" />
+                  {/* Chrome/Edge 图标 - 使用简单的文字图标 */}
+                  <span className="text-3xl">🌐</span>
                 </div>
               </div>
               <h3 className="text-xl font-medium mb-2">Chrome / Edge</h3>
@@ -111,7 +186,8 @@ const BrowserExtension: React.FC = () => {
             <div className="text-center">
               <div className="mb-4 flex justify-center">
                 <div className="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center">
-                  <svg role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><title>Firefox Browser</title><path d="M8.824 7.287c.008 0 .004 0 0 0zm-2.8-1.4c.006 0 .003 0 0 0zm16.754 2.161c-.505-1.215-1.53-2.528-2.333-2.943.654 1.283 1.033 2.57 1.177 3.53l.002.02c-1.314-3.278-3.544-4.6-5.366-7.477-.091-.147-.184-.292-.273-.446a3.545 3.545 0 01-.13-.24 2.118 2.118 0 01-.172-.46.03.03 0 00-.027-.03.038.038 0 00-.021 0l-.006.001a.037.037 0 00-.01.005L15.624 0c-2.585 1.515-3.657 4.168-3.932 5.856a6.197 6.197 0 00-2.305.587.297.297 0 00-.147.37c.057.162.24.24.396.17a5.622 5.622 0 012.008-.523l.067-.005a5.847 5.847 0 011.957.222l.095.03a5.816 5.816 0 01.616.228c.08.036.16.073.238.112l.107.055a5.835 5.835 0 01.368.211 5.953 5.953 0 012.034 2.104c-.62-.437-1.733-.868-2.803-.681 4.183 2.09 3.06 9.292-2.737 9.02a5.164 5.164 0 01-1.513-.292 4.42 4.42 0 01-.538-.232c-1.42-.735-2.593-2.121-2.74-3.806 0 0 .537-2 3.845-2 .357 0 1.38-.998 1.398-1.287-.005-.095-2.029-.9-2.817-1.677-.422-.416-.622-.616-.8-.767a3.47 3.47 0 00-.301-.227 5.388 5.388 0 01-.032-2.842c-1.195.544-2.124 1.403-2.8 2.163h-.006c-.46-.584-.428-2.51-.402-2.913-.006-.025-.343.176-.389.206-.406.29-.787.616-1.136.974-.397.403-.76.839-1.085 1.303a9.816 9.816 0 00-1.562 3.52c-.003.013-.11.487-.19 1.073-.013.09-.026.181-.037.272a7.8 7.8 0 00-.069.667l-.002.034-.023.387-.001.06C.386 18.795 5.593 24 12.016 24c5.752 0 10.527-4.176 11.463-9.661.02-.149.035-.298.052-.448.232-1.994-.025-4.09-.753-5.844z"/></svg>
+                  {/* Firefox 图标 - 使用简单的文字图标 */}
+                  <span className="text-3xl">🦊</span>
                 </div>
               </div>
               <h3 className="text-xl font-medium mb-2">Firefox</h3>
@@ -178,31 +254,72 @@ const BrowserExtension: React.FC = () => {
 
         <div className="mb-6">
           <h4 className="font-medium text-blue-600 mb-2">Chrome / Edge 安装步骤：</h4>
-          <ol className="list-decimal list-inside space-y-2 text-gray-700 ml-2">
-            <li>下载插件压缩包并解压到任意目录</li>
-            <li>打开浏览器扩展程序管理页面：
-              <ul className="list-disc list-inside ml-6 mt-1 text-sm text-gray-600">
-                <li>Chrome: 地址栏输入 <code className="bg-gray-100 px-2 py-0.5 rounded">chrome://extensions/</code></li>
-                <li>Edge: 地址栏输入 <code className="bg-gray-100 px-2 py-0.5 rounded">edge://extensions/</code></li>
-              </ul>
-            </li>
-            <li>开启右上角的"开发者模式"开关</li>
-            <li>点击"加载已解压的扩展程序"按钮</li>
-            <li>选择解压后的文件夹</li>
-          </ol>
+
+          <div className="mb-4">
+            <p className="text-sm font-semibold text-green-600 mb-2">⚡ 快捷方式（推荐）：</p>
+            <ol className="list-decimal list-inside space-y-2 text-gray-700 ml-2">
+              <li>打开浏览器扩展程序管理页面：
+                <ul className="list-disc list-inside ml-6 mt-1 text-sm text-gray-600">
+                  <li>Chrome: 地址栏输入 <code className="bg-gray-100 px-2 py-0.5 rounded">chrome://extensions/</code></li>
+                  <li>Edge: 地址栏输入 <code className="bg-gray-100 px-2 py-0.5 rounded">edge://extensions/</code></li>
+                </ul>
+              </li>
+              <li>开启右上角的"开发者模式"开关</li>
+              <li>
+                <span className="font-semibold text-green-600">直接将下载的 ZIP 压缩包拖拽到页面中</span>
+                <span className="text-sm text-gray-500 ml-2">（无需解压）</span>
+              </li>
+            </ol>
+          </div>
+
+          <div>
+            <p className="text-sm font-semibold text-blue-600 mb-2">📂 传统方式：</p>
+            <ol className="list-decimal list-inside space-y-2 text-gray-700 ml-2">
+              <li>下载插件压缩包并解压到任意目录</li>
+              <li>打开浏览器扩展程序管理页面：
+                <ul className="list-disc list-inside ml-6 mt-1 text-sm text-gray-600">
+                  <li>Chrome: 地址栏输入 <code className="bg-gray-100 px-2 py-0.5 rounded">chrome://extensions/</code></li>
+                  <li>Edge: 地址栏输入 <code className="bg-gray-100 px-2 py-0.5 rounded">edge://extensions/</code></li>
+                </ul>
+              </li>
+              <li>开启右上角的"开发者模式"开关</li>
+              <li>点击"加载已解压的扩展程序"按钮</li>
+              <li>选择解压后的文件夹</li>
+            </ol>
+          </div>
         </div>
 
         <div className="mb-6">
           <h4 className="font-medium mb-2" style={{ color: '#ff7139' }}>Firefox 安装步骤：</h4>
-          <ol className="list-decimal list-inside space-y-2 text-gray-700 ml-2">
-            <li>下载插件压缩包并解压到任意目录</li>
-            <li>打开 Firefox，在地址栏输入 <code className="bg-gray-100 px-2 py-0.5 rounded">about:debugging#/runtime/this-firefox</code></li>
-            <li>点击"临时加载附加组件"按钮</li>
-            <li>选择解压目录中的 <code className="bg-gray-100 px-2 py-0.5 rounded">manifest.json</code> 文件</li>
-            <li className="text-orange-600 text-sm">
-              注意：临时加载的插件在浏览器重启后会失效，需要重新加载
-            </li>
-          </ol>
+
+          <div className="mb-4">
+            <p className="text-sm font-semibold text-green-600 mb-2">⚡ 快捷方式（推荐）：</p>
+            <ol className="list-decimal list-inside space-y-2 text-gray-700 ml-2">
+              <li>在地址栏输入 <code className="bg-gray-100 px-2 py-0.5 rounded">about:debugging#/runtime/this-firefox</code></li>
+              <li>点击"临时加载附加组件"按钮</li>
+              <li>
+                <span className="font-semibold text-green-600">直接选择下载的 ZIP 压缩包</span>
+                <span className="text-sm text-gray-500 ml-2">（无需解压）</span>
+              </li>
+            </ol>
+          </div>
+
+          <div>
+            <p className="text-sm font-semibold mb-2" style={{ color: '#ff7139' }}>📂 传统方式：</p>
+            <ol className="list-decimal list-inside space-y-2 text-gray-700 ml-2">
+              <li>下载插件压缩包并解压到任意目录</li>
+              <li>在地址栏输入 <code className="bg-gray-100 px-2 py-0.5 rounded">about:debugging#/runtime/this-firefox</code></li>
+              <li>点击"临时加载附加组件"按钮</li>
+              <li>选择解压目录中的 <code className="bg-gray-100 px-2 py-0.5 rounded">manifest.json</code> 文件</li>
+            </ol>
+          </div>
+
+          <div className="bg-orange-50 border border-orange-200 rounded p-3 mt-3">
+            <p className="text-sm text-orange-700">
+              <span className="font-semibold">⚠️ 注意：</span>
+              临时加载的插件在浏览器重启后会失效，需要重新加载。
+            </p>
+          </div>
         </div>
 
         <div className="bg-yellow-50 border border-yellow-200 rounded p-4">
