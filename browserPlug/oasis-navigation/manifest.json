@@ -10,7 +10,8 @@
     "storage",
     "tabs",
     "contextMenus",
-    "cookies"
+    "cookies",
+    "downloads"
   ],
   "host_permissions": [
     "https://pan.baidu.com/*",

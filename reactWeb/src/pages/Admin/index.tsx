@@ -8,13 +8,14 @@ import CategoryManagement from './components/CategoryManagement';
 import SystemManagement from './components/SystemManagement';
 import BackupManagement from './components/BackupManagement';
 import SitePublishManagement from './components/SitePublishManagement';
+import BrowserExtension from './components/BrowserExtension';
 import LoginModal from '@/components/LoginModal';
 import { authApi } from '@/services/api';
 
 const Admin: React.FC = () => {
   const navigate = useNavigate();
   const [currentTab, setCurrentTab] = useState<
-    'nav-management' | 'category-management' | 'system-management' | 'backup-management' | 'site-publish-management'
+    'nav-management' | 'category-management' | 'system-management' | 'backup-management' | 'site-publish-management' | 'browser-extension'
   >('nav-management');
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [showLogin, setShowLogin] = useState(false);
@@ -170,6 +171,7 @@ const Admin: React.FC = () => {
             {currentTab === 'nav-management' && <NavManagement />}
             {currentTab === 'category-management' && <CategoryManagement />}
             {currentTab === 'site-publish-management' && <SitePublishManagement />}
+            {currentTab === 'browser-extension' && <BrowserExtension />}
             {currentTab === 'system-management' && <SystemManagement />}
             {currentTab === 'backup-management' && <BackupManagement />}
           </div>

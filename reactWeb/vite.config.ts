@@ -51,8 +51,8 @@ export default defineConfig(({ mode }) => {
       port: 3000,
       proxy: {
         [apiBaseUrl]: {
-          target: 'http://localhost:1249',
-          // target: 'http://192.168.1.134:1249',
+          // target: 'http://localhost:1249',
+          target: 'http://192.168.1.134:1249',
           changeOrigin: true,
           rewrite: (path) => path.replace(new RegExp(`^${apiBaseUrl}`), ''),
         },

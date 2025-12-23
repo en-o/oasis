@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { Form, Input, Select, Button, Card, Row, Col, App, Radio, Upload, Space, Divider } from 'antd';
-import { Save, RefreshCw, UploadCloud, Download } from 'lucide-react';
+import { Form, Input, Select, Button, Card, Row, Col, App, Radio, Upload, Space } from 'antd';
+import { Save, RefreshCw, UploadCloud } from 'lucide-react';
 import type { SysConfig } from '@/types';
 import { sysConfigApi } from '@/services/api';
 
@@ -136,22 +136,6 @@ const SystemManagement: React.FC = () => {
   };
 
   // 移除自动加载，改为手动触发
-
-  // 处理插件下载
-  const handleDownloadExtension = (browser: 'chrome' | 'firefox') => {
-    const fileName = browser === 'chrome' ? 'oasisassist-chrome.zip' : 'oasisassist-firefox.zip';
-    const downloadUrl = `/extensions/${fileName}`;
-
-    // 创建隐藏的下载链接
-    const link = document.createElement('a');
-    link.href = downloadUrl;
-    link.download = fileName;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-
-    message.success(`开始下载 ${browser === 'chrome' ? 'Chrome/Edge' : 'Firefox'} 版本插件`);
-  };
 
   const handleSubmit = async (values: any) => {
     try {
@@ -358,70 +342,6 @@ const SystemManagement: React.FC = () => {
                 </Button>
               </Form.Item>
             </Form>
-
-            <Divider />
-
-            {/* 浏览器插件下载区域 */}
-            <div>
-              <h3 className="text-lg font-medium mb-4">浏览器插件</h3>
-              <p className="text-sm text-gray-600 mb-4">
-                下载 Oasis 导航助手插件，快速添加网页到您的导航系统
-              </p>
-              <Row gutter={16}>
-                <Col xs={24} sm={12}>
-                  <Card
-                    className="hover:shadow-md transition-shadow"
-                    style={{ borderColor: '#1890ff' }}
-                  >
-                    <div className="text-center">
-                      <div className="text-lg font-medium mb-2">Chrome / Edge</div>
-                      <p className="text-sm text-gray-600 mb-4">
-                        支持 Chrome 和 Edge 浏览器
-                      </p>
-                      <Button
-                        type="primary"
-                        icon={<Download className="w-4 h-4" />}
-                        onClick={() => handleDownloadExtension('chrome')}
-                        block
-                      >
-                        下载 Chrome 版本
-                      </Button>
-                    </div>
-                  </Card>
-                </Col>
-                <Col xs={24} sm={12}>
-                  <Card
-                    className="hover:shadow-md transition-shadow"
-                    style={{ borderColor: '#ff7139' }}
-                  >
-                    <div className="text-center">
-                      <div className="text-lg font-medium mb-2">Firefox</div>
-                      <p className="text-sm text-gray-600 mb-4">
-                        支持 Firefox 浏览器
-                      </p>
-                      <Button
-                        type="primary"
-                        icon={<Download className="w-4 h-4" />}
-                        onClick={() => handleDownloadExtension('firefox')}
-                        block
-                        style={{ backgroundColor: '#ff7139', borderColor: '#ff7139' }}
-                      >
-                        下载 Firefox 版本
-                      </Button>
-                    </div>
-                  </Card>
-                </Col>
-              </Row>
-              <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded">
-                <h4 className="text-sm font-medium mb-2">安装说明：</h4>
-                <ul className="text-xs text-gray-700 space-y-1 ml-4" style={{ listStyleType: 'disc' }}>
-                  <li><strong>Chrome/Edge：</strong>下载后解压，打开扩展程序管理页面，开启开发者模式，加载已解压的扩展程序</li>
-                  <li><strong>Firefox：</strong>下载后解压，打开 about:debugging，点击临时加载附加组件，选择 manifest.json</li>
-                  <li>安装后在插件设置中配置API服务器地址（默认：http://localhost:9527）</li>
-                  <li>右键点击任意页面，选择"添加到Oasis导航"即可快速添加</li>
-                </ul>
-              </div>
-            </div>
           </Card>
         )}
       </div>

@@ -1,10 +1,10 @@
 import React from 'react';
 import { Menu } from 'antd';
-import { Navigation, Bookmark, Settings, Database, Globe } from 'lucide-react';
+import { Navigation, Bookmark, Settings, Database, Globe, Puzzle } from 'lucide-react';
 
 interface Props {
-  currentAdminTab: 'nav-management' | 'category-management' | 'system-management' | 'backup-management' | 'site-publish-management';
-  onChangeTab: (tab: 'nav-management' | 'category-management' | 'system-management' | 'backup-management' | 'site-publish-management') => void;
+  currentAdminTab: 'nav-management' | 'category-management' | 'system-management' | 'backup-management' | 'site-publish-management' | 'browser-extension';
+  onChangeTab: (tab: 'nav-management' | 'category-management' | 'system-management' | 'backup-management' | 'site-publish-management' | 'browser-extension') => void;
 }
 
 const AdminSidebar: React.FC<Props> = ({ currentAdminTab, onChangeTab }) => {
@@ -23,6 +23,11 @@ const AdminSidebar: React.FC<Props> = ({ currentAdminTab, onChangeTab }) => {
       key: 'site-publish-management',
       icon: <Globe className="w-4 h-4" />,
       label: '页面发布',
+    },
+    {
+      key: 'browser-extension',
+      icon: <Puzzle className="w-4 h-4" />,
+      label: '浏览器插件',
     },
     {
       key: 'system-management',

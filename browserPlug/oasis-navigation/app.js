@@ -666,14 +666,43 @@
       try {
         const dataStr = JSON.stringify(data, null, 2);
         const blob = new Blob([dataStr], { type: 'application/json' });
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement('a');
         const timestamp = new Date().toISOString().slice(0, 10);
-        link.href = url;
-        link.download = `oasis-backup-${timestamp}.json`;
-        link.click();
-        URL.revokeObjectURL(url);
-        alert('✅ 数据导出成功！');
+        const filename = `oasis-backup-${timestamp}.json`;
+
+        // 兼容 Chrome 和 Firefox 的 API
+        const browserAPI = typeof chrome !== 'undefined' && chrome.downloads ? chrome : (typeof browser !== 'undefined' && browser.downloads ? browser : null);
+
+        if (browserAPI && browserAPI.downloads) {
+          // 使用 downloads API（推荐方式）
+          const url = URL.createObjectURL(blob);
+          browserAPI.downloads.download({
+            url: url,
+            filename: filename,
+            saveAs: true
+          }, (downloadId) => {
+            URL.revokeObjectURL(url);
+            if (browserAPI.runtime.lastError) {
+              console.error('导出失败:', browserAPI.runtime.lastError);
+              alert('❌ 数据导出失败，请重试');
+            } else {
+              alert('✅ 数据导出成功！');
+            }
+          });
+        } else {
+          // 降级方案：使用传统的 a 标签下载
+          const url = URL.createObjectURL(blob);
+          const link = document.createElement('a');
+          link.href = url;
+          link.download = filename;
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          // 延迟释放 URL，确保下载完成
+          setTimeout(() => {
+            URL.revokeObjectURL(url);
+          }, 100);
+          alert('✅ 数据导出成功！');
+        }
       } catch (error) {
         console.error('导出失败:', error);
         alert('❌ 数据导出失败，请重试');
