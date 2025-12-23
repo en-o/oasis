@@ -28,7 +28,7 @@ services:
       # 可选：持久化日志
       - ./logs:/app/logs
       # 可选：配置文件
-      #- ./resources:/app/resources
+      #- ./resources:/app/resources(必须要有原始文件在./resources里
     restart: unless-stopped
     networks:
       - oasis-network
