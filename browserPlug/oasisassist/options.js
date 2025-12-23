@@ -12,6 +12,60 @@ function buildApiUrl(baseUrl, endpoint) {
   return `${baseUrl}/${endpoint}`;
 }
 
+// 获取Token
+async function getToken() {
+  return new Promise((resolve) => {
+    browserAPI.storage.local.get(['authToken'], (result) => {
+      resolve(result.authToken || '');
+    });
+  });
+}
+
+// 打开登录窗口
+function openLoginWindow() {
+  browserAPI.windows.create({
+    url: browserAPI.runtime.getURL('login.html'),
+    type: 'popup',
+    width: 480,
+    height: 600,
+    focused: true
+  });
+}
+
+// 发送带Token的请求
+async function fetchWithAuth(url, options = {}) {
+  const token = await getToken();
+
+  // 添加Token到请求头
+  const headers = {
+    ...options.headers,
+    'Content-Type': 'application/json'
+  };
+
+  if (token) {
+    headers['token'] = token;
+  }
+
+  const response = await fetch(url, {
+    ...options,
+    headers
+  });
+
+  const result = await response.json();
+
+  // 检查是否需要登录（403错误）
+  if (result.code === 403) {
+    showAlert('登录已过期，请重新登录', 'error');
+    // 延迟打开登录窗口
+    setTimeout(() => {
+      openLoginWindow();
+    }, 1500);
+    throw new Error('需要登录');
+  }
+
+  return { response, result };
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   // 加载已保存的配置
   loadConfig();
@@ -68,22 +122,20 @@ async function testConnection() {
   }
 
   try {
-    const response = await fetch(buildApiUrl(apiUrl, 'oasis/navCategory/list'), {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json'
-      }
+    const { result } = await fetchWithAuth(buildApiUrl(apiUrl, 'navCategory/lists'), {
+      method: 'GET'
     });
-
-    const result = await response.json();
 
     if (result.code === 200) {
       showAlert('连接成功！服务器响应正常');
     } else {
-      showAlert(`连接失败：${result.msg || '服务器返回异常'}`, 'error');
+      showAlert(`连接失败：${result.msg || result.message || '服务器返回异常'}`, 'error');
     }
   } catch (error) {
-    showAlert(`连接失败：${error.message}`, 'error');
+    console.error('连接测试失败:', error);
+    if (error.message !== '需要登录') {
+      showAlert(`连接失败：${error.message}`, 'error');
+    }
   }
 }
 

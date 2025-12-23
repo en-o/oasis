@@ -39,6 +39,60 @@ async function getConfig() {
   });
 }
 
+// 获取Token
+async function getToken() {
+  return new Promise((resolve) => {
+    browserAPI.storage.local.get(['authToken'], (result) => {
+      resolve(result.authToken || '');
+    });
+  });
+}
+
+// 打开登录窗口
+function openLoginWindow() {
+  browserAPI.windows.create({
+    url: browserAPI.runtime.getURL('login.html'),
+    type: 'popup',
+    width: 480,
+    height: 600,
+    focused: true
+  });
+}
+
+// 发送带Token的请求
+async function fetchWithAuth(url, options = {}) {
+  const token = await getToken();
+
+  // 添加Token到请求头
+  const headers = {
+    ...options.headers,
+    'Content-Type': 'application/json'
+  };
+
+  if (token) {
+    headers['token'] = token;
+  }
+
+  const response = await fetch(url, {
+    ...options,
+    headers
+  });
+
+  const result = await response.json();
+
+  // 检查是否需要登录（403错误）
+  if (result.code === 403) {
+    showAlert('登录已过期，请重新登录', 'error');
+    // 延迟打开登录窗口
+    setTimeout(() => {
+      openLoginWindow();
+    }, 1500);
+    throw new Error('需要登录');
+  }
+
+  return { response, result };
+}
+
 // 构建API URL - 确保正确处理基础路径
 function buildApiUrl(endpoint) {
   // 移除API_BASE_URL末尾的斜杠（如果有）
@@ -53,14 +107,10 @@ function buildApiUrl(endpoint) {
 // 加载分类列表
 async function loadCategories() {
   try {
-    const response = await fetch(buildApiUrl('navCategory/lists'), {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json'
-      }
+    const { result } = await fetchWithAuth(buildApiUrl('navCategory/lists'), {
+      method: 'GET'
     });
 
-    const result = await response.json();
     const categorySelect = document.getElementById('category');
 
     if (result.code === 200 && result.data && result.data.length > 0) {
@@ -77,21 +127,19 @@ async function loadCategories() {
     }
   } catch (error) {
     console.error('加载分类失败:', error);
-    showAlert('加载分类失败: ' + error.message, 'error');
+    if (error.message !== '需要登录') {
+      showAlert('加载分类失败: ' + error.message, 'error');
+    }
   }
 }
 
 // 加载平台列表
 async function loadPlatforms() {
   try {
-    const response = await fetch(buildApiUrl('sitePublish/lists'), {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json'
-      }
+    const { result } = await fetchWithAuth(buildApiUrl('sitePublish/lists'), {
+      method: 'GET'
     });
 
-    const result = await response.json();
     const platformSelect = document.getElementById('showPlatform');
 
     if (result.code === 200 && result.data && result.data.length > 0) {
@@ -247,15 +295,10 @@ async function handleSubmit(e) {
   document.getElementById('submitBtn').disabled = true;
 
   try {
-    const response = await fetch(buildApiUrl('navigation/append'), {
+    const { result } = await fetchWithAuth(buildApiUrl('navigation/append'), {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
       body: JSON.stringify(submitData)
     });
-
-    const result = await response.json();
 
     if (result.code === 200) {
       showAlert('添加成功！', 'success');
@@ -263,11 +306,13 @@ async function handleSubmit(e) {
         window.close();
       }, 1500);
     } else {
-      showAlert('添加失败: ' + (result.msg || '未知错误'), 'error');
+      showAlert('添加失败: ' + (result.msg || result.message || '未知错误'), 'error');
     }
   } catch (error) {
     console.error('提交失败:', error);
-    showAlert('提交失败: ' + error.message, 'error');
+    if (error.message !== '需要登录') {
+      showAlert('提交失败: ' + error.message, 'error');
+    }
   } finally {
     document.getElementById('loading').classList.remove('show');
     document.getElementById('submitBtn').disabled = false;
