@@ -25,6 +25,8 @@ settings.local.json
 *.sln
 *.sw?
 
+temp-chrome
+temp-firefox
 
 # Compiled class file
 *.class
