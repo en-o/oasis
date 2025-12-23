@@ -1,6 +1,9 @@
 // 兼容Chrome和Firefox的API
 const browserAPI = typeof chrome !== 'undefined' ? chrome : browser;
 
+// 登录窗口打开标志，防止重复打开
+let loginWindowOpening = false;
+
 // 构建API URL - 确保正确处理基础路径
 function buildApiUrl(baseUrl, endpoint) {
   // 移除baseUrl末尾的斜杠（如果有）
@@ -24,13 +27,30 @@ async function getToken() {
 
 // 打开登录窗口
 function openLoginWindow() {
+  // 防止重复打开
+  if (loginWindowOpening) {
+    console.log('[Options] 登录窗口已在打开中，跳过重复请求');
+    return;
+  }
+
+  loginWindowOpening = true;
+  console.log('[Options] 准备打开登录窗口');
+
   browserAPI.windows.create({
     url: browserAPI.runtime.getURL('login.html'),
     type: 'popup',
     width: 480,
     height: 600,
     focused: true
+  }, (window) => {
+    console.log('[Options] 登录窗口已创建:', window);
   });
+
+  // 5秒后重置标志
+  setTimeout(() => {
+    loginWindowOpening = false;
+    console.log('[Options] 登录窗口标志已重置');
+  }, 5000);
 }
 
 // 发送带Token的请求
