@@ -24,6 +24,8 @@ settings.local.json
 *.njsproj
 *.sln
 *.sw?
+!oasisassist-chrome.zip
+!oasisassist-firefox.zip
 
 temp-chrome
 temp-firefox
