@@ -106,9 +106,9 @@ docker run -d \
 
 
 
-# [浏览器插件](browserPlug/README.md)
+# 单独的[浏览器插件](browserPlug/README.md)
 > browserPlug 更当前的项目关系不大，一个纯html的浏览器导航插件
-> ![img.png](browserPlug/image/img.png)
+> ![oasis-navigation_img.png](browserPlug/image/oasis-navigation_img.png)[img.png](browserPlug/image/img.png)
 
 1. 我发布了 火狐和edge 还在审核中， 名字叫：导航助手(Oasis)
 2. 压缩包安装：
