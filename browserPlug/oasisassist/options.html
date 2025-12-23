@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Oasis导航助手 - 设置</title>
+  <title>Oasis辅助工具 - 设置</title>
   <style>
     * {
       margin: 0;
@@ -127,7 +127,7 @@
 <body>
   <div class="container">
     <div class="header">
-      <h1>Oasis导航助手 - 设置</h1>
+      <h1>Oasis辅助工具 - 设置</h1>
       <p>配置您的Oasis服务器地址</p>
     </div>
 
@@ -153,6 +153,17 @@
         <li>局域网访问：http://192.168.x.x:3000</li>
         <li>生产环境：https://your-domain.com</li>
         <li>修改后需要重新打开添加页面才能生效</li>
+        <ul>
+          <li>在当前 Oasis 管理页面按 `F12` 打开开发者工具</li>
+          <li>切换到 Network（网络）标签页</li>
+          <li>刷新页面或点击任意菜单，查看接口请求</li>
+          <li>找到任意以 `/api/` 开头的接口</li>
+          <li>复制接口 URL 的前缀部分作为 API 地址</li>
+          <li>
+            接口地址：http://localhost:3000/api/navCategory/lists
+            插件配置：http://localhost:3000/api
+          </li>
+        </ul>
       </ul>
     </div>
   </div>

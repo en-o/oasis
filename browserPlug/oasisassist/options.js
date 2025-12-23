@@ -16,6 +16,7 @@ function buildApiUrl(baseUrl, endpoint) {
 async function getToken() {
   return new Promise((resolve) => {
     browserAPI.storage.local.get(['authToken'], (result) => {
+      console.log('[Options] 从storage获取token:', result.authToken);
       resolve(result.authToken || '');
     });
   });

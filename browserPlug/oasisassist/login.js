@@ -61,10 +61,10 @@ async function saveToken(token) {
 async function handleLogin(e) {
   e.preventDefault();
 
-  const loginName = document.getElementById('loginName').value.trim();
-  const loginPwd = document.getElementById('loginPwd').value.trim();
+  const username = document.getElementById('loginName').value.trim();
+  const password = document.getElementById('loginPwd').value.trim();
 
-  if (!loginName || !loginPwd) {
+  if (!username || !password) {
     showAlert('请输入用户名和密码', 'error');
     return;
   }
@@ -74,14 +74,14 @@ async function handleLogin(e) {
   hideAlert();
 
   try {
-    const response = await fetch(buildApiUrl('login/in'), {
+    const response = await fetch(buildApiUrl('login'), {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        loginName,
-        loginPwd
+        username,
+        password
       })
     });
 
@@ -99,23 +99,46 @@ async function handleLogin(e) {
     }
 
     const result = await response.json();
+    console.log('登录响应:', result);
 
-    if (result.code === 200 && result.data && result.data.token) {
+    // 后端返回格式: ResultVO.success("登录成功", token)
+    // 所以 token 直接在 result.data 中
+    if (result.code === 200 && result.data) {
+      const token = typeof result.data === 'string' ? result.data : result.data.token;
+      console.log('提取的token:', token);
+
+      if (!token) {
+        throw new Error('登录成功但未返回token');
+      }
+
       // 保存Token
-      await saveToken(result.data.token);
+      await saveToken(token);
+      console.log('Token已保存到storage');
+
+      // 验证token是否保存成功
+      const savedToken = await getToken();
+      console.log('验证已保存的token:', savedToken);
 
       showAlert('登录成功！即将关闭窗口...', 'success');
 
       // 延迟关闭窗口，让用户看到成功提示
       setTimeout(() => {
         // 通知其他页面token已更新
-        browserAPI.runtime.sendMessage({
-          action: 'tokenUpdated',
-          token: result.data.token
-        });
+        try {
+          browserAPI.runtime.sendMessage({
+            action: 'tokenUpdated',
+            token: token
+          }, (response) => {
+            console.log('消息发送结果:', response);
+          });
+        } catch (e) {
+          console.log('发送消息失败（这是正常的）:', e.message);
+        }
+
         window.close();
       }, 1500);
     } else {
+      console.error('登录失败，响应数据:', result);
       showAlert(result.message || result.msg || '登录失败，请检查用户名和密码', 'error');
     }
   } catch (error) {

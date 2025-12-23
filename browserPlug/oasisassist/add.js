@@ -43,6 +43,7 @@ async function getConfig() {
 async function getToken() {
   return new Promise((resolve) => {
     browserAPI.storage.local.get(['authToken'], (result) => {
+      console.log('从storage获取token:', result.authToken);
       resolve(result.authToken || '');
     });
   });
@@ -62,6 +63,7 @@ function openLoginWindow() {
 // 发送带Token的请求
 async function fetchWithAuth(url, options = {}) {
   const token = await getToken();
+  console.log('fetchWithAuth - 使用token:', token);
 
   // 添加Token到请求头
   const headers = {
@@ -73,15 +75,20 @@ async function fetchWithAuth(url, options = {}) {
     headers['token'] = token;
   }
 
+  console.log('fetchWithAuth - 请求URL:', url);
+  console.log('fetchWithAuth - 请求头:', headers);
+
   const response = await fetch(url, {
     ...options,
     headers
   });
 
   const result = await response.json();
+  console.log('fetchWithAuth - 响应:', result);
 
   // 检查是否需要登录（403错误）
   if (result.code === 403) {
+    console.error('收到403错误，需要重新登录');
     showAlert('登录已过期，请重新登录', 'error');
     // 延迟打开登录窗口
     setTimeout(() => {
