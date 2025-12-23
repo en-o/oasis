@@ -113,7 +113,10 @@ public class WebController {
                 String routePath = page.getShowPlatform();
                 if(!StringUtils.hasText(routePath)){
                     SitePublish defaultPage = sitePublishService.getDefaultPage();
-                    routePath = defaultPage.getRoutePath();
+                    // 默认页面没设置那就查所有
+                    if(defaultPage!=null){
+                        routePath = defaultPage.getRoutePath();
+                    }
                 }
                 or.likes(StringUtils.hasText(routePath), "showPlatform", routePath);
             });
