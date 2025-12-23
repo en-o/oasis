@@ -34,7 +34,7 @@
 ## google （要钱我就没弄
 1. 访问 https://chrome.google.com/webstore/devconsole
 2. 点击"新增项目"
-3. 上传插件的 ZIP 包（将 browserPlug/google 目录打包）
+3. 上传插件的 ZIP 包（将 browserPlug/oasis-navigation 目录打包）
 4. 填写商品详情：
    - 详细说明
    - 上传截图和宣传图片

@@ -2,12 +2,12 @@
 [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
 
 Write-Host '========================================' -ForegroundColor Cyan
-Write-Host '  导航助手 - 扩展打包工具' -ForegroundColor Cyan  
+Write-Host '  导航助手 - 扩展打包工具' -ForegroundColor Cyan
 Write-Host '========================================' -ForegroundColor Cyan
 Write-Host ''
 
 $SCRIPT_DIR = Split-Path -Parent $MyInvocation.MyCommand.Path
-$SOURCE_DIR = Join-Path $SCRIPT_DIR 'google'
+$SOURCE_DIR = Join-Path $SCRIPT_DIR 'oasis-navigation'
 $OUTPUT_DIR = Join-Path $SCRIPT_DIR 'dist'
 
 # 获取版本号
