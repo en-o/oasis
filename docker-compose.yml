@@ -6,7 +6,7 @@ services:
       context: .
       dockerfile: api/Dockerfile
     container_name: oasis
-    image: tannnn/oasis:latest # 0.0.3.6
+    image: tannnn/oasis:latest # 0.0.3.7
     ports:
       - "1249:1249"
     environment:
@@ -27,6 +27,8 @@ services:
       - ./api/db:/app/api/db
       # 可选：持久化日志
       - ./logs:/app/logs
+      # 可选：配置文件
+      #- ./resources:/app/resources
     restart: unless-stopped
     networks:
       - oasis-network
