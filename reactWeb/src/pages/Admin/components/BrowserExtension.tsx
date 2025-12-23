@@ -8,7 +8,10 @@ const BrowserExtension: React.FC = () => {
   // 处理插件下载
   const handleDownloadExtension = (browser: 'chrome' | 'firefox') => {
     const fileName = browser === 'chrome' ? 'oasisassist-chrome.zip' : 'oasisassist-firefox.zip';
-    const downloadUrl = `/extensions/${fileName}`;
+    // 获取基础路径，确保正确处理 VITE_BASE_PATH
+    const basePath = import.meta.env.VITE_BASE_PATH || '/';
+    const normalizedBasePath = basePath.endsWith('/') ? basePath.slice(0, -1) : basePath;
+    const downloadUrl = `${normalizedBasePath}/extensions/${fileName}`;
 
     // 创建隐藏的下载链接
     const link = document.createElement('a');

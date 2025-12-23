@@ -115,6 +115,8 @@ chmod +x build.sh
 - 本地开发：`http://localhost:9527`
 - 局域网访问：`http://192.168.x.x:9527`
 - 生产环境：`https://your-domain.com`
+- 有基础路径的部署：`https://your-domain.com/oasis`（自动处理 VITE_BASE_PATH）
+
 
 ### 权限说明
 
