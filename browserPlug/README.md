@@ -1,11 +1,12 @@
-
+# oasis-navigation
+浏览器插件项目，独立的 oasis
 文件说明：
 1. manifest.json - Chrome/Edge 版本（Manifest V3）
 2. manifest.firefox.json - Firefox 版本（Manifest V2，使用 background.scripts）
 3. oasis_navigation_build-all.ps1 - 新的打包脚本，支持分别打包 Chrome 和 Firefox 版本
 4. oasis_navigation_build.bat - 入口脚本，自动调用oasis_navigation_ build-all.ps1
 
-# [oasis-navigation打包](oasis-navigation)
+## 打包
 > cd /mnt/c/work/组件/服务套件/oasis/browserPlug/oasis-navigation
 > zip -r ../chrome-extension.zip ./*
 1. 运行打包脚本 `./oasis_navigation_build.bat`
@@ -13,6 +14,7 @@
 3. 上传到商店：
    - Chrome: https://chrome.google.com/webstore/devconsole
    - Edge: https://partner.microsoft.com/dashboard/microsoftedge/overview
+
 
 # 发布
 ## 微软
