@@ -97,7 +97,7 @@ java -jar api-0.0.1-SNAPSHOT.jar
 > - 当前最新：0.0.3.7
 ###  一键构建
 ./docker-build.sh [版本号]        # Linux/Mac
-docker-build.bat  [版本号]        # Windows
+.\docker-build.bat  [版本号]        # Windows
 
 ### 分步构建
 1. 本地打包 `./build-local.sh`
