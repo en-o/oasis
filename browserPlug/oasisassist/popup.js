@@ -1,6 +1,7 @@
 // 兼容Chrome和Firefox的API
 const browserAPI = typeof chrome !== 'undefined' ? chrome : browser;
 
+// 添加当前页面
 document.getElementById('addCurrentPage').addEventListener('click', () => {
   // 获取当前标签页信息并打开添加页面
   browserAPI.tabs.query({ active: true, currentWindow: true }, (tabs) => {
@@ -32,6 +33,23 @@ document.getElementById('addCurrentPage').addEventListener('click', () => {
   });
 });
 
+// 打开 Oasis
+document.getElementById('openOasis').addEventListener('click', () => {
+  // 从配置中获取 API URL
+  browserAPI.storage.sync.get(['apiUrl'], (result) => {
+    const apiUrl = result.apiUrl || 'http://localhost:3000';
+
+    // 打开新标签页
+    browserAPI.tabs.create({
+      url: apiUrl
+    });
+
+    // 关闭popup
+    window.close();
+  });
+});
+
+// 打开设置
 document.getElementById('openOptions').addEventListener('click', () => {
   browserAPI.runtime.openOptionsPage();
   window.close();
