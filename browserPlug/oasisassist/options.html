@@ -135,9 +135,15 @@
 
     <form id="optionsForm">
       <div class="form-group">
-        <label>API服务器地址</label>
-        <input type="url" id="apiUrl" placeholder="http://localhost:3000" required>
-        <small>请输入完整的服务器地址（包括端口号），例如：http://localhost:3000</small>
+        <label>API 接口地址</label>
+        <input type="url" id="apiUrl" placeholder="http://localhost:3000/api" required>
+        <small>API 接口地址，用于插件与服务器通信（例如：http://localhost:3000/api）</small>
+      </div>
+
+      <div class="form-group">
+        <label>Web 网页地址（可选）</label>
+        <input type="url" id="webUrl" placeholder="http://localhost:3000/web">
+        <small>Oasis 网页访问地址，留空则使用 API 地址（例如：http://localhost:3000:1249/web 或 http://localhost:3000:1249）</small>
       </div>
 
       <div class="button-group">
@@ -149,21 +155,22 @@
     <div class="info-box">
       <h3>使用说明</h3>
       <ul>
-        <li>本地开发环境：http://localhost:3000</li>
-        <li>局域网访问：http://192.168.x.x:3000</li>
-        <li>生产环境：https://your-domain.com</li>
+        <li><strong>API 接口地址</strong>（必填）：用于插件调用接口，必须配置</li>
+        <li><strong>Web 网页地址</strong>（可选）：点击"打开 Oasis"按钮时跳转的地址</li>
+        <li>如果 Web 地址留空，则"打开 Oasis"按钮会使用 API 地址</li>
+        <li><strong>配置示例</strong>：
+          <ul>
+            <li>情况1：API 和 Web 地址相同
+              <br>→ API 地址：http://localhost:3000
+              <br>→ Web 地址：留空
+            </li>
+            <li>情况2：API 和 Web 地址不同
+              <br>→ API 地址：http://localhost:3000/api
+              <br>→ Web 地址：http://localhost:3000/web（或 http://localhost:3000）
+            </li>
+          </ul>
+        </li>
         <li>修改后需要重新打开添加页面才能生效</li>
-        <ul>
-          <li>在当前 Oasis 管理页面按 `F12` 打开开发者工具</li>
-          <li>切换到 Network（网络）标签页</li>
-          <li>刷新页面或点击任意菜单，查看接口请求</li>
-          <li>找到任意以 `/api/` 开头的接口</li>
-          <li>复制接口 URL 的前缀部分作为 API 地址</li>
-          <li>
-            接口地址：http://localhost:3000/api/navCategory/lists
-            插件配置：http://localhost:3000/api
-          </li>
-        </ul>
       </ul>
     </div>
   </div>

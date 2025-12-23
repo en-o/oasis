@@ -98,11 +98,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // 加载配置
 function loadConfig() {
-  browserAPI.storage.sync.get(['apiUrl'], (result) => {
+  browserAPI.storage.sync.get(['apiUrl', 'webUrl'], (result) => {
     if (result.apiUrl) {
       document.getElementById('apiUrl').value = result.apiUrl;
     } else {
       document.getElementById('apiUrl').value = 'http://localhost:3000';
+    }
+
+    if (result.webUrl) {
+      document.getElementById('webUrl').value = result.webUrl;
     }
   });
 }
@@ -112,10 +116,14 @@ function saveConfig(e) {
   e.preventDefault();
 
   let apiUrl = document.getElementById('apiUrl').value.trim();
+  let webUrl = document.getElementById('webUrl').value.trim();
 
   // 去除末尾的斜杠
   if (apiUrl.endsWith('/')) {
     apiUrl = apiUrl.slice(0, -1);
+  }
+  if (webUrl && webUrl.endsWith('/')) {
+    webUrl = webUrl.slice(0, -1);
   }
 
   // 验证URL格式
@@ -124,7 +132,18 @@ function saveConfig(e) {
     return;
   }
 
-  browserAPI.storage.sync.set({ apiUrl }, () => {
+  if (webUrl && !webUrl.startsWith('http://') && !webUrl.startsWith('https://')) {
+    showAlert('Web 地址必须是有效的 HTTP 或 HTTPS 地址', 'error');
+    return;
+  }
+
+  // 保存配置（webUrl 可能为空）
+  const config = { apiUrl };
+  if (webUrl) {
+    config.webUrl = webUrl;
+  }
+
+  browserAPI.storage.sync.set(config, () => {
     showAlert('设置已保存！');
   });
 }
