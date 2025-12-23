@@ -1,6 +1,17 @@
 // 兼容Chrome和Firefox的API
 const browserAPI = typeof chrome !== 'undefined' ? chrome : browser;
 
+// 构建API URL - 确保正确处理基础路径
+function buildApiUrl(baseUrl, endpoint) {
+  // 移除baseUrl末尾的斜杠（如果有）
+  baseUrl = baseUrl.replace(/\/$/, '');
+
+  // 移除endpoint开头的斜杠（如果有）
+  endpoint = endpoint.replace(/^\//, '');
+
+  return `${baseUrl}/${endpoint}`;
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   // 加载已保存的配置
   loadConfig();
@@ -57,7 +68,7 @@ async function testConnection() {
   }
 
   try {
-    const response = await fetch(`${apiUrl}/oasis/navCategory/list`, {
+    const response = await fetch(buildApiUrl(apiUrl, 'oasis/navCategory/list'), {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json'
