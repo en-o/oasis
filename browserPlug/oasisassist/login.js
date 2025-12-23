@@ -2,7 +2,7 @@
 const browserAPI = typeof chrome !== 'undefined' ? chrome : browser;
 
 // 从存储中获取API基础URL
-let API_BASE_URL = 'http://localhost:3000';
+let API_BASE_URL = 'http://localhost:1249';
 
 // 构建API URL
 function buildApiUrl(endpoint) {
@@ -15,7 +15,7 @@ function buildApiUrl(endpoint) {
 document.addEventListener('DOMContentLoaded', async () => {
   // 加载API配置
   const config = await getConfig();
-  API_BASE_URL = config.apiUrl || 'http://localhost:3000';
+  API_BASE_URL = config.apiUrl || 'http://localhost:1249';
 
   // 绑定登录表单提交事件
   document.getElementById('loginForm').addEventListener('submit', handleLogin);

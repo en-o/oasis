@@ -102,7 +102,7 @@ function loadConfig() {
     if (result.apiUrl) {
       document.getElementById('apiUrl').value = result.apiUrl;
     } else {
-      document.getElementById('apiUrl').value = 'http://localhost:3000';
+      document.getElementById('apiUrl').value = 'http://localhost:1249';
     }
 
     if (result.webUrl) {

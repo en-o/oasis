@@ -342,15 +342,15 @@ const BrowserExtension: React.FC = () => {
                   <div className="mt-2 p-2 bg-blue-50 rounded">
                     <p className="text-xs text-gray-600 mb-1">示例：</p>
                     <p className="text-xs">
-                      接口地址：<code className="text-blue-600">http://localhost:3000/api/navCategory/lists</code>
+                      接口地址：<code className="text-blue-600">http://localhost:1249/api/navCategory/lists</code>
                     </p>
                     <p className="text-xs mt-1">
-                      插件配置：<code className="text-green-600 font-semibold">http://localhost:3000/api</code>
+                      插件配置：<code className="text-green-600 font-semibold">http://localhost:1249/api</code>
                     </p>
                   </div>
                 </div>
                 <p className="text-xs text-gray-500 ml-4">
-                  或直接输入：<code className="bg-white px-2 py-0.5 rounded">http://localhost:3000</code>（本地开发）
+                  或直接输入：<code className="bg-white px-2 py-0.5 rounded">http://localhost:1249</code>（本地开发）
                 </p>
               </div>
             </li>

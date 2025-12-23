@@ -41,7 +41,7 @@
 ### 首次使用
 
 1. 点击插件图标，选择"设置"
-2. 配置API服务器地址（例如：`http://localhost:3000`）
+2. 配置API服务器地址（例如：`http://localhost:1249`）
 3. 点击"测试连接"确保连接成功
 4. 保存设置
 
@@ -134,10 +134,10 @@ chmod +x build.sh
 
 ### API服务器地址
 
-默认地址：`http://localhost:3000`
+默认地址：`http://localhost:1249`
 
 可以配置为：
-- 本地开发：`http://localhost:3000`
+- 本地开发：`http://localhost:1249`
 - 局域网访问：`http://192.168.x.x:3000`
 - 生产环境：`https://your-domain.com`
 - 有基础路径的部署：`https://your-domain.com/oasis`（自动处理 VITE_BASE_PATH）

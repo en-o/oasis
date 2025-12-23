@@ -38,7 +38,7 @@ document.getElementById('openOasis').addEventListener('click', () => {
   // 从配置中获取 Web URL 或 API URL
   browserAPI.storage.sync.get(['webUrl', 'apiUrl'], (result) => {
     // 优先使用 webUrl，如果没有则使用 apiUrl
-    const url = result.webUrl || result.apiUrl || 'http://localhost:3000';
+    const url = result.webUrl || result.apiUrl || 'http://localhost:1249';
 
     // 打开新标签页
     browserAPI.tabs.create({
