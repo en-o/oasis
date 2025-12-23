@@ -105,6 +105,24 @@ docker run -d \
 ```
 
 
+# oasis辅助工具-[快捷添加导航插件](browserPlug/oasisassist)
+
+一个浏览器插件，支持快速添加网页到 Oasis 导航系统。右键点击网页即可添加，自动填充页面信息和图标。
+
+**主要功能**：
+- ✅ 右键菜单快速添加当前页面
+- ✅ 自动填充标题、URL、备注和图标
+- ✅ Token 身份认证，自动拦截登录
+- ✅ 支持 Chrome、Edge、Firefox
+
+**快速开始**：
+1. 下载插件：管理后台 → 浏览器插件
+2. 安装插件：拖拽 ZIP 文件到浏览器扩展页面
+3. 配置 API 地址：点击插件图标 → 设置
+4. 右键网页 → "添加到Oasis导航"
+
+详细文档：[browserPlug/oasisassist/README.md](browserPlug/oasisassist/README.md)
+
 
 # 单独的[浏览器插件](browserPlug/README.md)
 > browserPlug 更当前的项目关系不大，一个纯html的浏览器导航插件
