@@ -1,5 +1,6 @@
 # oasis-navigation
 浏览器插件项目，独立的 oasis
+> ![oasis-navigation_img.png](image/oasis-navigation_img.png)[img.png](browserPlug/image/img.png)
 文件说明：
 1. manifest.json - Chrome/Edge 版本（Manifest V3）
 2. manifest.firefox.json - Firefox 版本（Manifest V2，使用 background.scripts）
