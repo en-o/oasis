@@ -7,7 +7,7 @@
 # 打包
 > cd /mnt/c/work/组件/服务套件/oasis/browserPlug/oasis-navigation
 > zip -r ../chrome-extension.zip ./*
-1. 运行打包脚本 `oasis_navigation_build.bat`
+1. 运行打包脚本 `./oasis_navigation_build.bat`
 2. 按照 PUBLISH_GUIDE.md 准备截图
 3. 上传到商店：
    - Chrome: https://chrome.google.com/webstore/devconsole
