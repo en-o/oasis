@@ -1,0 +1,42 @@
+{
+  "manifest_version": 2,
+  "name": "Oasis导航助手",
+  "version": "1.0.0",
+  "description": "快速添加网页到Oasis导航系统",
+  "permissions": [
+    "contextMenus",
+    "tabs",
+    "activeTab",
+    "storage",
+    "http://localhost:9527/*",
+    "http://127.0.0.1:9527/*",
+    "http://*/*",
+    "https://*/*"
+  ],
+  "background": {
+    "scripts": ["background.js"]
+  },
+  "browser_action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "options_ui": {
+    "page": "options.html",
+    "open_in_tab": true
+  },
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "oasisassist@tannn.cn",
+      "strict_min_version": "57.0"
+    }
+  }
+}

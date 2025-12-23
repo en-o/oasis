@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>添加导航到Oasis</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      font-size: 14px;
+      color: #333;
+      background: #f5f5f5;
+      padding: 20px;
+    }
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+      background: white;
+      padding: 24px;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    .header {
+      margin-bottom: 24px;
+    }
+    .header h1 {
+      font-size: 20px;
+      color: #1890ff;
+      margin-bottom: 8px;
+    }
+    .header p {
+      font-size: 12px;
+      color: #666;
+    }
+    .form-group {
+      margin-bottom: 16px;
+    }
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 500;
+      color: #333;
+    }
+    .form-group label .required {
+      color: #ff4d4f;
+      margin-left: 4px;
+    }
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      width: 100%;
+      padding: 8px 12px;
+      border: 1px solid #d9d9d9;
+      border-radius: 4px;
+      font-size: 14px;
+      transition: border-color 0.3s;
+    }
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+      outline: none;
+      border-color: #40a9ff;
+    }
+    .form-group textarea {
+      resize: vertical;
+      min-height: 60px;
+    }
+    .form-group small {
+      display: block;
+      margin-top: 4px;
+      color: #999;
+      font-size: 12px;
+    }
+    .checkbox-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .checkbox-group input[type="checkbox"] {
+      width: auto;
+    }
+    .radio-group {
+      display: flex;
+      gap: 16px;
+      margin-bottom: 8px;
+    }
+    .radio-group label {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-weight: normal;
+    }
+    .image-upload {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+    .image-preview {
+      width: 64px;
+      height: 64px;
+      border: 2px dashed #d9d9d9;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      background: #fafafa;
+    }
+    .image-preview img {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+    }
+    .divider {
+      height: 1px;
+      background: #e8e8e8;
+      margin: 24px 0;
+    }
+    .section-title {
+      font-size: 16px;
+      font-weight: 500;
+      margin-bottom: 16px;
+      color: #333;
+    }
+    .button-group {
+      display: flex;
+      gap: 12px;
+      justify-content: flex-end;
+      margin-top: 24px;
+    }
+    .btn {
+      padding: 8px 16px;
+      border: none;
+      border-radius: 4px;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    .btn-primary {
+      background: #1890ff;
+      color: white;
+    }
+    .btn-primary:hover {
+      background: #40a9ff;
+    }
+    .btn-primary:disabled {
+      background: #d9d9d9;
+      cursor: not-allowed;
+    }
+    .btn-default {
+      background: #f5f5f5;
+      color: #333;
+    }
+    .btn-default:hover {
+      background: #e8e8e8;
+    }
+    .alert {
+      padding: 12px;
+      border-radius: 4px;
+      margin-bottom: 16px;
+      display: none;
+    }
+    .alert.success {
+      background: #f6ffed;
+      border: 1px solid #b7eb8f;
+      color: #52c41a;
+    }
+    .alert.error {
+      background: #fff2f0;
+      border: 1px solid #ffccc7;
+      color: #ff4d4f;
+    }
+    .alert.show {
+      display: block;
+    }
+    .loading {
+      display: none;
+      text-align: center;
+      padding: 20px;
+      color: #1890ff;
+    }
+    .loading.show {
+      display: block;
+    }
+    #iconUrlInput, #iconUploadInput {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>添加导航到Oasis</h1>
+      <p>填写以下信息将网页添加到您的导航系统</p>
+    </div>
+
+    <div id="alert" class="alert"></div>
+    <div id="loading" class="loading">正在提交...</div>
+
+    <form id="addNavForm">
+      <!-- 基本信息 -->
+      <div class="form-group">
+        <label>名称<span class="required">*</span></label>
+        <input type="text" id="name" required placeholder="请输入导航名称">
+      </div>
+
+      <div class="form-group">
+        <label>URL<span class="required">*</span></label>
+        <input type="url" id="url" required placeholder="https://example.com">
+        <small>必须是有效的 HTTP 或 HTTPS 地址</small>
+      </div>
+
+      <div class="form-group">
+        <label>分类<span class="required">*</span></label>
+        <select id="category" required>
+          <option value="">加载中...</option>
+        </select>
+        <small>请选择一个分类</small>
+      </div>
+
+      <div class="form-group">
+        <label>排序</label>
+        <input type="number" id="sort" value="1" min="0" placeholder="排序值，数字越小越靠前">
+      </div>
+
+      <!-- 图标设置 -->
+      <div class="form-group">
+        <label>图标</label>
+        <div class="radio-group">
+          <label>
+            <input type="radio" name="iconType" value="none" checked> 无图标
+          </label>
+          <label>
+            <input type="radio" name="iconType" value="url"> URL地址
+          </label>
+          <label>
+            <input type="radio" name="iconType" value="upload"> 上传图片
+          </label>
+        </div>
+        <div id="iconUrlInput">
+          <input type="url" id="iconUrl" placeholder="https://example.com/icon.png">
+        </div>
+        <div id="iconUploadInput">
+          <div class="image-upload">
+            <input type="file" id="iconFile" accept="image/png,image/jpeg,image/jpg,image/gif,image/webp">
+            <div class="image-preview" id="iconPreview">
+              <span style="color: #999; font-size: 12px;">预览</span>
+            </div>
+          </div>
+        </div>
+        <small>支持 JPG/PNG/GIF/WEBP 格式，不支持 SVG</small>
+      </div>
+
+      <div class="form-group">
+        <label>备注</label>
+        <textarea id="remark" placeholder="导航描述信息"></textarea>
+      </div>
+
+      <!-- 账户信息 -->
+      <div class="divider"></div>
+      <div class="section-title">账户信息（可选）</div>
+
+      <div class="form-group">
+        <label>登录账号</label>
+        <input type="text" id="account" placeholder="登录账号">
+      </div>
+
+      <div class="form-group">
+        <label>登录密码</label>
+        <input type="password" id="password" placeholder="登录密码">
+      </div>
+
+      <div class="form-group">
+        <div class="checkbox-group">
+          <input type="checkbox" id="lookAccount" checked>
+          <label for="lookAccount">允许查看账户信息（关闭后需要密钥）</label>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>查看密钥</label>
+        <input type="text" id="nvaAccessSecret" value="tan" placeholder="查看密钥（默认：tan）">
+        <small>查看账户信息时需要的密钥</small>
+      </div>
+
+      <!-- 其他设置 -->
+      <div class="divider"></div>
+      <div class="section-title">其他设置</div>
+
+      <div class="form-group">
+        <label>发布页面</label>
+        <select id="showPlatform">
+          <option value="">所有页面</option>
+        </select>
+        <small>选择发布页面，留空表示在所有导航页显示</small>
+      </div>
+
+      <div class="form-group">
+        <div class="checkbox-group">
+          <input type="checkbox" id="status" checked>
+          <label for="status">启用该导航项</label>
+        </div>
+      </div>
+
+      <!-- 按钮组 -->
+      <div class="button-group">
+        <button type="button" class="btn btn-default" id="cancelBtn">取消</button>
+        <button type="submit" class="btn btn-primary" id="submitBtn">添加</button>
+      </div>
+    </form>
+  </div>
+
+  <script src="add.js"></script>
+</body>
+</html>

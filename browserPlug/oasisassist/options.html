@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Oasis导航助手 - 设置</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      font-size: 14px;
+      color: #333;
+      background: #f5f5f5;
+      padding: 40px 20px;
+    }
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+      background: white;
+      padding: 32px;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    .header {
+      margin-bottom: 32px;
+    }
+    .header h1 {
+      font-size: 24px;
+      color: #1890ff;
+      margin-bottom: 8px;
+    }
+    .header p {
+      font-size: 14px;
+      color: #666;
+    }
+    .form-group {
+      margin-bottom: 24px;
+    }
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 500;
+      color: #333;
+    }
+    .form-group input {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid #d9d9d9;
+      border-radius: 4px;
+      font-size: 14px;
+      transition: border-color 0.3s;
+    }
+    .form-group input:focus {
+      outline: none;
+      border-color: #40a9ff;
+    }
+    .form-group small {
+      display: block;
+      margin-top: 8px;
+      color: #999;
+      font-size: 12px;
+    }
+    .button-group {
+      display: flex;
+      gap: 12px;
+    }
+    .btn {
+      padding: 10px 24px;
+      border: none;
+      border-radius: 4px;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    .btn-primary {
+      background: #1890ff;
+      color: white;
+    }
+    .btn-primary:hover {
+      background: #40a9ff;
+    }
+    .btn-default {
+      background: #f5f5f5;
+      color: #333;
+    }
+    .btn-default:hover {
+      background: #e8e8e8;
+    }
+    .alert {
+      padding: 12px;
+      border-radius: 4px;
+      margin-bottom: 24px;
+      display: none;
+    }
+    .alert.success {
+      background: #f6ffed;
+      border: 1px solid #b7eb8f;
+      color: #52c41a;
+    }
+    .alert.show {
+      display: block;
+    }
+    .info-box {
+      background: #e6f7ff;
+      border: 1px solid #91d5ff;
+      border-radius: 4px;
+      padding: 16px;
+      margin-top: 24px;
+    }
+    .info-box h3 {
+      font-size: 14px;
+      color: #1890ff;
+      margin-bottom: 8px;
+    }
+    .info-box ul {
+      margin-left: 20px;
+      color: #666;
+      font-size: 13px;
+      line-height: 1.8;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>Oasis导航助手 - 设置</h1>
+      <p>配置您的Oasis服务器地址</p>
+    </div>
+
+    <div id="alert" class="alert"></div>
+
+    <form id="optionsForm">
+      <div class="form-group">
+        <label>API服务器地址</label>
+        <input type="url" id="apiUrl" placeholder="http://localhost:9527" required>
+        <small>请输入完整的服务器地址（包括端口号），例如：http://localhost:9527</small>
+      </div>
+
+      <div class="button-group">
+        <button type="submit" class="btn btn-primary">保存设置</button>
+        <button type="button" class="btn btn-default" id="testBtn">测试连接</button>
+      </div>
+    </form>
+
+    <div class="info-box">
+      <h3>使用说明</h3>
+      <ul>
+        <li>本地开发环境：http://localhost:9527</li>
+        <li>局域网访问：http://192.168.x.x:9527</li>
+        <li>生产环境：https://your-domain.com</li>
+        <li>修改后需要重新打开添加页面才能生效</li>
+      </ul>
+    </div>
+  </div>
+
+  <script src="options.js"></script>
+</body>
+</html>

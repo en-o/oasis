@@ -16,6 +16,26 @@
    - Chrome: https://chrome.google.com/webstore/devconsole
    - Edge: https://partner.microsoft.com/dashboard/microsoftedge/overview
 
+# [oasisassist](oasisassist/README.md)
+当前项目的一个辅助插件，是将导航添加功能封装成支持Chrome、Edge和Firefox的扩展，用于快捷添加
+
+## 打包
+```batch
+cd ./oasisassist && build.bat
+```
+打包后会在以下位置生成文件：
+- `dist/oasisassist-chrome.zip` - Chrome/Edge版本
+- `dist/oasisassist-firefox.zip` - Firefox版本
+- `../../reactWeb/public/extensions/` - 自动复制到前端项目
+## API服务器地址配置说明
+
+默认地址：`http://localhost:9527`
+
+可以配置为：
+- 本地开发：`http://localhost:9527`
+- 局域网访问：`http://192.168.x.x:9527`
+- 生产环境：`https://your-domain.com`
+
 
 # 发布
 ## 微软
