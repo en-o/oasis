@@ -940,7 +940,7 @@
         }
       });
 
-      // 2. 合并分类 - 只添加新分类
+      // 2. 合并分类 - 添加新分类，更新已存在分类的置顶状态
       importedData.categories.forEach(category => {
         const categoryName = typeof category === 'string' ? category : category.name;
         const categoryPinned = typeof category === 'string' ? false : (category.pinned || false);
@@ -952,6 +952,8 @@
           data.sites[categoryName] = [];
           mergeReport.categories.added++;
         } else {
+          // 更新已存在分类的置顶状态（从云端同步置顶状态）
+          existingCategory.pinned = categoryPinned;
           mergeReport.categories.skipped++;
         }
       });
