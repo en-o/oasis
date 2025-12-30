@@ -43,8 +43,12 @@
 
 ## 📦 安装
 
+### 打包
+1. 运行打包脚本 ./oasis_navigation_build.bat
+
 ### Chrome / Edge / Brave
 
+#### 直接加载
 1. 下载最新版本的插件包
 2. 解压到本地目录
 3. 打开浏览器扩展管理页面:
@@ -55,6 +59,16 @@
 5. 点击「加载已解压的扩展程序」
 6. 选择解压后的 `oasis-navigation` 目录
 
+#### 加载压缩包
+1. 运行上面的打包脚本
+2. 打开浏览器扩展管理页面
+3. 将压缩包拉进去就行了
+
+#### 在线安装
+1. 打开https://microsoftedge.microsoft.com/addons?hl=zh-CN
+2. 搜索 `导航助手(Oasis)`
+3. 点击获取安装就行了  (我就发版了火狐和edge)
+
 ### Firefox
 
 1. 下载最新版本的插件包
@@ -62,6 +76,17 @@
 3. 打开 Firefox 附加组件调试页面: `about:debugging#/runtime/this-firefox`
 4. 点击「临时加载附加组件」
 5. 选择 `manifest.firefox.json` 文件
+
+#### 加载压缩包
+1. 运行上面的打包脚本
+2. 打开浏览器扩展管理页面
+3. 点击「临时加载附加组件」
+4. 选择打包好的压缩包
+
+#### 在线安装
+1. 打开 https://addons.mozilla.org/zh-CN/firefox/search/?q=%E5%AF%BC%E8%88%AA%E5%8A%A9%E6%89%8B(Oasis)
+2. 搜索 `导航助手(Oasis)`
+3. 点击获取安装就行了  (我就发版了火狐和edge)
 
 ---
 
