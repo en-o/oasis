@@ -5,7 +5,11 @@
         { name: 'Bing', url: 'https://www.bing.com/search?q={query}' },
         { name: 'Baidu', url: 'https://www.baidu.com/s?wd={query}' }
       ],
-      categories: ['常用', '工作', '娱乐'],
+      categories: [
+        { name: '常用', pinned: false },
+        { name: '工作', pinned: false },
+        { name: '娱乐', pinned: false }
+      ],
       sites: {
         '常用': [
           { name: 'Google', icon: '🔍', url: 'https://www.google.com', desc: '搜索引擎', accountInfo: {} },
@@ -45,7 +49,15 @@
 
           if (result.navData) {
             data = result.navData;
-            console.log('✅ 数据已从云端同步加载');
+            // 数据迁移：将旧格式的 categories (字符串数组) 转换为新格式 (对象数组)
+            const needsMigration = migrateCategoriesFormat();
+            // 如果进行了迁移，需要保存回去
+            if (needsMigration) {
+              await saveData();
+              console.log('✅ 数据已从云端同步加载并迁移');
+            } else {
+              console.log('✅ 数据已从云端同步加载');
+            }
             return;
           }
         }
@@ -54,6 +66,8 @@
         const stored = localStorage.getItem('navData');
         if (stored) {
           data = JSON.parse(stored);
+          // 数据迁移
+          migrateCategoriesFormat();
           // 迁移数据到 sync storage
           await saveData();
           console.log('✅ 数据已从本地迁移到云端同步');
@@ -70,11 +84,29 @@
         const stored = localStorage.getItem('navData');
         if (stored) {
           data = JSON.parse(stored);
+          migrateCategoriesFormat();
         } else {
           // 最终降级：使用默认数据
           data = JSON.parse(JSON.stringify(defaultData));
         }
       }
+    }
+
+    // 迁移分类数据格式（从字符串数组到对象数组）
+    function migrateCategoriesFormat() {
+      if (data.categories && data.categories.length > 0) {
+        // 检查第一个元素是否为字符串（旧格式）
+        if (typeof data.categories[0] === 'string') {
+          console.log('🔄 检测到旧格式分类数据，正在迁移...');
+          data.categories = data.categories.map(name => ({
+            name: name,
+            pinned: false
+          }));
+          console.log('✅ 分类数据迁移完成');
+          return true; // 返回 true 表示进行了迁移
+        }
+      }
+      return false; // 返回 false 表示不需要迁移
     }
 
     // 保存数据（到同步存储）
@@ -240,18 +272,116 @@
 
     // 渲染分类
     function renderCategories() {
-      const container = document.getElementById('categoryTabs');
-      container.innerHTML = data.categories.map(c =>
-        `<button class="category-tab ${c === currentCategory ? 'active' : ''}"
-                data-category="${c}">${c}</button>`
+      const pinnedContainer = document.getElementById('categoryTabsPinned');
+      const scrollContainer = document.getElementById('categoryTabs');
+
+      // 分类排序：置顶的在前面，非置顶的在后面
+      const pinnedCategories = data.categories.filter(c => c.pinned);
+      const unpinnedCategories = data.categories.filter(c => !c.pinned);
+
+      // 渲染置顶分类（固定在左侧）
+      pinnedContainer.innerHTML = pinnedCategories.map(c =>
+        `<button class="category-tab ${c.name === currentCategory ? 'active' : ''} pinned-category"
+                data-category="${c.name}">📌 ${c.name}</button>`
+      ).join('');
+
+      // 渲染非置顶分类（可滚动）
+      scrollContainer.innerHTML = unpinnedCategories.map(c =>
+        `<button class="category-tab ${c.name === currentCategory ? 'active' : ''}"
+                data-category="${c.name}">${c.name}</button>`
       ).join('');
 
       // 绑定分类点击事件
-      container.querySelectorAll('.category-tab').forEach(tab => {
-        tab.addEventListener('click', (e) => {
-          selectCategory(e.target.dataset.category);
+      [pinnedContainer, scrollContainer].forEach(container => {
+        container.querySelectorAll('.category-tab').forEach(tab => {
+          tab.addEventListener('click', (e) => {
+            selectCategory(e.target.dataset.category);
+          });
         });
       });
+
+      // 初始化滚动控制
+      initCategoryScroll();
+    }
+
+    // 初始化分类滚动控制
+    function initCategoryScroll() {
+      const scrollContainer = document.getElementById('categoryTabs');
+      const scrollLeftBtn = document.getElementById('categoryScrollLeft');
+      const scrollRightBtn = document.getElementById('categoryScrollRight');
+
+      if (!scrollContainer || !scrollLeftBtn || !scrollRightBtn) {
+        return;
+      }
+
+      // 更新箭头按钮显示状态
+      function updateScrollButtons() {
+        const { scrollLeft, scrollWidth, clientWidth } = scrollContainer;
+
+        // 显示/隐藏左箭头
+        if (scrollLeft > 0) {
+          scrollLeftBtn.classList.add('show');
+        } else {
+          scrollLeftBtn.classList.remove('show');
+        }
+
+        // 显示/隐藏右箭头
+        if (scrollLeft < scrollWidth - clientWidth - 1) {
+          scrollRightBtn.classList.add('show');
+        } else {
+          scrollRightBtn.classList.remove('show');
+        }
+      }
+
+      // 左箭头点击事件
+      scrollLeftBtn.onclick = () => {
+        scrollContainer.scrollBy({ left: -200, behavior: 'smooth' });
+      };
+
+      // 右箭头点击事件
+      scrollRightBtn.onclick = () => {
+        scrollContainer.scrollBy({ left: 200, behavior: 'smooth' });
+      };
+
+      // 监听滚动事件，更新箭头显示
+      scrollContainer.addEventListener('scroll', updateScrollButtons);
+
+      // 初始化箭头状态
+      updateScrollButtons();
+
+      // 鼠标拖拽滑动功能
+      let isDragging = false;
+      let startX = 0;
+      let scrollLeftStart = 0;
+
+      scrollContainer.addEventListener('mousedown', (e) => {
+        isDragging = true;
+        startX = e.pageX - scrollContainer.offsetLeft;
+        scrollLeftStart = scrollContainer.scrollLeft;
+        scrollContainer.style.cursor = 'grabbing';
+        e.preventDefault();
+      });
+
+      scrollContainer.addEventListener('mousemove', (e) => {
+        if (!isDragging) return;
+        e.preventDefault();
+        const x = e.pageX - scrollContainer.offsetLeft;
+        const walk = (x - startX) * 1.5; // 拖拽速度系数
+        scrollContainer.scrollLeft = scrollLeftStart - walk;
+      });
+
+      scrollContainer.addEventListener('mouseup', () => {
+        isDragging = false;
+        scrollContainer.style.cursor = 'grab';
+      });
+
+      scrollContainer.addEventListener('mouseleave', () => {
+        isDragging = false;
+        scrollContainer.style.cursor = 'grab';
+      });
+
+      // 设置初始光标样式
+      scrollContainer.style.cursor = 'grab';
     }
 
     function selectCategory(name) {
@@ -437,20 +567,35 @@
     }
 
     function renderManageLists() {
-      // 渲染分类列表
+      // 渲染分类列表（排序：置顶在前）
       const categoryList = document.getElementById('categoryList');
-      categoryList.innerHTML = data.categories.map((c, i) => `
-        <div class="list-item">
-          <span>${c}</span>
-          <button class="delete-btn" data-action="delete-category" data-index="${i}">删除</button>
-        </div>
-      `).join('');
+      const sortedCategories = [...data.categories].sort((a, b) => {
+        if (a.pinned && !b.pinned) return -1;
+        if (!a.pinned && b.pinned) return 1;
+        return 0;
+      });
+
+      categoryList.innerHTML = sortedCategories.map((c, i) => {
+        // 找到原始索引
+        const originalIndex = data.categories.findIndex(cat => cat.name === c.name);
+        const pinIcon = c.pinned ? '📌 ' : '';
+
+        return `
+          <div class="list-item">
+            <span>${pinIcon}${c.name}</span>
+            <div>
+              <button class="pin-btn ${c.pinned ? 'pinned' : ''}" data-action="${c.pinned ? 'unpin-category' : 'pin-category'}" data-index="${originalIndex}">${c.pinned ? '取消置顶' : '置顶'}</button>
+              <button class="delete-btn" data-action="delete-category" data-index="${originalIndex}">删除</button>
+            </div>
+          </div>
+        `;
+      }).join('');
 
       // 渲染网站选择分类，如果已有选中的分类则保持，否则使用当前分类
       const siteCategory = document.getElementById('siteCategory');
       const previousSelected = siteCategory.value || currentCategory;
       siteCategory.innerHTML = data.categories.map(c =>
-        `<option value="${c}" ${c === previousSelected ? 'selected' : ''}>${c}</option>`
+        `<option value="${c.name}" ${c.name === previousSelected ? 'selected' : ''}>${c.pinned ? '📌 ' : ''}${c.name}</option>`
       ).join('');
 
       // 渲染网站列表
@@ -475,11 +620,11 @@
       engineList.addEventListener('click', handleManageAction);
     }
 
-    // 根据选择的分类渲染网站列表
+      // 根据选择的分类渲染网站列表
     function renderSiteListByCategory() {
       const siteCategory = document.getElementById('siteCategory');
       const siteList = document.getElementById('siteList');
-      const category = siteCategory.value || data.categories[0];
+      const category = siteCategory.value || (data.categories[0] ? data.categories[0].name : '');
       const sites = data.sites[category] || [];
       siteList.innerHTML = sites.map((s, i) => {
         // 根据图标类型显示不同的图标
@@ -513,6 +658,12 @@
       const category = target.dataset.category;
 
       switch(action) {
+        case 'pin-category':
+          toggleCategoryPin(index, true);
+          break;
+        case 'unpin-category':
+          toggleCategoryPin(index, false);
+          break;
         case 'delete-category':
           deleteCategory(index);
           break;
@@ -534,6 +685,14 @@
       }
     }
 
+    // 切换分类置顶状态
+    function toggleCategoryPin(index, pinned) {
+      data.categories[index].pinned = pinned;
+      saveData();
+      renderCategories();
+      renderManageLists();
+    }
+
     // 切换网站置顶状态
     function togglePin(category, index, pinned) {
       data.sites[category][index].pinned = pinned;
@@ -546,9 +705,9 @@
     function addCategory() {
       const name = document.getElementById('categoryName').value.trim();
       if (!name) return alert('请输入分类名称');
-      if (data.categories.includes(name)) return alert('分类已存在');
+      if (data.categories.some(c => c.name === name)) return alert('分类已存在');
 
-      data.categories.push(name);
+      data.categories.push({ name: name, pinned: false });
       data.sites[name] = [];
       saveData();
       renderCategories();
@@ -727,11 +886,11 @@
     // 删除功能
     function deleteCategory(index) {
       if (!confirm('确定删除此分类及其所有网站?')) return;
-      const category = data.categories[index];
+      const categoryName = data.categories[index].name;
       data.categories.splice(index, 1);
-      delete data.sites[category];
-      if (currentCategory === category) {
-        currentCategory = data.categories[0];
+      delete data.sites[categoryName];
+      if (currentCategory === categoryName) {
+        currentCategory = data.categories[0] ? data.categories[0].name : '';
       }
       saveData();
       renderCategories();
@@ -783,9 +942,14 @@
 
       // 2. 合并分类 - 只添加新分类
       importedData.categories.forEach(category => {
-        if (!data.categories.includes(category)) {
-          data.categories.push(category);
-          data.sites[category] = [];
+        const categoryName = typeof category === 'string' ? category : category.name;
+        const categoryPinned = typeof category === 'string' ? false : (category.pinned || false);
+
+        // 检查分类名是否已存在
+        const existingCategory = data.categories.find(c => c.name === categoryName);
+        if (!existingCategory) {
+          data.categories.push({ name: categoryName, pinned: categoryPinned });
+          data.sites[categoryName] = [];
           mergeReport.categories.added++;
         } else {
           mergeReport.categories.skipped++;
@@ -1029,8 +1193,9 @@
             // 这是一个书签
             if (!importedData.sites[categoryName]) {
               importedData.sites[categoryName] = [];
-              if (!importedData.categories.includes(categoryName)) {
-                importedData.categories.push(categoryName);
+              // 检查分类是否已存在（使用对象格式）
+              if (!importedData.categories.find(c => c.name === categoryName)) {
+                importedData.categories.push({ name: categoryName, pinned: false });
               }
             }
 

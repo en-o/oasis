@@ -1,5 +1,21 @@
 <!-- 导航区域 -->
 <div class="nav-section">
-  <div class="category-tabs" id="categoryTabs"></div>
+  <div class="category-tabs-wrapper">
+    <!-- 置顶分类容器（固定）-->
+    <div class="category-tabs-pinned" id="categoryTabsPinned"></div>
+
+    <!-- 可滚动分类容器 -->
+    <div class="category-tabs-scroll-container">
+      <!-- 左箭头按钮 -->
+      <button class="category-scroll-btn-left" id="categoryScrollLeft">‹</button>
+
+      <!-- 滚动分类容器 -->
+      <div class="category-tabs" id="categoryTabs"></div>
+
+      <!-- 右箭头按钮 -->
+      <button class="category-scroll-btn-right" id="categoryScrollRight">›</button>
+    </div>
+  </div>
+
   <div class="sites-grid" id="sitesGrid"></div>
 </div>

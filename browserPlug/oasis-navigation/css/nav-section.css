@@ -6,36 +6,103 @@
   margin: 0 auto;
 }
 
+/* 分类标签容器包装器 - 包含固定和滚动区域 */
+.category-tabs-wrapper {
+  position: relative;
+  display: flex;
+  align-items: stretch;
+  margin-bottom: 24px;
+  border-bottom: 1px solid #dadce0;
+}
+
+/* 置顶分类容器 - 固定在左侧 */
+.category-tabs-pinned {
+  display: flex;
+  gap: 0;
+  flex-shrink: 0;
+  border-right: 2px solid #f1f3f4;
+}
+
+/* 滚动分类容器的外层容器 */
+.category-tabs-scroll-container {
+  position: relative;
+  flex: 1;
+  display: flex;
+  align-items: stretch;
+  overflow: hidden;
+}
+
+/* 左箭头按钮 */
+.category-scroll-btn-left {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 40px;
+  background: linear-gradient(to right, rgba(255, 255, 255, 0.95), transparent);
+  border: none;
+  cursor: pointer;
+  z-index: 10;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  color: #5f6368;
+  font-size: 18px;
+  transition: all 0.2s;
+}
+
+.category-scroll-btn-left:hover {
+  color: #1a73e8;
+}
+
+.category-scroll-btn-left.show {
+  display: flex;
+}
+
+/* 右箭头按钮 */
+.category-scroll-btn-right {
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  width: 40px;
+  background: linear-gradient(to left, rgba(255, 255, 255, 0.95), transparent);
+  border: none;
+  cursor: pointer;
+  z-index: 10;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  color: #5f6368;
+  font-size: 18px;
+  transition: all 0.2s;
+}
+
+.category-scroll-btn-right:hover {
+  color: #1a73e8;
+}
+
+.category-scroll-btn-right.show {
+  display: flex;
+}
+
+/* 可滚动分类容器 */
 .category-tabs {
   display: flex;
   gap: 0;
-  margin-bottom: 24px;
-  border-bottom: 1px solid #dadce0;
   padding-bottom: 0;
-  flex-wrap: nowrap; /* 禁用换行，启用横向滚动 */
+  flex-wrap: nowrap;
   overflow-x: auto;
   overflow-y: hidden;
-  scrollbar-width: thin; /* Firefox */
-  scrollbar-color: #dadce0 transparent; /* Firefox */
-  -webkit-overflow-scrolling: touch; /* iOS 平滑滚动 */
+  scrollbar-width: none; /* 隐藏 Firefox 滚动条 */
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth; /* 平滑滚动 */
 }
 
-/* Webkit 浏览器滚动条样式 */
+/* 隐藏 Webkit 浏览器滚动条 */
 .category-tabs::-webkit-scrollbar {
-  height: 6px;
-}
-
-.category-tabs::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.category-tabs::-webkit-scrollbar-thumb {
-  background: #dadce0;
-  border-radius: 3px;
-}
-
-.category-tabs::-webkit-scrollbar-thumb:hover {
-  background: #bdc1c6;
+  display: none;
+  height: 0;
 }
 
 .category-tab {
@@ -60,6 +127,16 @@
 .category-tab.active {
   color: #1a73e8;
   border-bottom-color: #1a73e8;
+}
+
+/* 置顶分类样式 */
+.category-tab.pinned-category {
+  font-weight: 600;
+  background: #fffbeb;
+}
+
+.category-tab.pinned-category.active {
+  background: #fef3c7;
 }
 
 .sites-grid {
