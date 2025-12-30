@@ -572,7 +572,7 @@
       if (iconType === 'url' && !iconUrl) return alert('请填写图标地址');
 
       if (!data.sites[category]) data.sites[category] = [];
-      data.sites[category].push({ name, icon, iconType, iconUrl, url, desc, accountInfo });
+      data.sites[category].push({ name, icon, iconType, iconUrl, url, desc, accountInfo, pinned: false });
 
       saveData();
       renderSites();
@@ -648,14 +648,18 @@
       if (!name || !url) return alert('请填写网站名称和地址');
       if (iconType === 'url' && !iconUrl) return alert('请填写图标地址');
 
+      // 保留原有的置顶状态
+      const originalSite = data.sites[editingCategory][editingIndex];
+      const pinned = originalSite.pinned || false;
+
       // 如果分类改变，需要从旧分类删除并添加到新分类
       if (category !== editingCategory) {
         data.sites[editingCategory].splice(editingIndex, 1);
         if (!data.sites[category]) data.sites[category] = [];
-        data.sites[category].push({ name, icon, iconType, iconUrl, url, desc, accountInfo });
+        data.sites[category].push({ name, icon, iconType, iconUrl, url, desc, accountInfo, pinned });
       } else {
         // 同一分类，直接更新
-        data.sites[category][editingIndex] = { name, icon, iconType, iconUrl, url, desc, accountInfo };
+        data.sites[category][editingIndex] = { name, icon, iconType, iconUrl, url, desc, accountInfo, pinned };
       }
 
       saveData();
