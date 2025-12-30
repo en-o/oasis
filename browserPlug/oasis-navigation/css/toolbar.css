@@ -1,0 +1,20 @@
+/* 工具栏按钮样式 */
+.manage-btn {
+  padding: 8px 16px;
+  background: transparent;
+  color: #5f6368;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+  border-radius: 4px;
+  transition: all 0.2s;
+  font-family: arial, sans-serif;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+}
+
+.manage-btn:hover {
+  background: #f8f9fa;
+}

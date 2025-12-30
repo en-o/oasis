@@ -1,0 +1,97 @@
+/* 基础重置样式 */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: arial, sans-serif;
+  background: #fff;
+  min-height: 100vh;
+  padding: 20px;
+  color: #202124;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* 通用按钮样式 */
+.btn {
+  flex: 1;
+  padding: 10px 16px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  font-family: arial, sans-serif;
+  transition: all 0.1s;
+}
+
+.btn-primary {
+  background: #1a73e8;
+  color: white;
+}
+
+.btn-primary:hover {
+  background: #1765cc;
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
+}
+
+.btn-secondary {
+  background: #f8f9fa;
+  color: #3c4043;
+  border: 1px solid #dadce0;
+}
+
+.btn-secondary:hover {
+  background: #f1f3f4;
+}
+
+.btn-group {
+  display: flex;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+/* 通用表单样式 */
+.form-group {
+  margin-bottom: 16px;
+}
+
+.form-label {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: 400;
+  color: #202124;
+  font-size: 13px;
+  font-family: arial, sans-serif;
+}
+
+.form-input {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #dadce0;
+  border-radius: 4px;
+  font-size: 14px;
+  outline: none;
+  color: #202124;
+  font-family: arial, sans-serif;
+  transition: all 0.1s;
+}
+
+.form-input:hover {
+  border-color: #bdc1c6;
+}
+
+.form-input:focus {
+  border-color: #1a73e8;
+  box-shadow: 0 0 0 1px #1a73e8;
+}
+
+.form-textarea {
+  min-height: 100px;
+  resize: vertical;
+}
