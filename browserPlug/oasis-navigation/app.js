@@ -686,36 +686,36 @@
     }
 
     // 切换分类置顶状态
-    function toggleCategoryPin(index, pinned) {
+    async function toggleCategoryPin(index, pinned) {
       data.categories[index].pinned = pinned;
-      saveData();
+      await saveData();
       renderCategories();
       renderManageLists();
     }
 
     // 切换网站置顶状态
-    function togglePin(category, index, pinned) {
+    async function togglePin(category, index, pinned) {
       data.sites[category][index].pinned = pinned;
-      saveData();
+      await saveData();
       renderSites();
       renderManageLists();
     }
 
     // 添加功能
-    function addCategory() {
+    async function addCategory() {
       const name = document.getElementById('categoryName').value.trim();
       if (!name) return alert('请输入分类名称');
       if (data.categories.some(c => c.name === name)) return alert('分类已存在');
 
       data.categories.push({ name: name, pinned: false });
       data.sites[name] = [];
-      saveData();
+      await saveData();
       renderCategories();
       renderManageLists();
       document.getElementById('categoryName').value = '';
     }
 
-    function addSite() {
+    async function addSite() {
       const category = document.getElementById('siteCategory').value;
       const name = document.getElementById('siteName').value.trim();
       const desc = document.getElementById('siteDesc').value.trim();
@@ -733,7 +733,7 @@
       if (!data.sites[category]) data.sites[category] = [];
       data.sites[category].push({ name, icon, iconType, iconUrl, url, desc, accountInfo, pinned: false });
 
-      saveData();
+      await saveData();
       renderSites();
       renderManageLists();
 
@@ -792,7 +792,7 @@
       document.getElementById('siteManage').scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
 
-    function updateSite() {
+    async function updateSite() {
       const category = document.getElementById('siteCategory').value;
       const name = document.getElementById('siteName').value.trim();
       const desc = document.getElementById('siteDesc').value.trim();
@@ -821,7 +821,7 @@
         data.sites[category][editingIndex] = { name, icon, iconType, iconUrl, url, desc, accountInfo, pinned };
       }
 
-      saveData();
+      await saveData();
       renderSites();
       renderManageLists();
 
@@ -867,7 +867,7 @@
       }
     }
 
-    function addEngine() {
+    async function addEngine() {
       const name = document.getElementById('engineName').value.trim();
       const url = document.getElementById('engineUrl').value.trim();
 
@@ -875,7 +875,7 @@
       if (!url.includes('{query}')) return alert('URL必须包含 {query}');
 
       data.engines.push({ name, url });
-      saveData();
+      await saveData();
       renderEngines();
       renderManageLists();
 
@@ -884,7 +884,7 @@
     }
 
     // 删除功能
-    function deleteCategory(index) {
+    async function deleteCategory(index) {
       if (!confirm('确定删除此分类及其所有网站?')) return;
       const categoryName = data.categories[index].name;
       data.categories.splice(index, 1);
@@ -892,24 +892,24 @@
       if (currentCategory === categoryName) {
         currentCategory = data.categories[0] ? data.categories[0].name : '';
       }
-      saveData();
+      await saveData();
       renderCategories();
       renderSites();
       renderManageLists();
     }
 
-    function deleteSite(category, index) {
+    async function deleteSite(category, index) {
       if (!confirm('确定删除此网站?')) return;
       data.sites[category].splice(index, 1);
-      saveData();
+      await saveData();
       renderSites();
       renderManageLists();
     }
 
-    function deleteEngine(index) {
+    async function deleteEngine(index) {
       if (!confirm('确定删除此搜索引擎?')) return;
       data.engines.splice(index, 1);
-      saveData();
+      await saveData();
       renderEngines();
       renderManageLists();
     }
