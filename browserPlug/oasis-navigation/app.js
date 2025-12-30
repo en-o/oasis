@@ -1154,8 +1154,15 @@
 
     // 导入浏览器书签
     async function importBookmarks() {
-      if (typeof chrome === 'undefined' || !chrome.bookmarks) {
-        alert('❌ 当前环境不支持书签访问功能');
+      // 兼容 Chrome 和 Firefox 的 bookmarks API
+      const bookmarksAPI = (typeof chrome !== 'undefined' && chrome.bookmarks)
+        ? chrome.bookmarks
+        : (typeof browser !== 'undefined' && browser.bookmarks)
+        ? browser.bookmarks
+        : null;
+
+      if (!bookmarksAPI) {
+        alert('❌ 当前环境不支持书签访问功能\n\n可能的原因：\n1. 扩展未声明 bookmarks 权限\n2. 浏览器不支持书签 API\n\n请在浏览器扩展管理页面重新加载扩展后再试');
         return;
       }
 
@@ -1178,7 +1185,7 @@
 
         // 获取所有书签
         const bookmarkTree = await new Promise((resolve) => {
-          chrome.bookmarks.getTree(resolve);
+          bookmarksAPI.getTree(resolve);
         });
 
         // 解析书签树

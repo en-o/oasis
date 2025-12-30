@@ -11,7 +11,8 @@
     "tabs",
     "contextMenus",
     "cookies",
-    "downloads"
+    "downloads",
+    "bookmarks"
   ],
   "host_permissions": [
     "https://pan.baidu.com/*",
