@@ -6,7 +6,7 @@
         { name: 'Baidu', url: 'https://www.baidu.com/s?wd={query}' }
       ],
       categories: [
-        { name: '常用', pinned: false },
+        { name: '常用', pinned: true },
         { name: '工作', pinned: false },
         { name: '娱乐', pinned: false }
       ],
