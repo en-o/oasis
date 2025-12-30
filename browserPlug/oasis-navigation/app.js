@@ -22,6 +22,8 @@
     let editingCategory = null;
     let editingIndex = null;
     let openInNewTab = true; // 默认新标签页打开
+    let isLocalSearching = false; // 本地搜索状态
+    let searchResults = []; // 搜索结果
 
     // 初始化
     async function init() {
@@ -138,6 +140,104 @@
       }
     }
 
+    // 本地搜索功能 - 搜索所有已保存的网站
+    function performLocalSearch() {
+      const query = document.getElementById('searchInput').value.trim().toLowerCase();
+      if (!query) {
+        alert('请输入搜索内容');
+        return;
+      }
+
+      // 搜索所有分类中的网站
+      searchResults = [];
+      Object.keys(data.sites).forEach(category => {
+        data.sites[category].forEach((site, index) => {
+          // 在名称、描述、URL中搜索
+          const matchName = site.name.toLowerCase().includes(query);
+          const matchDesc = site.desc && site.desc.toLowerCase().includes(query);
+          const matchUrl = site.url.toLowerCase().includes(query);
+
+          if (matchName || matchDesc || matchUrl) {
+            searchResults.push({
+              site: site,
+              category: category,
+              index: index
+            });
+          }
+        });
+      });
+
+      // 显示搜索结果
+      isLocalSearching = true;
+      renderSearchResults();
+    }
+
+    // 渲染搜索结果
+    function renderSearchResults() {
+      const resultHeader = document.getElementById('localSearchResult');
+      const resultCount = document.getElementById('searchResultCount');
+      const container = document.getElementById('sitesGrid');
+      const categoryTabs = document.getElementById('categoryTabs');
+
+      if (searchResults.length === 0) {
+        resultHeader.style.display = 'block';
+        resultCount.textContent = '未找到匹配的网站';
+        container.innerHTML = '<div style="text-align: center; padding: 40px; color: #5f6368;">😔 没有找到相关网站</div>';
+        categoryTabs.style.display = 'none';
+        return;
+      }
+
+      resultHeader.style.display = 'block';
+      resultCount.textContent = `找到 ${searchResults.length} 个匹配的网站`;
+      categoryTabs.style.display = 'none';
+
+      // 渲染搜索结果
+      container.innerHTML = searchResults.map(result => {
+        const site = result.site;
+        const accountInfoHtml = site.accountInfo && Object.keys(site.accountInfo).length > 0
+          ? `<div class="site-info">${Object.entries(site.accountInfo).map(([k, v]) => `${k}: ${v}`).join('<br>')}</div>`
+          : '';
+
+        // 根据图标类型渲染不同的内容
+        let iconHtml = '';
+        if (site.iconType === 'url' && site.iconUrl) {
+          iconHtml = `<img src="${site.iconUrl}" alt="${site.name}" onerror="this.style.display='none'; this.parentElement.textContent='🌐';">`;
+        } else {
+          iconHtml = site.icon || '🌐';
+        }
+
+        // 显示网站所属分类
+        const categoryBadge = `<div class="site-category-badge">${result.category}</div>`;
+
+        return `
+          <div class="site-card" data-url="${site.url}">
+            <div class="site-avatar">${iconHtml}</div>
+            <div class="site-name">${site.name}</div>
+            ${site.desc ? `<div class="site-url">${site.desc}</div>` : ''}
+            ${categoryBadge}
+            ${accountInfoHtml}
+          </div>
+        `;
+      }).join('');
+
+      // 绑定网站卡片点击事件
+      container.querySelectorAll('.site-card').forEach(card => {
+        card.addEventListener('click', () => {
+          openSite(card.dataset.url);
+        });
+      });
+    }
+
+    // 清除本地搜索
+    function clearLocalSearch() {
+      isLocalSearching = false;
+      searchResults = [];
+      document.getElementById('localSearchResult').style.display = 'none';
+      document.getElementById('searchInput').value = '';
+      document.getElementById('categoryTabs').style.display = 'flex';
+      renderSites();
+    }
+
     // 渲染分类
     function renderCategories() {
       const container = document.getElementById('categoryTabs');
@@ -163,9 +263,19 @@
     // 渲染网站
     function renderSites() {
       const container = document.getElementById('sitesGrid');
-      const sites = data.sites[currentCategory] || [];
+      let sites = data.sites[currentCategory] || [];
+
+      // 置顶的网站排在前面
+      sites = [...sites].sort((a, b) => {
+        if (a.pinned && !b.pinned) return -1;
+        if (!a.pinned && b.pinned) return 1;
+        return 0;
+      });
 
       container.innerHTML = sites.map((site, i) => {
+        // 获取原始索引（排序前）
+        const originalIndex = data.sites[currentCategory].findIndex(s => s.url === site.url);
+
         const accountInfoHtml = site.accountInfo && Object.keys(site.accountInfo).length > 0
           ? `<div class="site-info">${Object.entries(site.accountInfo).map(([k, v]) => `${k}: ${v}`).join('<br>')}</div>`
           : '';
@@ -178,8 +288,16 @@
           iconHtml = site.icon || '🌐';
         }
 
+        // 置顶标记
+        const pinBadge = site.pinned ? '<div class="pin-badge">📌 置顶</div>' : '';
+
+        // 快捷编辑按钮
+        const quickEditBtn = `<button class="quick-edit-btn" data-category="${currentCategory}" data-index="${originalIndex}" title="编辑">✏️</button>`;
+
         return `
-          <div class="site-card" data-url="${site.url}">
+          <div class="site-card ${site.pinned ? 'pinned-site' : ''}" data-url="${site.url}">
+            ${pinBadge}
+            ${quickEditBtn}
             <div class="site-avatar">${iconHtml}</div>
             <div class="site-name">${site.name}</div>
             ${site.desc ? `<div class="site-url">${site.desc}</div>` : ''}
@@ -190,7 +308,20 @@
 
       // 绑定网站卡片点击事件
       container.querySelectorAll('.site-card').forEach(card => {
-        card.addEventListener('click', () => {
+        card.addEventListener('click', (e) => {
+          // 如果点击的是快捷编辑按钮，不打开网站
+          if (e.target.classList.contains('quick-edit-btn')) {
+            e.stopPropagation();
+            const category = e.target.dataset.category;
+            const index = parseInt(e.target.dataset.index);
+            // 打开管理模态框并编辑
+            openManageModal();
+            setTimeout(() => {
+              switchTab('site');
+              editSite(category, index);
+            }, 50);
+            return;
+          }
           openSite(card.dataset.url);
         });
       });
@@ -359,10 +490,14 @@
           iconDisplay = `<span style="margin-right: 8px;">${s.icon || '🌐'}</span>`;
         }
 
+        // 置顶标记
+        const pinIcon = s.pinned ? '<span style="margin-right: 4px;">📌</span>' : '';
+
         return `
           <div class="list-item">
-            <span>${iconDisplay}${s.name}</span>
+            <span>${pinIcon}${iconDisplay}${s.name}</span>
             <div>
+              <button class="pin-btn ${s.pinned ? 'pinned' : ''}" data-action="${s.pinned ? 'unpin-site' : 'pin-site'}" data-category="${category}" data-index="${i}">${s.pinned ? '取消置顶' : '置顶'}</button>
               <button class="edit-btn" data-action="edit-site" data-category="${category}" data-index="${i}">编辑</button>
               <button class="delete-btn" data-action="delete-site" data-category="${category}" data-index="${i}">删除</button>
             </div>
@@ -381,6 +516,12 @@
         case 'delete-category':
           deleteCategory(index);
           break;
+        case 'pin-site':
+          togglePin(category, index, true);
+          break;
+        case 'unpin-site':
+          togglePin(category, index, false);
+          break;
         case 'edit-site':
           editSite(category, index);
           break;
@@ -391,6 +532,14 @@
           deleteEngine(index);
           break;
       }
+    }
+
+    // 切换网站置顶状态
+    function togglePin(category, index, pinned) {
+      data.sites[category][index].pinned = pinned;
+      saveData();
+      renderSites();
+      renderManageLists();
     }
 
     // 添加功能
@@ -835,6 +984,135 @@
       }
     }
 
+    // 导入浏览器书签
+    async function importBookmarks() {
+      if (typeof chrome === 'undefined' || !chrome.bookmarks) {
+        alert('❌ 当前环境不支持书签访问功能');
+        return;
+      }
+
+      try {
+        // 询问用户导入方式
+        const message = '📚 导入浏览器书签\n\n' +
+          '请选择导入方式：\n\n' +
+          '【确定】= 合并书签（只添加新内容，保留现有数据）\n' +
+          '【取消】= 完全覆盖（删除现有数据，使用书签替换）\n\n' +
+          '⚠️ 建议选择"合并书签"以避免数据丢失';
+
+        const shouldMerge = confirm(message);
+
+        if (!shouldMerge) {
+          // 覆盖模式需要二次确认
+          if (!confirm('⚠️ 警告：此操作将删除所有现有数据！\n\n确定要完全覆盖吗？')) {
+            return;
+          }
+        }
+
+        // 获取所有书签
+        const bookmarkTree = await new Promise((resolve) => {
+          chrome.bookmarks.getTree(resolve);
+        });
+
+        // 解析书签树
+        const importedData = {
+          engines: [...data.engines], // 保留搜索引擎
+          categories: [],
+          sites: {}
+        };
+
+        function parseBookmarkNode(node, categoryName = '未分类书签') {
+          if (node.url) {
+            // 这是一个书签
+            if (!importedData.sites[categoryName]) {
+              importedData.sites[categoryName] = [];
+              if (!importedData.categories.includes(categoryName)) {
+                importedData.categories.push(categoryName);
+              }
+            }
+
+            // 尝试获取favicon
+            const domain = new URL(node.url).hostname;
+            const faviconUrl = `https://www.google.com/s2/favicons?domain=${domain}&sz=64`;
+
+            importedData.sites[categoryName].push({
+              name: node.title || domain,
+              icon: '🌐',
+              iconType: 'url',
+              iconUrl: faviconUrl,
+              url: node.url,
+              desc: domain,
+              accountInfo: {}
+            });
+          } else if (node.children) {
+            // 这是一个文件夹
+            const folderName = node.title || categoryName;
+            // 跳过"书签栏"、"其他书签"等顶层文件夹的名称，直接使用子文件夹名称
+            const isTopLevel = !node.parentId || node.parentId === '0';
+
+            node.children.forEach(child => {
+              if (child.url) {
+                parseBookmarkNode(child, isTopLevel ? '书签栏' : folderName);
+              } else {
+                parseBookmarkNode(child, child.title || folderName);
+              }
+            });
+          }
+        }
+
+        // 遍历书签树
+        bookmarkTree.forEach(root => {
+          if (root.children) {
+            root.children.forEach(node => parseBookmarkNode(node));
+          }
+        });
+
+        // 统计导入的书签数量
+        const totalBookmarks = Object.values(importedData.sites).reduce((sum, arr) => sum + arr.length, 0);
+
+        if (totalBookmarks === 0) {
+          alert('❌ 未找到可导入的书签');
+          return;
+        }
+
+        // 确认导入
+        if (!confirm(`找到 ${totalBookmarks} 个书签，分布在 ${importedData.categories.length} 个分类中。\n\n确定要导入吗？`)) {
+          return;
+        }
+
+        // 根据用户选择的模式处理数据
+        if (shouldMerge) {
+          // 合并模式
+          const mergeReport = mergeData(importedData);
+          await saveData();
+
+          renderEngines();
+          renderCategories();
+          renderSites();
+          renderManageLists();
+
+          const reportMessage = '✅ 书签导入成功！\n\n' +
+            `📁 新增分类: ${mergeReport.categories.added} 个 (跳过重复: ${mergeReport.categories.skipped})\n` +
+            `🌐 新增网站: ${mergeReport.sites.added} 个 (跳过重复: ${mergeReport.sites.skipped})`;
+
+          alert(reportMessage);
+        } else {
+          // 覆盖模式
+          data = importedData;
+          await saveData();
+
+          renderEngines();
+          renderCategories();
+          renderSites();
+          renderManageLists();
+
+          alert('✅ 书签已完全覆盖导入！');
+        }
+      } catch (error) {
+        console.error('导入书签失败:', error);
+        alert('❌ 导入书签失败：' + error.message);
+      }
+    }
+
 
     // 百度网盘同步功能（基于Cookie）
     const BAIDU_BACKUP_FILENAME = 'oasis-navigation-backup.json';
@@ -1190,6 +1468,10 @@
       // 搜索按钮
       document.getElementById('searchBtn').addEventListener('click', performSearch);
 
+      // 本地搜索按钮
+      document.getElementById('localSearchBtn').addEventListener('click', performLocalSearch);
+      document.getElementById('clearSearchBtn').addEventListener('click', clearLocalSearch);
+
       // 打开模式切换
       document.getElementById('openModeBtn').addEventListener('click', toggleOpenMode);
 
@@ -1226,6 +1508,7 @@
         document.getElementById('importFile').click();
       });
       document.getElementById('importFile').addEventListener('change', importData);
+      document.getElementById('importBookmarksBtn').addEventListener('click', importBookmarks);
       document.getElementById('clearDataBtn').addEventListener('click', clearAllData);
 
       // 百度网盘同步
