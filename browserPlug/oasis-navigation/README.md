@@ -171,13 +171,77 @@ oasis-navigation/
 
 ### 模块对应关系
 
-| 功能模块 | HTML 模板 | CSS 样式 | 说明 |
-|---------|----------|---------|------|
-| 搜索区域 | `templates/search-section.html` | `css/search-section.css` | 搜索引擎选择和搜索框 |
-| 导航区域 | `templates/nav-section.html` | `css/nav-section.css` | 分类标签和网站网格 |
-| 工具栏 | `templates/toolbar.html` | `css/toolbar.css` | 打开模式和管理按钮 |
-| 模态框 | `templates/modal.html` | `css/modal.css` | 管理设置弹窗 |
-| 基础样式 | - | `css/base.css` | 通用样式和组件 |
+| 功能模块 | HTML 模板 | CSS 样式 | JavaScript | 说明 |
+|---------|----------|---------|-----------|------|
+| 搜索区域 | `templates/search-section.html` | `css/search-section.css` | `app.js` (第 117-139 行) | 搜索引擎选择和搜索框 |
+| 导航区域 | `templates/nav-section.html` | `css/nav-section.css` | `app.js` (第 141-215 行) | 分类标签和网站网格 |
+| 工具栏 | `templates/toolbar.html` | `css/toolbar.css` | `app.js` (第 1157-1186 行) | 打开模式和管理按钮 |
+| 模态框 | `templates/modal.html` | `css/modal.css` | `app.js` (第 217-395 行) | 管理设置弹窗 |
+| 基础样式 | - | `css/base.css` | - | 通用样式和组件 |
+| 数据管理 | - | - | `app.js` (第 1-115 行) | 数据存储和同步 |
+| CRUD 操作 | - | - | `app.js` (第 396-603 行) | 增删改操作 |
+| 数据同步 | - | - | `app.js` (第 605-836 行) | 导入导出 |
+| 百度网盘 | - | - | `app.js` (第 839-1155 行) | 网盘备份恢复 |
+| 事件绑定 | - | - | `app.js` (第 1188-1247 行) | DOM 事件处理 |
+
+### JavaScript 代码结构
+
+`app.js` (49KB, 1343行) 虽然是单文件，但内部按功能模块清晰组织：
+
+```javascript
+// 1. 数据管理模块 (第 1-115 行)
+   - 默认数据定义
+   - loadData / saveData
+   - Chrome Storage 同步
+
+// 2. 搜索引擎模块 (第 117-139 行)
+   - renderEngines
+   - performSearch
+
+// 3. 导航管理模块 (第 141-215 行)
+   - renderCategories
+   - renderSites
+   - openSite
+
+// 4. 模态框管理模块 (第 217-395 行)
+   - 模态框控制
+   - 账号字段管理
+   - 列表渲染
+
+// 5. CRUD 操作模块 (第 396-603 行)
+   - 添加 (addCategory, addSite, addEngine)
+   - 编辑 (editSite, updateSite)
+   - 删除 (deleteCategory, deleteSite, deleteEngine)
+
+// 6. 数据同步模块 (第 605-836 行)
+   - mergeData (智能合并)
+   - exportData / importData
+   - updateStorageInfo
+
+// 7. 百度网盘同步模块 (第 839-1155 行)
+   - 登录管理
+   - 备份恢复
+   - 状态更新
+
+// 8. UI 更新模块 (第 1157-1186 行)
+   - 打开模式切换
+
+// 9. 事件绑定模块 (第 1188-1247 行)
+   - bindEventListeners
+
+// 10. 初始化模块 (第 1249-1343 行)
+   - init (主初始化)
+   - 右键菜单支持
+   - 消息监听
+```
+
+**为什么保持单文件？**
+- ✅ 符合浏览器插件 CSP 要求（无内联脚本）
+- ✅ 加载速度快（单个 HTTP 请求）
+- ✅ 代码组织清晰，易于维护
+- ✅ 适合中小型项目规模
+
+详细的代码结构说明和模块化重构指南，请参阅 [`js/CODE_STRUCTURE.md`](js/CODE_STRUCTURE.md)。
 
 ### 加载流程
 
