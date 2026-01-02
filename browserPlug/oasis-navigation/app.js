@@ -1,3 +1,19 @@
+    // 浏览器检测
+    const isChrome = (() => {
+      // 检查是否为Firefox
+      if (navigator.userAgent.includes('Firefox')) {
+        return false;
+      }
+      // 检查是否为Edge（基于Chromium的Edge包含"Edg"）
+      if (navigator.userAgent.includes('Edg')) {
+        return false;
+      }
+      // 是Chrome/Chromium浏览器
+      return typeof chrome !== 'undefined' && !!chrome.runtime;
+    })();
+
+    console.log('🔍 浏览器检测结果:', isChrome ? 'Chrome' : 'Firefox/Edge');
+
     // 默认数据
     const defaultData = {
       engines: [
@@ -31,6 +47,14 @@
 
     // 初始化
     async function init() {
+      // Chrome浏览器：立即隐藏搜索引擎选择框，避免闪现
+      if (isChrome) {
+        const select = document.getElementById('engineSelect');
+        if (select) {
+          select.style.display = 'none';
+        }
+      }
+
       await loadData();
       loadOpenMode(); // 加载打开模式设置
       renderEngines();
@@ -151,6 +175,15 @@
     // 渲染搜索引擎
     function renderEngines() {
       const select = document.getElementById('engineSelect');
+
+      // Chrome浏览器：隐藏搜索引擎选择框，使用默认搜索引擎
+      if (isChrome) {
+        select.style.display = 'none';
+        console.log('✅ Chrome环境：使用Chrome Search API，隐藏搜索引擎选择');
+        return;
+      }
+
+      // Firefox/Edge：显示搜索引擎选择框
       select.innerHTML = data.engines.map(e =>
         `<option value="${e.name}" ${e.name === currentEngine ? 'selected' : ''}>${e.name}</option>`
       ).join('');
@@ -165,6 +198,21 @@
       const query = document.getElementById('searchInput').value.trim();
       if (!query) return;
 
+      // Chrome浏览器：使用Chrome Search API
+      if (isChrome) {
+        if (chrome.search && chrome.search.query) {
+          chrome.search.query({
+            text: query,
+            disposition: openInNewTab ? 'NEW_TAB' : 'CURRENT_TAB'
+          });
+          console.log('✅ 使用Chrome Search API搜索:', query);
+        } else {
+          console.error('❌ Chrome Search API不可用');
+        }
+        return;
+      }
+
+      // Firefox/Edge：使用自定义搜索引擎
       const engine = data.engines.find(e => e.name === currentEngine);
       if (engine) {
         const url = engine.url.replace('{query}', encodeURIComponent(query));
@@ -483,6 +531,15 @@
       if (siteCategory) {
         siteCategory.value = '';
       }
+
+      // Chrome环境：隐藏搜索引擎管理标签
+      if (isChrome) {
+        const engineTab = document.querySelector('.tab-button[data-tab="engine"]');
+        if (engineTab) {
+          engineTab.style.display = 'none';
+        }
+      }
+
       renderManageLists();
     }
 
