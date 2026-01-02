@@ -26,9 +26,19 @@
   font-family: arial, sans-serif;
 }
 
-/* Chrome浏览器：隐藏搜索引擎选择框（将在JavaScript中添加chrome-mode类） */
+/* Chrome浏览器：隐藏搜索引擎选择框 */
+html.chrome-mode .engine-select,
 body.chrome-mode .engine-select {
   display: none !important;
+  position: absolute !important;
+  width: 0 !important;
+  height: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  visibility: hidden !important;
 }
 
 .engine-select:hover {

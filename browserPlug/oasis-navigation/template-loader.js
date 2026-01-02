@@ -52,8 +52,10 @@ async function loadTemplate(template) {
 async function loadAllTemplates() {
   console.log('📦 Loading templates...');
   try {
-    // 并行加载所有模板
-    await Promise.all(templates.map(template => loadTemplate(template)));
+    // 串行加载模板，确保顺序正确
+    for (const template of templates) {
+      await loadTemplate(template);
+    }
     console.log('✅ All templates loaded successfully');
 
     // 触发自定义事件，通知模板加载完成

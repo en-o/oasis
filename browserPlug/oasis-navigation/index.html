@@ -4,7 +4,22 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>导航助手</title>
+  <!-- 浏览器检测脚本：必须最先加载 -->
+  <script src="browser-detect.js"></script>
   <link rel="stylesheet" href="styles.css">
+  <style>
+    /* 加载中状态：隐藏未完成的内容 */
+    body:not(.loaded) .container {
+      opacity: 0;
+      visibility: hidden;
+    }
+
+    body.loaded .container {
+      opacity: 1;
+      visibility: visible;
+      transition: opacity 0.2s ease-in;
+    }
+  </style>
 </head>
 <body>
   <div class="container">

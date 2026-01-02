@@ -47,14 +47,6 @@
 
     // 初始化
     async function init() {
-      // Chrome浏览器：立即隐藏搜索引擎选择框，避免闪现
-      if (isChrome) {
-        const select = document.getElementById('engineSelect');
-        if (select) {
-          select.style.display = 'none';
-        }
-      }
-
       await loadData();
       loadOpenMode(); // 加载打开模式设置
       renderEngines();
