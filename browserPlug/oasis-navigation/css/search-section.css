@@ -26,6 +26,11 @@
   font-family: arial, sans-serif;
 }
 
+/* Chrome浏览器：隐藏搜索引擎选择框（将在JavaScript中添加chrome-mode类） */
+body.chrome-mode .engine-select {
+  display: none !important;
+}
+
 .engine-select:hover {
   border-color: #dadce0;
   box-shadow: 0 1px 6px rgba(32, 33, 36, 0.28);
