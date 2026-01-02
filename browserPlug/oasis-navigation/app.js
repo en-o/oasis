@@ -1351,6 +1351,9 @@
       updateBaiduStatus('正在打开百度网盘登录页面...');
 
       try {
+        // 检测浏览器类型
+        const isFirefox = navigator.userAgent.includes('Firefox');
+
         // 打开百度网盘登录页面
         const loginUrl = 'https://pan.baidu.com';
         const width = 800;
@@ -1370,28 +1373,50 @@
           return;
         }
 
-        updateBaiduStatus('请在弹出窗口中登录百度网盘...');
+        if (isFirefox) {
+          // Firefox: 简化逻辑，不自动关闭窗口
+          updateBaiduStatus('请在弹出窗口中登录百度网盘，登录后请手动关闭窗口...');
 
-        // 持续检测登录状态
-        const checkInterval = setInterval(async () => {
-          // 如果窗口被关闭，停止检测
-          if (loginWindow.closed) {
-            clearInterval(checkInterval);
-            // 最后检查一次登录状态
-            await checkBaiduLogin(false);
-            return;
-          }
+          // 监听存储变化或定时检查登录状态
+          const checkInterval = setInterval(async () => {
+            const isLoggedIn = await checkBaiduLogin(true);
+            if (isLoggedIn) {
+              clearInterval(checkInterval);
+              updateBaiduStatus('✅ 已登录');
+              alert('✅ 百度网盘登录成功！');
+            }
+          }, 2000); // 每2秒检测一次
 
-          // 检查是否已经登录成功
-          const isLoggedIn = await checkBaiduLogin(true);
-          if (isLoggedIn) {
+          // 30秒后停止检测（避免无限检测）
+          setTimeout(() => {
             clearInterval(checkInterval);
-            // 自动关闭登录窗口
-            loginWindow.close();
-            updateBaiduStatus('✅ 已登录');
-            alert('✅ 百度网盘登录成功！');
-          }
-        }, 2000); // 每2秒检测一次
+          }, 30000);
+
+        } else {
+          // Chrome/Edge: 保持原有逻辑，自动关闭窗口
+          updateBaiduStatus('请在弹出窗口中登录百度网盘...');
+
+          // 持续检测登录状态
+          const checkInterval = setInterval(async () => {
+            // 如果窗口被关闭，停止检测
+            if (loginWindow.closed) {
+              clearInterval(checkInterval);
+              // 最后检查一次登录状态
+              await checkBaiduLogin(false);
+              return;
+            }
+
+            // 检查是否已经登录成功
+            const isLoggedIn = await checkBaiduLogin(true);
+            if (isLoggedIn) {
+              clearInterval(checkInterval);
+              // 自动关闭登录窗口
+              loginWindow.close();
+              updateBaiduStatus('✅ 已登录');
+              alert('✅ 百度网盘登录成功！');
+            }
+          }, 2000); // 每2秒检测一次
+        }
 
       } catch (error) {
         console.error('打开登录窗口失败:', error);
