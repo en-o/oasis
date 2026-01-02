@@ -1571,8 +1571,19 @@
         const listResult = await listResponse.json();
         console.log('文件列表响应:', listResult);
 
+        // errno: -9 表示目录不存在
+        if (listResult.errno === -9) {
+          updateBaiduStatus('❌ 目录不存在');
+          alert('❌ 百度网盘中未找到备份目录\n\n' +
+            '原因：/apps/oasis-nav/ 目录不存在\n\n' +
+            '解决方法：\n' +
+            '1. 请先点击"备份到百度网盘"创建备份\n' +
+            '2. 备份成功后即可使用"恢复"功能');
+          return;
+        }
+
         if (listResult.errno !== 0) {
-          throw new Error(listResult.errmsg || '获取文件列表失败');
+          throw new Error(listResult.errmsg || `获取文件列表失败 (错误码: ${listResult.errno})`);
         }
 
         // 查找备份文件
