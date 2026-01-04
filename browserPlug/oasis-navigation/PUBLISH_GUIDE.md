@@ -1,5 +1,11 @@
 # 导航助手 - 发布指南
 
+## 开发者中心
+firefox: https://addons.mozilla.org/zh-CN/developers/
+chrome: https://chrome.google.com/webstore/devconsole/
+edge: https://partner.microsoft.com/zh-cn/dashboard/microsoftedge/
+
+
 ## 📸 截图和宣传素材要求
 
 ### Chrome 网上应用店要求
@@ -330,14 +336,3 @@ An elegant, clean, and efficient new tab extension with Google Material Design, 
    - 保持活跃度
 
 ---
-
-## 📞 技术支持
-
-建议在商店描述中添加：
-- GitHub 仓库链接（用于问题反馈）
-- 邮箱联系方式
-- 使用文档或 FAQ
-
----
-
-**祝发布顺利！** 🎉
