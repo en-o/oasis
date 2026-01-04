@@ -54,57 +54,123 @@
       renderSites();
     }
 
-    // 加载数据（从同步存储）
+    // 加载数据（从多个存储位置智能加载，支持解压缩）
     async function loadData() {
       try {
-        // 尝试从 Chrome Sync Storage 加载
-        if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.sync) {
-          const result = await new Promise((resolve) => {
-            chrome.storage.sync.get(['navData'], resolve);
+        let loadedData = null;
+        let isCompressed = false;
+        let loadSource = '';
+
+        // 1. 优先尝试从 Chrome Local Storage 加载（大数据存储）
+        if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local) {
+          const localResult = await new Promise((resolve) => {
+            chrome.storage.local.get(['navData', 'navDataCompressed'], resolve);
           });
 
-          if (result.navData) {
-            data = result.navData;
-            // 数据迁移：将旧格式的 categories (字符串数组) 转换为新格式 (对象数组)
-            const needsMigration = migrateCategoriesFormat();
-            // 如果进行了迁移，需要保存回去
-            if (needsMigration) {
-              await saveData();
-              console.log('✅ 数据已从云端同步加载并迁移');
-            } else {
-              console.log('✅ 数据已从云端同步加载');
-            }
-            return;
+          if (localResult.navData) {
+            loadedData = localResult.navData;
+            isCompressed = localResult.navDataCompressed === true;
+            loadSource = 'Chrome Local Storage';
           }
         }
 
-        // 降级到 localStorage（用于兼容性或迁移）
-        const stored = localStorage.getItem('navData');
-        if (stored) {
-          data = JSON.parse(stored);
-          // 数据迁移
-          migrateCategoriesFormat();
-          // 迁移数据到 sync storage
-          await saveData();
-          console.log('✅ 数据已从本地迁移到云端同步');
+        // 2. 如果 Local Storage 没有，尝试从 Sync Storage 加载（云端同步数据）
+        if (!loadedData && typeof chrome !== 'undefined' && chrome.storage && chrome.storage.sync) {
+          const syncResult = await new Promise((resolve) => {
+            chrome.storage.sync.get(['navData', 'navDataCompressed'], resolve);
+          });
+
+          if (syncResult.navData) {
+            loadedData = syncResult.navData;
+            isCompressed = syncResult.navDataCompressed === true;
+            loadSource = 'Chrome Sync Storage';
+          }
+        }
+
+        // 3. 降级到 localStorage
+        if (!loadedData) {
+          const stored = localStorage.getItem('navData');
+          const compressedFlag = localStorage.getItem('navDataCompressed');
+          if (stored) {
+            loadedData = stored;
+            isCompressed = compressedFlag === 'true';
+            loadSource = 'localStorage';
+          }
+        }
+
+        // 如果成功加载数据
+        if (loadedData) {
+          // 判断是否需要解压
+          if (isCompressed) {
+            try {
+              // 解压数据
+              const decompressedStr = LZString.decompressFromUTF16(loadedData);
+              data = JSON.parse(decompressedStr);
+              console.log(`✅ 数据已从 ${loadSource} 加载并解压`);
+            } catch (decompressError) {
+              console.error('❌ 解压失败，尝试作为未压缩数据加载:', decompressError);
+              // 如果解压失败，尝试作为普通JSON解析（向后兼容）
+              if (typeof loadedData === 'string') {
+                data = JSON.parse(loadedData);
+              } else {
+                data = loadedData;
+              }
+              console.log(`✅ 数据已从 ${loadSource} 加载（未压缩）`);
+            }
+          } else {
+            // 未压缩的数据（向后兼容旧版本）
+            if (typeof loadedData === 'string') {
+              data = JSON.parse(loadedData);
+            } else {
+              data = loadedData;
+            }
+            console.log(`✅ 数据已从 ${loadSource} 加载（未压缩格式）`);
+          }
+
+          // 数据迁移：将旧格式的 categories (字符串数组) 转换为新格式 (对象数组)
+          const needsMigration = migrateCategoriesFormat();
+
+          // 如果进行了迁移或加载的是未压缩数据，重新保存以应用压缩
+          if (needsMigration || !isCompressed) {
+            await saveData();
+            console.log(`✅ 数据格式已迁移并压缩保存`);
+          }
+
           return;
         }
 
-        // 使用默认数据 - 重要：确保 data 包含默认数据
+        // 如果所有存储都没有数据，使用默认数据
+        console.log('ℹ️ 未找到已保存的数据，使用默认数据');
         data = JSON.parse(JSON.stringify(defaultData));
         await saveData();
-        console.log('✅ 使用默认数据');
+        console.log('✅ 默认数据已初始化并压缩保存');
+
       } catch (error) {
         console.error('❌ 加载数据失败:', error);
-        // 降级到 localStorage
-        const stored = localStorage.getItem('navData');
-        if (stored) {
-          data = JSON.parse(stored);
-          migrateCategoriesFormat();
-        } else {
-          // 最终降级：使用默认数据
-          data = JSON.parse(JSON.stringify(defaultData));
+
+        // 最终降级：尝试 localStorage
+        try {
+          const stored = localStorage.getItem('navData');
+          if (stored) {
+            // 尝试解压
+            try {
+              const decompressed = LZString.decompressFromUTF16(stored);
+              data = JSON.parse(decompressed);
+            } catch {
+              // 如果解压失败，当作普通JSON
+              data = JSON.parse(stored);
+            }
+            migrateCategoriesFormat();
+            console.log('✅ 从 localStorage 降级加载成功');
+            return;
+          }
+        } catch (e) {
+          console.error('❌ localStorage 加载也失败:', e);
         }
+
+        // 最终降级：使用默认数据
+        data = JSON.parse(JSON.stringify(defaultData));
+        console.log('✅ 使用默认数据作为最终降级方案');
       }
     }
 
@@ -125,29 +191,122 @@
       return false; // 返回 false 表示不需要迁移
     }
 
-    // 保存数据（到同步存储）
+    // 保存数据（智能选择存储方式，支持压缩）
     async function saveData() {
       try {
-        // 保存到 Chrome Sync Storage
-        if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.sync) {
-          await new Promise((resolve, reject) => {
-            chrome.storage.sync.set({ navData: data }, () => {
-              if (chrome.runtime.lastError) {
-                reject(chrome.runtime.lastError);
-              } else {
-                resolve();
+        // 检查数据大小
+        const dataStr = JSON.stringify(data);
+        const originalSize = new Blob([dataStr]).size;
+
+        // 使用 LZ-String 压缩数据
+        const compressedData = LZString.compressToUTF16(dataStr);
+        const compressedSize = new Blob([compressedData]).size;
+
+        const compressionRatio = ((1 - compressedSize / originalSize) * 100).toFixed(1);
+        console.log(`📊 原始大小: ${(originalSize / 1024).toFixed(2)} KB`);
+        console.log(`📦 压缩后: ${(compressedSize / 1024).toFixed(2)} KB (压缩率: ${compressionRatio}%)`);
+
+        const SYNC_QUOTA_BYTES = 8192; // Chrome Sync Storage 单项限制 8KB
+        const SYNC_TOTAL_QUOTA = 102400; // 总限制 100KB
+
+        let savedToSync = false;
+        let savedToLocal = false;
+
+        // 尝试保存到 Chrome Storage
+        if (typeof chrome !== 'undefined' && chrome.storage) {
+          // 判断压缩后是否可以放入 Sync Storage
+          if (compressedSize <= SYNC_QUOTA_BYTES) {
+            // 压缩后数据较小，优先使用 Sync Storage（支持跨设备同步）
+            try {
+              await new Promise((resolve, reject) => {
+                chrome.storage.sync.set({
+                  navData: compressedData,
+                  navDataCompressed: true  // 标记数据已压缩
+                }, () => {
+                  if (chrome.runtime.lastError) {
+                    reject(chrome.runtime.lastError);
+                  } else {
+                    resolve();
+                  }
+                });
+              });
+              savedToSync = true;
+              console.log('✅ 数据已压缩并保存到 Chrome Sync Storage（支持跨设备同步）');
+            } catch (syncError) {
+              console.warn('⚠️ Sync Storage 保存失败，尝试 Local Storage:', syncError.message);
+            }
+          }
+
+          // 如果 Sync 失败或压缩后仍过大，使用 Local Storage
+          if (!savedToSync && chrome.storage.local) {
+            try {
+              await new Promise((resolve, reject) => {
+                chrome.storage.local.set({
+                  navData: compressedData,
+                  navDataCompressed: true  // 标记数据已压缩
+                }, () => {
+                  if (chrome.runtime.lastError) {
+                    reject(chrome.runtime.lastError);
+                  } else {
+                    resolve();
+                  }
+                });
+              });
+              savedToLocal = true;
+              console.log('✅ 数据已压缩并保存到 Chrome Local Storage（仅本地）');
+
+              // 清除 Sync Storage 中的旧数据，避免冲突
+              if (chrome.storage.sync) {
+                chrome.storage.sync.remove(['navData', 'navDataCompressed'], () => {
+                  console.log('🗑️ 已清除 Sync Storage 中的旧数据');
+                });
               }
-            });
-          });
-          console.log('✅ 数据已同步到云端');
+            } catch (localError) {
+              console.warn('⚠️ Chrome Local Storage 保存失败:', localError.message);
+            }
+          }
         }
 
-        // 同时保存到 localStorage 作为备份
-        localStorage.setItem('navData', JSON.stringify(data));
+        // 同时保存到 localStorage 作为最终备份（也使用压缩）
+        try {
+          localStorage.setItem('navData', compressedData);
+          localStorage.setItem('navDataCompressed', 'true');
+          console.log('✅ 数据已压缩并备份到 localStorage');
+        } catch (e) {
+          console.warn('⚠️ localStorage 保存失败:', e.message);
+        }
+
+        // 保存存储位置标记
+        if (savedToSync) {
+          localStorage.setItem('navDataStorageType', 'sync');
+        } else if (savedToLocal) {
+          localStorage.setItem('navDataStorageType', 'local');
+        } else {
+          localStorage.setItem('navDataStorageType', 'localStorage');
+        }
+
+        // 如果压缩后仍过大，给用户提示
+        if (!savedToSync && compressedSize > SYNC_QUOTA_BYTES) {
+          console.warn(`📢 数据压缩后仍为 ${(compressedSize / 1024).toFixed(2)} KB，超过 Sync Storage 限制，已使用本地存储`);
+        }
+
       } catch (error) {
-        console.error('❌ 保存数据失败:', error);
-        // 降级到 localStorage
-        localStorage.setItem('navData', JSON.stringify(data));
+        // 提取错误消息
+        const errorMsg = error.message || error.toString();
+        console.error('❌ 保存数据失败:', errorMsg, error);
+
+        // 最后的降级方案：localStorage（未压缩）
+        try {
+          localStorage.setItem('navData', JSON.stringify(data));
+          localStorage.setItem('navDataCompressed', 'false');
+          localStorage.setItem('navDataStorageType', 'localStorage');
+          console.log('✅ 数据已降级保存到 localStorage（未压缩）');
+        } catch (localError) {
+          const localErrorMsg = localError.message || localError.toString();
+          console.error('❌ 所有存储方式都失败:', localErrorMsg);
+          alert(`❌ 保存失败：${localErrorMsg}\n\n数据可能过大，请删除一些内容后重试。`);
+          throw localError;
+        }
       }
     }
 
@@ -156,7 +315,22 @@
       chrome.storage.onChanged.addListener((changes, areaName) => {
         if (areaName === 'sync' && changes.navData) {
           console.log('🔄 检测到数据同步更新');
-          data = changes.navData.newValue;
+          const newValue = changes.navData.newValue;
+          const isCompressed = changes.navDataCompressed?.newValue === true;
+
+          // 解压数据（如果已压缩）
+          if (isCompressed && newValue) {
+            try {
+              const decompressed = LZString.decompressFromUTF16(newValue);
+              data = JSON.parse(decompressed);
+            } catch (e) {
+              console.error('解压同步数据失败:', e);
+              data = typeof newValue === 'string' ? JSON.parse(newValue) : newValue;
+            }
+          } else {
+            data = typeof newValue === 'string' ? JSON.parse(newValue) : newValue;
+          }
+
           renderEngines();
           renderCategories();
           renderSites();
@@ -1103,29 +1277,36 @@
           if (shouldMerge) {
             // 合并模式
             const mergeReport = mergeData(importedData);
+
+            // 迁移数据格式
+            migrateCategoriesFormat();
+
             await saveData();
-            renderEngines();
-            renderCategories();
-            renderSites();
-            renderManageLists();
 
             const reportMessage = '✅ 数据合并成功！\n\n' +
               `✨ 新增搜索引擎: ${mergeReport.engines.added} 个 (跳过重复: ${mergeReport.engines.skipped})\n` +
               `📁 新增分类: ${mergeReport.categories.added} 个 (跳过重复: ${mergeReport.categories.skipped})\n` +
-              `🌐 新增网站: ${mergeReport.sites.added} 个 (跳过重复: ${mergeReport.sites.skipped})`;
+              `🌐 新增网站: ${mergeReport.sites.added} 个 (跳过重复: ${mergeReport.sites.skipped})\n\n` +
+              '页面将刷新以确保数据正确加载...';
 
             alert(reportMessage);
+
+            // 刷新页面以重新加载数据，确保数据已正确保存
+            window.location.reload();
           } else {
             // 覆盖模式 - 二次确认
             if (confirm('⚠️ 警告：此操作将删除所有现有数据！\n\n确定要完全覆盖吗？')) {
               data = importedData;
-              await saveData();
-              renderEngines();
-              renderCategories();
-              renderSites();
-              renderManageLists();
 
-              alert('✅ 数据已完全覆盖导入！');
+              // 迁移数据格式
+              migrateCategoriesFormat();
+
+              await saveData();
+
+              alert('✅ 数据已完全覆盖导入！\n\n页面将刷新以确保数据正确加载...');
+
+              // 刷新页面以重新加载数据，确保数据已正确保存
+              window.location.reload();
             }
           }
         } catch (error) {
@@ -1143,29 +1324,47 @@
         const dataSize = new Blob([JSON.stringify(data)]).size;
         const sitesCount = Object.values(data.sites).reduce((sum, arr) => sum + arr.length, 0);
 
+        // 获取存储类型
+        const storageType = localStorage.getItem('navDataStorageType') || 'unknown';
+        let storageTypeText = '未知';
         let syncStatus = '❌ 未启用';
-        let quota = '未知';
 
-        if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.sync) {
-          syncStatus = '✅ 已启用';
-
-          // 获取存储配额信息
-          try {
-            const QUOTA_BYTES = chrome.storage.sync.QUOTA_BYTES || 102400;
-            const usagePercent = ((dataSize / QUOTA_BYTES) * 100).toFixed(1);
-            quota = `${(dataSize / 1024).toFixed(2)} KB / ${(QUOTA_BYTES / 1024).toFixed(0)} KB (${usagePercent}%)`;
-          } catch (e) {
-            quota = `${(dataSize / 1024).toFixed(2)} KB`;
+        if (typeof chrome !== 'undefined' && chrome.storage) {
+          if (storageType === 'sync') {
+            storageTypeText = '云端同步存储 (Chrome Sync Storage)';
+            syncStatus = '✅ 已启用（支持跨设备同步）';
+          } else if (storageType === 'local') {
+            storageTypeText = '本地存储 (Chrome Local Storage)';
+            syncStatus = '⚠️ 仅本地存储（数据过大，无法云端同步）';
+          } else if (storageType === 'localStorage') {
+            storageTypeText = '浏览器本地存储 (localStorage)';
+            syncStatus = '❌ 未使用扩展存储';
           }
+        } else {
+          storageTypeText = '浏览器本地存储 (localStorage)';
+        }
+
+        // 计算配额信息
+        let quota = `${(dataSize / 1024).toFixed(2)} KB`;
+        if (storageType === 'sync') {
+          const SYNC_QUOTA = 8; // KB
+          const usagePercent = ((dataSize / (SYNC_QUOTA * 1024)) * 100).toFixed(1);
+          quota += ` / ${SYNC_QUOTA} KB (${usagePercent}%)`;
+        } else if (storageType === 'local') {
+          const LOCAL_QUOTA = 5120; // 5MB in KB
+          const usagePercent = ((dataSize / (LOCAL_QUOTA * 1024)) * 100).toFixed(1);
+          quota += ` / ${LOCAL_QUOTA} KB (${usagePercent}%)`;
         }
 
         const infoHtml = `
           <div style="display: grid; gap: 8px;">
+            <div><strong>存储类型:</strong> ${storageTypeText}</div>
             <div><strong>云端同步状态:</strong> ${syncStatus}</div>
             <div><strong>数据大小:</strong> ${quota}</div>
             <div><strong>分类数量:</strong> ${data.categories.length} 个</div>
             <div><strong>网站数量:</strong> ${sitesCount} 个</div>
             <div><strong>搜索引擎:</strong> ${data.engines.length} 个</div>
+            ${storageType === 'local' ? '<div style="color: #f57c00; margin-top: 8px;">💡 提示：当前数据过大（超过8KB），已自动使用本地存储。数据不会在设备间同步，但可以通过百度网盘备份功能实现跨设备同步。</div>' : ''}
           </div>
         `;
 
@@ -1310,29 +1509,34 @@
         if (shouldMerge) {
           // 合并模式
           const mergeReport = mergeData(importedData);
-          await saveData();
 
-          renderEngines();
-          renderCategories();
-          renderSites();
-          renderManageLists();
+          // 迁移数据格式
+          migrateCategoriesFormat();
+
+          await saveData();
 
           const reportMessage = '✅ 书签导入成功！\n\n' +
             `📁 新增分类: ${mergeReport.categories.added} 个 (跳过重复: ${mergeReport.categories.skipped})\n` +
-            `🌐 新增网站: ${mergeReport.sites.added} 个 (跳过重复: ${mergeReport.sites.skipped})`;
+            `🌐 新增网站: ${mergeReport.sites.added} 个 (跳过重复: ${mergeReport.sites.skipped})\n\n` +
+            '页面将刷新以确保数据正确加载...';
 
           alert(reportMessage);
+
+          // 刷新页面以重新加载数据，确保数据已正确保存
+          window.location.reload();
         } else {
           // 覆盖模式
           data = importedData;
+
+          // 迁移数据格式
+          migrateCategoriesFormat();
+
           await saveData();
 
-          renderEngines();
-          renderCategories();
-          renderSites();
-          renderManageLists();
+          alert('✅ 书签已完全覆盖导入！\n\n页面将刷新以确保数据正确加载...');
 
-          alert('✅ 书签已完全覆盖导入！');
+          // 刷新页面以重新加载数据，确保数据已正确保存
+          window.location.reload();
         }
       } catch (error) {
         console.error('导入书签失败:', error);
@@ -1662,32 +1866,39 @@
         if (shouldMerge) {
           // 合并模式
           const mergeReport = mergeData(downloadedData);
-          await saveData();
 
-          renderEngines();
-          renderCategories();
-          renderSites();
-          renderManageLists();
+          // 迁移数据格式
+          migrateCategoriesFormat();
+
+          // 保存数据
+          await saveData();
 
           const reportMessage = '✅ 数据从百度网盘合并成功！\n\n' +
             `✨ 新增搜索引擎: ${mergeReport.engines.added} 个 (跳过重复: ${mergeReport.engines.skipped})\n` +
             `📁 新增分类: ${mergeReport.categories.added} 个 (跳过重复: ${mergeReport.categories.skipped})\n` +
-            `🌐 新增网站: ${mergeReport.sites.added} 个 (跳过重复: ${mergeReport.sites.skipped})`;
+            `🌐 新增网站: ${mergeReport.sites.added} 个 (跳过重复: ${mergeReport.sites.skipped})\n\n` +
+            '页面将刷新以确保数据正确加载...';
 
           updateBaiduStatus('✅ 合并成功 - ' + new Date().toLocaleString());
           alert(reportMessage);
+
+          // 刷新页面以重新加载数据，确保数据已正确保存
+          window.location.reload();
         } else {
           // 覆盖模式
           data = downloadedData;
+
+          // 迁移数据格式
+          migrateCategoriesFormat();
+
+          // 保存数据
           await saveData();
 
-          renderEngines();
-          renderCategories();
-          renderSites();
-          renderManageLists();
-
           updateBaiduStatus('✅ 恢复成功 - ' + new Date().toLocaleString());
-          alert('✅ 数据已从百度网盘完全覆盖恢复！');
+          alert('✅ 数据已从百度网盘完全覆盖恢复！\n\n页面将刷新以确保数据正确加载...');
+
+          // 刷新页面以重新加载数据，确保数据已正确保存
+          window.location.reload();
         }
       } catch (error) {
         console.error('百度网盘恢复失败:', error);
