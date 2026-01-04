@@ -70,8 +70,8 @@
 3. 将压缩包拉进去就行了
 
 #### 在线安装
-1. 打开https://microsoftedge.microsoft.com/addons?hl=zh-CN
-2. 打开https://chromewebstore.google.com/category/extensions?utm_source=ext_sidebar&hl=zh-CN
+1. 打开 https://microsoftedge.microsoft.com/addons/search/%E5%AF%BC%E8%88%AA%E5%8A%A9%E6%89%8B(Oasis)?hl=zh-CN
+2. 打开 https://chromewebstore.google.com/search/%E5%AF%BC%E8%88%AA%E5%8A%A9%E6%89%8B(Oasis)?hl=zh-CN&utm_source=ext_sidebar
 2. 搜索 `导航助手(Oasis)`
 3. 点击获取安装就行了 
 
