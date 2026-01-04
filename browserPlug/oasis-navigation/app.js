@@ -318,22 +318,36 @@
           const newValue = changes.navData.newValue;
           const isCompressed = changes.navDataCompressed?.newValue === true;
 
-          // 解压数据（如果已压缩）
-          if (isCompressed && newValue) {
-            try {
-              const decompressed = LZString.decompressFromUTF16(newValue);
-              data = JSON.parse(decompressed);
-            } catch (e) {
-              console.error('解压同步数据失败:', e);
-              data = typeof newValue === 'string' ? JSON.parse(newValue) : newValue;
+          try {
+            // 优先尝试解压（因为现在默认都是压缩保存）
+            if (isCompressed !== false) { // 默认假设是压缩的
+              try {
+                const decompressed = LZString.decompressFromUTF16(newValue);
+                if (decompressed) {
+                  data = JSON.parse(decompressed);
+                  console.log('✅ 同步数据已解压并加载');
+                } else {
+                  throw new Error('解压返回空值');
+                }
+              } catch (decompressError) {
+                console.warn('⚠️ 解压失败，尝试作为未压缩数据处理:', decompressError.message);
+                // 如果解压失败，可能是未压缩的旧数据
+                data = typeof newValue === 'object' ? newValue : JSON.parse(newValue);
+                console.log('✅ 同步数据已作为未压缩格式加载');
+              }
+            } else {
+              // 明确标记为未压缩
+              data = typeof newValue === 'object' ? newValue : JSON.parse(newValue);
+              console.log('✅ 同步数据已加载（未压缩格式）');
             }
-          } else {
-            data = typeof newValue === 'string' ? JSON.parse(newValue) : newValue;
-          }
 
-          renderEngines();
-          renderCategories();
-          renderSites();
+            renderEngines();
+            renderCategories();
+            renderSites();
+          } catch (error) {
+            console.error('❌ 处理同步数据失败:', error);
+            // 发生错误时不更新 data，保持原有数据
+          }
         }
       });
     }
@@ -1321,7 +1335,14 @@
     // 更新存储信息
     async function updateStorageInfo() {
       try {
-        const dataSize = new Blob([JSON.stringify(data)]).size;
+        const dataStr = JSON.stringify(data);
+        const originalSize = new Blob([dataStr]).size;
+
+        // 计算压缩后的大小
+        const compressedData = LZString.compressToUTF16(dataStr);
+        const compressedSize = new Blob([compressedData]).size;
+        const compressionRatio = ((1 - compressedSize / originalSize) * 100).toFixed(1);
+
         const sitesCount = Object.values(data.sites).reduce((sum, arr) => sum + arr.length, 0);
 
         // 获取存储类型
@@ -1344,27 +1365,37 @@
           storageTypeText = '浏览器本地存储 (localStorage)';
         }
 
-        // 计算配额信息
-        let quota = `${(dataSize / 1024).toFixed(2)} KB`;
+        // 计算配额信息 - 使用压缩后的大小
+        let sizeInfo = '';
+        let quotaInfo = '';
+
         if (storageType === 'sync') {
           const SYNC_QUOTA = 8; // KB
-          const usagePercent = ((dataSize / (SYNC_QUOTA * 1024)) * 100).toFixed(1);
-          quota += ` / ${SYNC_QUOTA} KB (${usagePercent}%)`;
+          const usagePercent = ((compressedSize / (SYNC_QUOTA * 1024)) * 100).toFixed(1);
+          sizeInfo = `原始: ${(originalSize / 1024).toFixed(2)} KB → 压缩后: ${(compressedSize / 1024).toFixed(2)} KB`;
+          quotaInfo = `${(compressedSize / 1024).toFixed(2)} KB / ${SYNC_QUOTA} KB (${usagePercent}%)`;
         } else if (storageType === 'local') {
           const LOCAL_QUOTA = 5120; // 5MB in KB
-          const usagePercent = ((dataSize / (LOCAL_QUOTA * 1024)) * 100).toFixed(1);
-          quota += ` / ${LOCAL_QUOTA} KB (${usagePercent}%)`;
+          const usagePercent = ((compressedSize / (LOCAL_QUOTA * 1024)) * 100).toFixed(1);
+          sizeInfo = `原始: ${(originalSize / 1024).toFixed(2)} KB → 压缩后: ${(compressedSize / 1024).toFixed(2)} KB`;
+          quotaInfo = `${(compressedSize / 1024).toFixed(2)} KB / ${LOCAL_QUOTA} KB (${usagePercent}%)`;
+        } else {
+          sizeInfo = `原始: ${(originalSize / 1024).toFixed(2)} KB → 压缩后: ${(compressedSize / 1024).toFixed(2)} KB`;
+          quotaInfo = `${(compressedSize / 1024).toFixed(2)} KB`;
         }
 
         const infoHtml = `
           <div style="display: grid; gap: 8px;">
             <div><strong>存储类型:</strong> ${storageTypeText}</div>
             <div><strong>云端同步状态:</strong> ${syncStatus}</div>
-            <div><strong>数据大小:</strong> ${quota}</div>
+            <div><strong>数据大小:</strong> ${sizeInfo}</div>
+            <div><strong>压缩率:</strong> ${compressionRatio}%</div>
+            <div><strong>存储占用:</strong> ${quotaInfo}</div>
             <div><strong>分类数量:</strong> ${data.categories.length} 个</div>
             <div><strong>网站数量:</strong> ${sitesCount} 个</div>
             <div><strong>搜索引擎:</strong> ${data.engines.length} 个</div>
-            ${storageType === 'local' ? '<div style="color: #f57c00; margin-top: 8px;">💡 提示：当前数据过大（超过8KB），已自动使用本地存储。数据不会在设备间同步，但可以通过百度网盘备份功能实现跨设备同步。</div>' : ''}
+            ${storageType === 'local' ? '<div style="color: #f57c00; margin-top: 8px;">💡 提示：当前数据压缩后仍超过8KB，已自动使用本地存储。数据不会在设备间自动同步，但可以通过百度网盘备份功能实现跨设备同步。</div>' : ''}
+            ${storageType === 'sync' ? '<div style="color: #4caf50; margin-top: 8px;">✅ 数据已压缩并启用云端同步，可在不同设备间自动同步。</div>' : ''}
           </div>
         `;
 
