@@ -92,7 +92,7 @@
 #### 在线安装
 1. 打开 https://addons.mozilla.org/zh-CN/firefox/search/?q=%E5%AF%BC%E8%88%AA%E5%8A%A9%E6%89%8B(Oasis)
 2. 搜索 `导航助手(Oasis)`
-3. 点击获取安装就行了  (我就发版了火狐和edge)
+3. 点击获取安装就行了
 
 ---
 
