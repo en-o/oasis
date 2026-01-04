@@ -312,16 +312,38 @@
 
     // 监听来自其他设备的同步更新
     if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.onChanged) {
-      chrome.storage.onChanged.addListener((changes, areaName) => {
-        if (areaName === 'sync' && changes.navData) {
-          console.log('🔄 检测到数据同步更新');
-          const newValue = changes.navData.newValue;
-          const isCompressed = changes.navDataCompressed?.newValue === true;
+      // 使用防抖避免重复触发
+      let syncUpdateTimeout = null;
 
-          try {
-            // 优先尝试解压（因为现在默认都是压缩保存）
-            if (isCompressed !== false) { // 默认假设是压缩的
-              try {
+      chrome.storage.onChanged.addListener((changes, areaName) => {
+        if (areaName === 'sync' && changes.navData && changes.navData.newValue) {
+          // 清除之前的定时器，避免重复处理
+          if (syncUpdateTimeout) {
+            clearTimeout(syncUpdateTimeout);
+          }
+
+          // 延迟 100ms 处理，确保 navDataCompressed 也已更新
+          syncUpdateTimeout = setTimeout(async () => {
+            console.log('🔄 检测到数据同步更新');
+
+            try {
+              // 重新从 storage 读取最新数据，确保 navDataCompressed 标记是最新的
+              const result = await new Promise((resolve) => {
+                chrome.storage.sync.get(['navData', 'navDataCompressed'], resolve);
+              });
+
+              if (!result.navData) {
+                console.warn('⚠️ 同步数据为空，忽略此次更新');
+                return;
+              }
+
+              const newValue = result.navData;
+              const isCompressed = result.navDataCompressed === true;
+
+              console.log(`📦 数据格式: ${isCompressed ? '已压缩' : '未压缩'}`);
+
+              // 解压或直接解析数据
+              if (isCompressed) {
                 const decompressed = LZString.decompressFromUTF16(newValue);
                 if (decompressed) {
                   data = JSON.parse(decompressed);
@@ -329,25 +351,21 @@
                 } else {
                   throw new Error('解压返回空值');
                 }
-              } catch (decompressError) {
-                console.warn('⚠️ 解压失败，尝试作为未压缩数据处理:', decompressError.message);
-                // 如果解压失败，可能是未压缩的旧数据
+              } else {
+                // 未压缩数据
                 data = typeof newValue === 'object' ? newValue : JSON.parse(newValue);
-                console.log('✅ 同步数据已作为未压缩格式加载');
+                console.log('✅ 同步数据已加载（未压缩格式）');
               }
-            } else {
-              // 明确标记为未压缩
-              data = typeof newValue === 'object' ? newValue : JSON.parse(newValue);
-              console.log('✅ 同步数据已加载（未压缩格式）');
-            }
 
-            renderEngines();
-            renderCategories();
-            renderSites();
-          } catch (error) {
-            console.error('❌ 处理同步数据失败:', error);
-            // 发生错误时不更新 data，保持原有数据
-          }
+              // 更新界面
+              renderEngines();
+              renderCategories();
+              renderSites();
+            } catch (error) {
+              console.error('❌ 处理同步数据失败:', error);
+              // 发生错误时不更新 data，保持原有数据
+            }
+          }, 100);
         }
       });
     }
@@ -461,7 +479,7 @@
         // 根据图标类型渲染不同的内容
         let iconHtml = '';
         if (site.iconType === 'url' && site.iconUrl) {
-          iconHtml = `<img src="${site.iconUrl}" alt="${site.name}" onerror="this.style.display='none'; this.parentElement.textContent='🌐';">`;
+          iconHtml = `<img class="site-icon-img" src="${site.iconUrl}" alt="${site.name}">`;
         } else {
           iconHtml = site.icon || '🌐';
         }
@@ -484,6 +502,14 @@
       container.querySelectorAll('.site-card').forEach(card => {
         card.addEventListener('click', () => {
           openSite(card.dataset.url);
+        });
+      });
+
+      // 绑定图标加载失败事件
+      container.querySelectorAll('.site-icon-img').forEach(img => {
+        img.addEventListener('error', function() {
+          this.style.display = 'none';
+          this.parentElement.textContent = '🌐';
         });
       });
     }
@@ -641,7 +667,7 @@
         // 根据图标类型渲染不同的内容
         let iconHtml = '';
         if (site.iconType === 'url' && site.iconUrl) {
-          iconHtml = `<img src="${site.iconUrl}" alt="${site.name}" onerror="this.style.display='none'; this.parentElement.textContent='🌐';">`;
+          iconHtml = `<img class="site-icon-img" src="${site.iconUrl}" alt="${site.name}">`;
         } else {
           iconHtml = site.icon || '🌐';
         }
@@ -681,6 +707,14 @@
             return;
           }
           openSite(card.dataset.url);
+        });
+      });
+
+      // 绑定图标加载失败事件
+      container.querySelectorAll('.site-icon-img').forEach(img => {
+        img.addEventListener('error', function() {
+          this.style.display = 'none';
+          this.parentElement.textContent = '🌐';
         });
       });
     }
@@ -867,7 +901,7 @@
         // 根据图标类型显示不同的图标
         let iconDisplay = '';
         if (s.iconType === 'url' && s.iconUrl) {
-          iconDisplay = `<img src="${s.iconUrl}" alt="${s.name}" style="width: 20px; height: 20px; vertical-align: middle; margin-right: 8px; border-radius: 4px;" onerror="this.style.display='none';">`;
+          iconDisplay = `<img class="manage-site-icon-img" src="${s.iconUrl}" alt="${s.name}" style="width: 20px; height: 20px; vertical-align: middle; margin-right: 8px; border-radius: 4px;">`;
         } else {
           iconDisplay = `<span style="margin-right: 8px;">${s.icon || '🌐'}</span>`;
         }
@@ -886,6 +920,13 @@
           </div>
         `;
       }).join('');
+
+      // 绑定管理列表中图标的加载失败事件
+      siteList.querySelectorAll('.manage-site-icon-img').forEach(img => {
+        img.addEventListener('error', function() {
+          this.style.display = 'none';
+        });
+      });
     }
 
     function handleManageAction(e) {
@@ -1162,7 +1203,7 @@
 
       let mergeReport = {
         engines: { added: 0, skipped: 0 },
-        categories: { added: 0, skipped: 0 },
+        categories: { added: 0, skipped: 0, removed: 0 },
         sites: { added: 0, skipped: 0 }
       };
 
@@ -1192,6 +1233,29 @@
           // 更新已存在分类的置顶状态（从云端同步置顶状态）
           existingCategory.pinned = categoryPinned;
           mergeReport.categories.skipped++;
+        }
+      });
+
+      // 2.5. 检测并移除已删除的默认分类
+      // 如果一个分类在 defaultData 中存在，也在当前 data 中存在，但在 importedData 中不存在，说明它被有意删除了
+      const defaultCategoryNames = defaultData.categories.map(c => c.name);
+      const importedCategoryNames = importedData.categories.map(c => typeof c === 'string' ? c : c.name);
+
+      // 找出需要删除的默认分类（在默认数据和本地数据中都有，但在导入数据中没有）
+      const categoriesToRemove = data.categories.filter(localCat => {
+        const isDefaultCategory = defaultCategoryNames.includes(localCat.name);
+        const notInImported = !importedCategoryNames.includes(localCat.name);
+        return isDefaultCategory && notInImported;
+      });
+
+      // 删除这些分类
+      categoriesToRemove.forEach(cat => {
+        const index = data.categories.findIndex(c => c.name === cat.name);
+        if (index !== -1) {
+          data.categories.splice(index, 1);
+          delete data.sites[cat.name];
+          mergeReport.categories.removed++;
+          console.log(`🗑️ 已删除默认分类: ${cat.name}（云端已删除）`);
         }
       });
 
@@ -1299,7 +1363,8 @@
 
             const reportMessage = '✅ 数据合并成功！\n\n' +
               `✨ 新增搜索引擎: ${mergeReport.engines.added} 个 (跳过重复: ${mergeReport.engines.skipped})\n` +
-              `📁 新增分类: ${mergeReport.categories.added} 个 (跳过重复: ${mergeReport.categories.skipped})\n` +
+              `📁 新增分类: ${mergeReport.categories.added} 个 (跳过重复: ${mergeReport.categories.skipped}` +
+              (mergeReport.categories.removed > 0 ? `，已删除: ${mergeReport.categories.removed}` : '') + `)\n` +
               `🌐 新增网站: ${mergeReport.sites.added} 个 (跳过重复: ${mergeReport.sites.skipped})\n\n` +
               '页面将刷新以确保数据正确加载...';
 
@@ -1597,7 +1662,8 @@
           await saveData();
 
           const reportMessage = '✅ 书签导入成功！\n\n' +
-            `📁 新增分类: ${mergeReport.categories.added} 个 (跳过重复: ${mergeReport.categories.skipped})\n` +
+            `📁 新增分类: ${mergeReport.categories.added} 个 (跳过重复: ${mergeReport.categories.skipped}` +
+            (mergeReport.categories.removed > 0 ? `，已删除: ${mergeReport.categories.removed}` : '') + `)\n` +
             `🌐 新增网站: ${mergeReport.sites.added} 个 (跳过重复: ${mergeReport.sites.skipped})\n\n` +
             '页面将刷新以确保数据正确加载...';
 
@@ -1799,9 +1865,18 @@
       updateBaiduStatus('正在备份到百度网盘...');
 
       try {
-        // 准备上传的数据
-        const dataStr = JSON.stringify(data, null, 2);
-        const blob = new Blob([dataStr], { type: 'application/json' });
+        // 准备上传的数据 - 压缩后上传
+        const dataStr = JSON.stringify(data);
+        const originalSize = new Blob([dataStr]).size;
+
+        // 使用 LZ-String 压缩数据
+        const compressedData = LZString.compressToUTF16(dataStr);
+        const compressedSize = new Blob([compressedData]).size;
+
+        const compressionRatio = ((1 - compressedSize / originalSize) * 100).toFixed(1);
+        console.log(`📊 百度网盘备份 - 原始: ${(originalSize / 1024).toFixed(2)} KB, 压缩后: ${(compressedSize / 1024).toFixed(2)} KB (压缩率: ${compressionRatio}%)`);
+
+        const blob = new Blob([compressedData], { type: 'text/plain' });
 
         // 使用FormData上传
         const formData = new FormData();
@@ -1934,8 +2009,28 @@
 
         console.log('下载成功，文件大小:', downloadResult.content.length);
 
-        // 解析JSON数据
-        const downloadedData = JSON.parse(downloadResult.content);
+        // 尝试解压数据（先假设是压缩格式）
+        let downloadedData;
+        try {
+          console.log('🔄 尝试解压百度网盘数据...');
+          const decompressed = LZString.decompressFromUTF16(downloadResult.content);
+          if (decompressed) {
+            downloadedData = JSON.parse(decompressed);
+            console.log('✅ 数据已解压');
+          } else {
+            throw new Error('解压返回空值，尝试作为未压缩数据');
+          }
+        } catch (decompressError) {
+          // 如果解压失败，可能是旧的未压缩备份
+          console.log('⚠️ 解压失败，尝试作为未压缩 JSON 数据:', decompressError.message);
+          try {
+            downloadedData = JSON.parse(downloadResult.content);
+            console.log('✅ 作为未压缩 JSON 数据解析成功（旧格式备份）');
+          } catch (jsonError) {
+            throw new Error('无法解析备份数据：既不是压缩格式也不是有效的 JSON');
+          }
+        }
+
         console.log('解析后的数据:', downloadedData);
 
         // 验证数据格式
@@ -1956,7 +2051,8 @@
 
           const reportMessage = '✅ 数据从百度网盘合并成功！\n\n' +
             `✨ 新增搜索引擎: ${mergeReport.engines.added} 个 (跳过重复: ${mergeReport.engines.skipped})\n` +
-            `📁 新增分类: ${mergeReport.categories.added} 个 (跳过重复: ${mergeReport.categories.skipped})\n` +
+            `📁 新增分类: ${mergeReport.categories.added} 个 (跳过重复: ${mergeReport.categories.skipped}` +
+            (mergeReport.categories.removed > 0 ? `，已删除: ${mergeReport.categories.removed}` : '') + `)\n` +
             `🌐 新增网站: ${mergeReport.sites.added} 个 (跳过重复: ${mergeReport.sites.skipped})\n\n` +
             '页面将刷新以确保数据正确加载...';
 
@@ -1986,6 +2082,102 @@
         updateBaiduStatus('❌ 恢复失败');
         alert('❌ 恢复失败：' + error.message + '\n\n请确保已登录百度网盘且备份文件存在，或重新登录后再试');
       }
+    }
+
+    // 解压备份文件
+    function decompressBackupFile(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        try {
+          const fileContent = e.target.result;
+          let decompressedData;
+          let wasCompressed = false;
+
+          // 先尝试解压
+          try {
+            console.log('🔄 尝试解压文件...');
+            const decompressed = LZString.decompressFromUTF16(fileContent);
+            if (decompressed) {
+              // 验证是否为有效JSON
+              JSON.parse(decompressed);
+              decompressedData = decompressed;
+              wasCompressed = true;
+              console.log('✅ 文件解压成功');
+            } else {
+              throw new Error('解压返回空值');
+            }
+          } catch (decompressError) {
+            // 如果解压失败，尝试作为未压缩的JSON读取
+            console.log('⚠️ 解压失败，尝试作为未压缩数据处理...');
+            try {
+              // 验证是否为有效JSON
+              const parsed = JSON.parse(fileContent);
+              decompressedData = JSON.stringify(parsed, null, 2); // 格式化
+              wasCompressed = false;
+              console.log('✅ 文件已是未压缩格式');
+            } catch (jsonError) {
+              throw new Error('文件既不是压缩格式也不是有效的 JSON 文件');
+            }
+          }
+
+          // 下载解压后的文件
+          const blob = new Blob([decompressedData], { type: 'application/json' });
+          const timestamp = new Date().toISOString().slice(0, 10);
+          const filename = wasCompressed
+            ? `oasis-backup-decompressed-${timestamp}.json`
+            : `oasis-backup-formatted-${timestamp}.json`;
+
+          // 兼容 Chrome 和 Firefox 的 API
+          const browserAPI = typeof chrome !== 'undefined' && chrome.downloads
+            ? chrome
+            : (typeof browser !== 'undefined' && browser.downloads ? browser : null);
+
+          if (browserAPI && browserAPI.downloads) {
+            // 使用 downloads API
+            const url = URL.createObjectURL(blob);
+            browserAPI.downloads.download({
+              url: url,
+              filename: filename,
+              saveAs: true
+            }, (downloadId) => {
+              URL.revokeObjectURL(url);
+              if (browserAPI.runtime.lastError) {
+                console.error('下载失败:', browserAPI.runtime.lastError);
+                alert('❌ 文件保存失败，请重试');
+              } else {
+                const message = wasCompressed
+                  ? '✅ 文件解压成功！已保存为可读的 JSON 格式'
+                  : '✅ 文件已格式化！已保存为可读的 JSON 格式';
+                alert(message);
+              }
+            });
+          } else {
+            // 降级方案：使用传统的 a 标签下载
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = filename;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            setTimeout(() => {
+              URL.revokeObjectURL(url);
+            }, 100);
+            const message = wasCompressed
+              ? '✅ 文件解压成功！已保存为可读的 JSON 格式'
+              : '✅ 文件已格式化！已保存为可读的 JSON 格式';
+            alert(message);
+          }
+        } catch (error) {
+          console.error('处理文件失败:', error);
+          alert('❌ 处理文件失败：' + error.message + '\n\n请确保选择的是有效的备份文件');
+        }
+        event.target.value = ''; // 清空文件选择，允许重复选择同一文件
+      };
+      reader.readAsText(file);
     }
 
     // 切换打开模式
@@ -2072,6 +2264,12 @@
       document.getElementById('syncToBaiduBtn').addEventListener('click', syncToBaidu);
       document.getElementById('syncFromBaiduBtn').addEventListener('click', syncFromBaidu);
 
+      // 备份文件解压
+      document.getElementById('decompressBackupBtn').addEventListener('click', () => {
+        document.getElementById('decompressFile').click();
+      });
+      document.getElementById('decompressFile').addEventListener('change', decompressBackupFile);
+
       // 模态框背景点击关闭
       document.getElementById('manageModal').addEventListener('click', (e) => {
         if (e.target.id === 'manageModal') {
@@ -2087,15 +2285,18 @@
 
     // 页面加载完成后初始化
     if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', () => {
+      document.addEventListener('DOMContentLoaded', async () => {
         bindEventListeners();
-        init();
-        checkPendingAddSite();
+        await init(); // 等待数据加载完成
+        await checkPendingAddSite(); // 确保数据已加载后再检查待添加网站
       });
     } else {
-      bindEventListeners();
-      init();
-      checkPendingAddSite();
+      // 使用立即执行的异步函数确保顺序执行
+      (async () => {
+        bindEventListeners();
+        await init(); // 等待数据加载完成
+        await checkPendingAddSite(); // 确保数据已加载后再检查待添加网站
+      })();
     }
 
     // 监听来自 background.js 的消息
