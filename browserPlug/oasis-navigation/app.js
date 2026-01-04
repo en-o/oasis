@@ -1349,20 +1349,62 @@
         const storageType = localStorage.getItem('navDataStorageType') || 'unknown';
         let storageTypeText = '未知';
         let syncStatus = '❌ 未启用';
+        let explanationHtml = '';
 
         if (typeof chrome !== 'undefined' && chrome.storage) {
           if (storageType === 'sync') {
             storageTypeText = '云端同步存储 (Chrome Sync Storage)';
             syncStatus = '✅ 已启用（支持跨设备同步）';
+            explanationHtml = `
+              <div style="background: #e8f5e9; padding: 12px; border-radius: 4px; margin-top: 8px; font-size: 13px; line-height: 1.6;">
+                <div style="color: #2e7d32; font-weight: bold; margin-bottom: 6px;">✅ 云端自动同步已启用</div>
+                <div style="color: #424242;">
+                  • 数据已压缩并保存到 Chrome 云端存储<br>
+                  • 在同一 Chrome 账号的所有设备间自动同步<br>
+                  • 限制：单项最大 8KB（当前已使用 ${((compressedSize / 8192) * 100).toFixed(1)}%）<br>
+                  • 备份建议：同时使用"百度网盘备份"作为额外保障
+                </div>
+              </div>
+            `;
           } else if (storageType === 'local') {
             storageTypeText = '本地存储 (Chrome Local Storage)';
             syncStatus = '⚠️ 仅本地存储（数据过大，无法云端同步）';
+            explanationHtml = `
+              <div style="background: #fff3e0; padding: 12px; border-radius: 4px; margin-top: 8px; font-size: 13px; line-height: 1.6;">
+                <div style="color: #e65100; font-weight: bold; margin-bottom: 6px;">⚠️ 数据已超过云端同步限制</div>
+                <div style="color: #424242;">
+                  • 原因：压缩后数据 (${(compressedSize / 1024).toFixed(2)} KB) 超过 Chrome Sync Storage 的 8KB 限制<br>
+                  • 当前状态：数据已自动保存到本地存储（最大 5MB，当前已使用 ${((compressedSize / (5120 * 1024)) * 100).toFixed(2)}%）<br>
+                  • 影响：<strong>无法在不同设备间自动同步</strong><br>
+                  • 解决方案：<br>
+                  &nbsp;&nbsp;1. <strong>使用"百度网盘备份"功能</strong>实现跨设备同步（无大小限制）<br>
+                  &nbsp;&nbsp;2. 或删除一些网站，将数据压缩到 8KB 以下以恢复自动同步
+                </div>
+              </div>
+            `;
           } else if (storageType === 'localStorage') {
             storageTypeText = '浏览器本地存储 (localStorage)';
             syncStatus = '❌ 未使用扩展存储';
+            explanationHtml = `
+              <div style="background: #ffebee; padding: 12px; border-radius: 4px; margin-top: 8px; font-size: 13px; line-height: 1.6;">
+                <div style="color: #c62828; font-weight: bold; margin-bottom: 6px;">❌ 扩展存储未启用</div>
+                <div style="color: #424242;">
+                  • 数据仅保存在浏览器本地存储<br>
+                  • 无法跨设备同步<br>
+                  • 建议使用"百度网盘备份"功能实现跨设备同步
+                </div>
+              </div>
+            `;
           }
         } else {
           storageTypeText = '浏览器本地存储 (localStorage)';
+          explanationHtml = `
+            <div style="background: #f5f5f5; padding: 12px; border-radius: 4px; margin-top: 8px; font-size: 13px; line-height: 1.6;">
+              <div style="color: #616161;">
+                数据保存在浏览器本地，使用"百度网盘备份"功能可实现跨设备同步
+              </div>
+            </div>
+          `;
         }
 
         // 计算配额信息 - 使用压缩后的大小
@@ -1376,7 +1418,7 @@
           quotaInfo = `${(compressedSize / 1024).toFixed(2)} KB / ${SYNC_QUOTA} KB (${usagePercent}%)`;
         } else if (storageType === 'local') {
           const LOCAL_QUOTA = 5120; // 5MB in KB
-          const usagePercent = ((compressedSize / (LOCAL_QUOTA * 1024)) * 100).toFixed(1);
+          const usagePercent = ((compressedSize / (LOCAL_QUOTA * 1024)) * 100).toFixed(2);
           sizeInfo = `原始: ${(originalSize / 1024).toFixed(2)} KB → 压缩后: ${(compressedSize / 1024).toFixed(2)} KB`;
           quotaInfo = `${(compressedSize / 1024).toFixed(2)} KB / ${LOCAL_QUOTA} KB (${usagePercent}%)`;
         } else {
@@ -1394,8 +1436,16 @@
             <div><strong>分类数量:</strong> ${data.categories.length} 个</div>
             <div><strong>网站数量:</strong> ${sitesCount} 个</div>
             <div><strong>搜索引擎:</strong> ${data.engines.length} 个</div>
-            ${storageType === 'local' ? '<div style="color: #f57c00; margin-top: 8px;">💡 提示：当前数据压缩后仍超过8KB，已自动使用本地存储。数据不会在设备间自动同步，但可以通过百度网盘备份功能实现跨设备同步。</div>' : ''}
-            ${storageType === 'sync' ? '<div style="color: #4caf50; margin-top: 8px;">✅ 数据已压缩并启用云端同步，可在不同设备间自动同步。</div>' : ''}
+          </div>
+          ${explanationHtml}
+          <div style="background: #e3f2fd; padding: 12px; border-radius: 4px; margin-top: 12px; font-size: 13px; line-height: 1.6;">
+            <div style="color: #1565c0; font-weight: bold; margin-bottom: 6px;">💡 关于百度网盘备份</div>
+            <div style="color: #424242;">
+              • 百度网盘备份<strong>不受 8KB 限制</strong>，可以存储任意大小的数据<br>
+              • 适合作为跨设备同步的主要方式（当数据超过 8KB 时）<br>
+              • 推荐定期备份，保障数据安全<br>
+              • 在新设备上使用"从百度网盘恢复"即可同步所有数据
+            </div>
           </div>
         `;
 
