@@ -2,6 +2,7 @@ version: '3.8'
 
 services:
   oasis-api:
+    # build 优先级更高
     build:
       context: .
       dockerfile: api/Dockerfile
