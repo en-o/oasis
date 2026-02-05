@@ -300,6 +300,13 @@ const ApiKeyManagement: React.FC = () => {
       key: 'name',
       width: 120,
       ellipsis: true,
+      render: (text: string, record: ApiKey) => (
+        record.remark ? (
+          <Tooltip title={record.remark}>
+            <span className="cursor-help">{text}</span>
+          </Tooltip>
+        ) : text
+      ),
     },
     {
       title: 'API Key',
@@ -318,6 +325,7 @@ const ApiKeyManagement: React.FC = () => {
       title: '权限',
       dataIndex: 'permissions',
       key: 'permissions',
+      width: 160,
       ellipsis: true,
       render: (text: string) => getPermissionTags(text),
     },
@@ -337,9 +345,9 @@ const ApiKeyManagement: React.FC = () => {
     {
       title: '操作',
       key: 'action',
-      width: 160,
+      width: 120,
       render: (_: any, record: ApiKey) => (
-        <Space size={4}>
+        <Space split={<span className="text-gray-300">|</span>}>
           {record.status === 1 && !record.expired && (
             <Tooltip title="测试接口">
               <Button
