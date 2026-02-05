@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Table, Button, Modal, Form, Input, Select, Popconfirm, Space, App, Tag, Typography, Checkbox, Tooltip } from 'antd';
-import { Plus, Trash2, Key, Copy, Ban, CheckCircle } from 'lucide-react';
+import { Table, Button, Modal, Form, Input, Select, Popconfirm, Space, App, Tag, Typography, Checkbox, Tooltip, Tabs, Spin } from 'antd';
+import { Plus, Trash2, Key, Copy, Ban, CheckCircle, Play, Code } from 'lucide-react';
 import type { ApiKey, ApiKeyAddRequest, OpenApiEndpoint } from '@/types';
 import { apiKeyApi } from '@/services/api';
 
@@ -15,6 +15,14 @@ const ApiKeyManagement: React.FC = () => {
   const [newKeyModalVisible, setNewKeyModalVisible] = useState(false);
   const [newApiKey, setNewApiKey] = useState<string>('');
   const [form] = Form.useForm();
+
+  // 测试相关状态
+  const [testModalVisible, setTestModalVisible] = useState(false);
+  const [testingKey, setTestingKey] = useState<ApiKey | null>(null);
+  const [selectedEndpoint, setSelectedEndpoint] = useState<OpenApiEndpoint | null>(null);
+  const [testLoading, setTestLoading] = useState(false);
+  const [testResult, setTestResult] = useState<{ status: number; data: any } | null>(null);
+  const [requestBody, setRequestBody] = useState<string>('');
 
   // 加载API Key列表
   const loadData = async () => {
@@ -118,6 +126,124 @@ const ApiKeyManagement: React.FC = () => {
     });
   };
 
+  // 打开测试弹窗
+  const handleOpenTest = (record: ApiKey) => {
+    setTestingKey(record);
+    setSelectedEndpoint(null);
+    setTestResult(null);
+    setRequestBody('');
+    setTestModalVisible(true);
+  };
+
+  // 获取该 API Key 有权限的接口列表
+  const getKeyEndpoints = (): OpenApiEndpoint[] => {
+    if (!testingKey?.permissions) return [];
+    const permList = testingKey.permissions.split(',').map(p => p.trim());
+    return endpoints.filter(e => permList.includes(e.permission));
+  };
+
+  // 获取默认请求体
+  const getDefaultRequestBody = (endpoint: OpenApiEndpoint): string => {
+    if (endpoint.method === 'GET') return '';
+    // 根据接口类型返回示例请求体
+    if (endpoint.path.includes('/nav/page')) {
+      return JSON.stringify({
+        page: { pageIndex: 1, pageSize: 10 }
+      }, null, 2);
+    }
+    if (endpoint.path.includes('/nav/append')) {
+      return JSON.stringify({
+        name: "示例网站",
+        url: "https://example.com",
+        sort: 1,
+        category: "工具"
+      }, null, 2);
+    }
+    if (endpoint.path.includes('/nav/edit')) {
+      return JSON.stringify({
+        id: 1,
+        name: "修改后的名称"
+      }, null, 2);
+    }
+    if (endpoint.path.includes('/category/append')) {
+      return JSON.stringify({
+        categoryName: "新分类",
+        sort: 1
+      }, null, 2);
+    }
+    return '{}';
+  };
+
+  // 选择接口
+  const handleSelectEndpoint = (endpoint: OpenApiEndpoint) => {
+    setSelectedEndpoint(endpoint);
+    setTestResult(null);
+    setRequestBody(getDefaultRequestBody(endpoint));
+  };
+
+  // 执行测试请求
+  const handleTestRequest = async () => {
+    if (!selectedEndpoint || !testingKey) return;
+
+    setTestLoading(true);
+    try {
+      const baseUrl = window.location.origin;
+      const url = `${baseUrl}${selectedEndpoint.path}`;
+
+      const headers: HeadersInit = {
+        'X-Api-Key': testingKey.apiKey,
+        'Content-Type': 'application/json',
+      };
+
+      const options: RequestInit = {
+        method: selectedEndpoint.method,
+        headers,
+      };
+
+      if (selectedEndpoint.method === 'POST' && requestBody) {
+        options.body = requestBody;
+      }
+
+      const response = await fetch(url, options);
+      const data = await response.json();
+
+      setTestResult({
+        status: response.status,
+        data,
+      });
+    } catch (error: any) {
+      setTestResult({
+        status: 0,
+        data: { error: error.message || '请求失败' },
+      });
+    } finally {
+      setTestLoading(false);
+    }
+  };
+
+  // 生成 cURL 命令
+  const generateCurlCommand = (): string => {
+    if (!selectedEndpoint || !testingKey) return '';
+    const baseUrl = window.location.origin;
+    const url = `${baseUrl}${selectedEndpoint.path}`;
+
+    let curl = `curl -X ${selectedEndpoint.method} "${url}"`;
+    curl += ` \\\n  -H "X-Api-Key: ${testingKey.apiKey}"`;
+    curl += ` \\\n  -H "Content-Type: application/json"`;
+
+    if (selectedEndpoint.method === 'POST' && requestBody) {
+      // 压缩 JSON 用于 cURL
+      try {
+        const compressed = JSON.stringify(JSON.parse(requestBody));
+        curl += ` \\\n  -d '${compressed}'`;
+      } catch {
+        curl += ` \\\n  -d '${requestBody}'`;
+      }
+    }
+
+    return curl;
+  };
+
   const formatDateTime = (dateStr: string) => {
     if (!dateStr) return '-';
     const date = new Date(dateStr);
@@ -219,10 +345,20 @@ const ApiKeyManagement: React.FC = () => {
     {
       title: '操作',
       key: 'action',
-      width: 150,
+      width: 200,
       fixed: 'right' as const,
       render: (_: any, record: ApiKey) => (
         <Space>
+          {record.status === 1 && !record.expired && (
+            <Button
+              type="link"
+              size="small"
+              icon={<Play className="w-4 h-4" />}
+              onClick={() => handleOpenTest(record)}
+            >
+              测试
+            </Button>
+          )}
           {record.status === 1 && !record.expired ? (
             <Popconfirm
               title="确定禁用该API Key吗？"
@@ -295,7 +431,7 @@ const ApiKeyManagement: React.FC = () => {
           dataSource={apiKeys}
           loading={loading}
           rowKey="id"
-          scroll={{ x: 1200 }}
+          scroll={{ x: 1250 }}
           pagination={{
             pageSize: 10,
             showSizeChanger: true,
@@ -419,6 +555,139 @@ const ApiKeyManagement: React.FC = () => {
      http://your-domain/openapi/nav/list`}
             </pre>
           </div>
+        </div>
+      </Modal>
+
+      {/* 接口测试弹窗 */}
+      <Modal
+        title={
+          <div className="flex items-center gap-2">
+            <Code className="w-5 h-5 text-blue-500" />
+            <span>接口测试 - {testingKey?.name}</span>
+          </div>
+        }
+        open={testModalVisible}
+        onCancel={() => setTestModalVisible(false)}
+        footer={null}
+        width={900}
+        styles={{ body: { maxHeight: '70vh', overflow: 'auto' } }}
+      >
+        <div className="mt-4">
+          {/* 接口选择 */}
+          <div className="mb-4">
+            <div className="text-sm font-medium mb-2">选择要测试的接口：</div>
+            <div className="flex flex-wrap gap-2">
+              {getKeyEndpoints().map(endpoint => (
+                <Button
+                  key={endpoint.permission}
+                  type={selectedEndpoint?.permission === endpoint.permission ? 'primary' : 'default'}
+                  size="small"
+                  onClick={() => handleSelectEndpoint(endpoint)}
+                >
+                  <Tag color={endpoint.method === 'GET' ? 'green' : 'blue'} className="mr-1">
+                    {endpoint.method}
+                  </Tag>
+                  {endpoint.name}
+                </Button>
+              ))}
+            </div>
+          </div>
+
+          {selectedEndpoint && (
+            <>
+              {/* 接口信息 */}
+              <div className="bg-gray-50 rounded-lg p-4 mb-4">
+                <div className="flex items-center gap-4 mb-2">
+                  <Tag color={selectedEndpoint.method === 'GET' ? 'green' : 'blue'}>
+                    {selectedEndpoint.method}
+                  </Tag>
+                  <Text code>{selectedEndpoint.path}</Text>
+                </div>
+                <div className="text-gray-500 text-sm">{selectedEndpoint.name}</div>
+              </div>
+
+              {/* POST 请求体编辑 */}
+              {selectedEndpoint.method === 'POST' && (
+                <div className="mb-4">
+                  <div className="text-sm font-medium mb-2">请求体 (JSON)：</div>
+                  <Input.TextArea
+                    value={requestBody}
+                    onChange={e => setRequestBody(e.target.value)}
+                    rows={6}
+                    className="font-mono text-sm"
+                    placeholder="输入 JSON 请求体"
+                  />
+                </div>
+              )}
+
+              {/* 操作按钮 */}
+              <div className="flex gap-2 mb-4">
+                <Button
+                  type="primary"
+                  icon={<Play className="w-4 h-4" />}
+                  onClick={handleTestRequest}
+                  loading={testLoading}
+                >
+                  发送请求
+                </Button>
+                <Button
+                  icon={<Copy className="w-4 h-4" />}
+                  onClick={() => copyToClipboard(generateCurlCommand())}
+                >
+                  复制 cURL
+                </Button>
+              </div>
+
+              {/* Tabs: cURL 示例 & 响应结果 */}
+              <Tabs
+                items={[
+                  {
+                    key: 'curl',
+                    label: 'cURL 示例',
+                    children: (
+                      <pre className="bg-gray-900 text-green-400 rounded-lg p-4 text-sm overflow-x-auto">
+                        {generateCurlCommand()}
+                      </pre>
+                    ),
+                  },
+                  {
+                    key: 'response',
+                    label: '响应结果',
+                    children: (
+                      <div>
+                        {testLoading ? (
+                          <div className="flex justify-center py-8">
+                            <Spin tip="请求中..." />
+                          </div>
+                        ) : testResult ? (
+                          <div>
+                            <div className="mb-2">
+                              <Tag color={testResult.status === 200 ? 'success' : 'error'}>
+                                HTTP {testResult.status}
+                              </Tag>
+                            </div>
+                            <pre className="bg-gray-100 rounded-lg p-4 text-sm overflow-x-auto max-h-80">
+                              {JSON.stringify(testResult.data, null, 2)}
+                            </pre>
+                          </div>
+                        ) : (
+                          <div className="text-gray-400 text-center py-8">
+                            点击"发送请求"按钮测试接口
+                          </div>
+                        )}
+                      </div>
+                    ),
+                  },
+                ]}
+              />
+            </>
+          )}
+
+          {!selectedEndpoint && (
+            <div className="text-gray-400 text-center py-8">
+              请先选择要测试的接口
+            </div>
+          )}
         </div>
       </Modal>
     </div>
