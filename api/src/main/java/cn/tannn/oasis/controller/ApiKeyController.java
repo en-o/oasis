@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
 
 /**
  * API Key 管理
- *
+ *  用来跟运维平台集成的 { @link  OpenApiController }
  * @author tan
  * @date 2025-02-05
  */
