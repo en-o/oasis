@@ -59,7 +59,10 @@ public class ApiKeyServiceImpl extends J2ServiceImpl<ApiKeyDao, ApiKey, Integer>
         apiKey.setApiKey(fullKey);
         apiKey.setName(add.getName());
         apiKey.setCreateTime(LocalDateTime.now());
-        apiKey.setExpireTime(LocalDateTime.now().plusDays(add.getExpireDays()));
+        // 0表示永久，不设置过期时间
+        if (add.getExpireDays() != null && add.getExpireDays() > 0) {
+            apiKey.setExpireTime(LocalDateTime.now().plusDays(add.getExpireDays()));
+        }
         apiKey.setStatus(1);
         apiKey.setPermissions(add.getPermissions());
         apiKey.setRemark(add.getRemark());

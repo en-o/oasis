@@ -58,9 +58,9 @@ public class ApiKey extends SerializableBean<ApiKey> {
     /**
      * 过期时间
      */
-    @Column(nullable = false)
-    @Comment("过期时间")
-    @Schema(description = "过期时间")
+    @Column
+    @Comment("过期时间，null表示永久")
+    @Schema(description = "过期时间，null表示永久")
     private LocalDateTime expireTime;
 
     /**

@@ -33,9 +33,9 @@ public class ApiKeyAdd extends SerializableBean<ApiKeyAdd> {
     /**
      * 有效天数
      */
-    @Schema(description = "有效天数", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "有效天数，0表示永久", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotNull(message = "有效天数不允许为空")
-    @Min(value = 1, message = "有效天数最小为1天")
+    @Min(value = 0, message = "有效天数最小为0(永久)")
     @Max(value = 365, message = "有效天数最大为365天")
     private Integer expireDays;
 

@@ -355,7 +355,7 @@ const ApiKeyManagement: React.FC = () => {
       dataIndex: 'expireTime',
       key: 'expireTime',
       width: 140,
-      render: (text: string) => formatDateTime(text),
+      render: (text: string) => text ? formatDateTime(text) : '永久',
     },
     {
       title: '操作',
@@ -482,6 +482,7 @@ const ApiKeyManagement: React.FC = () => {
             rules={[{ required: true, message: '请选择有效期' }]}
           >
             <Select placeholder="请选择有效期">
+              <Select.Option value={0}>永久</Select.Option>
               <Select.Option value={7}>7天</Select.Option>
               <Select.Option value={30}>30天</Select.Option>
               <Select.Option value={90}>90天</Select.Option>
