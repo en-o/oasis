@@ -31,7 +31,8 @@ public class DataBackupScheduler {
             "nav_item",
             "backup_config",
             "system_config",
-            "site_publish"
+            "site_publish",
+            "api_key"
     };
 
     /**
