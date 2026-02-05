@@ -4,14 +4,20 @@ const browserAPI = typeof chrome !== 'undefined' ? chrome : browser;
 // 从存储中获取API基础URL
 let API_BASE_URL = 'http://localhost:1249';
 
-// 登录窗口打开标志，防止重复打开
-let loginWindowOpening = false;
-
 // 初始化页面
 document.addEventListener('DOMContentLoaded', async () => {
   // 加载配置
   const config = await getConfig();
   API_BASE_URL = config.apiUrl || 'http://localhost:1249';
+
+  // 检查 API Key 是否已配置
+  if (!config.apiKey) {
+    showAlert('请先在插件设置中配置 API Key', 'error');
+    setTimeout(() => {
+      browserAPI.runtime.openOptionsPage();
+    }, 2000);
+    return;
+  }
 
   // 加载分类和平台列表
   await loadCategories();
@@ -49,7 +55,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 // 获取配置
 async function getConfig() {
   return new Promise((resolve) => {
-    browserAPI.storage.sync.get(['apiUrl'], (result) => {
+    browserAPI.storage.sync.get(['apiUrl', 'apiKey'], (result) => {
       resolve(result);
     });
   });
@@ -69,7 +75,6 @@ function autoFillFavicon(url) {
 
     if (isLocalhost) {
       console.log('检测到本地地址，跳过自动获取图标:', url);
-      // 保持默认的"无图标"选项
       document.querySelector('input[name="iconType"][value="none"]').checked = true;
       return;
     }
@@ -77,32 +82,25 @@ function autoFillFavicon(url) {
     const faviconUrl = `${urlObj.protocol}//${urlObj.host}/favicon.ico`;
     console.log('尝试获取网站图标:', faviconUrl);
 
-    // 预加载图标以验证是否存在
     const img = new Image();
 
-    // 设置超时，避免长时间等待
     const timeout = setTimeout(() => {
       console.log('图标加载超时，设置为无图标');
-      img.src = ''; // 取消加载
-      // 保持默认的"无图标"选项
+      img.src = '';
       document.querySelector('input[name="iconType"][value="none"]').checked = true;
-    }, 5000); // 5秒超时
+    }, 5000);
 
     img.onload = () => {
       clearTimeout(timeout);
       console.log('图标加载成功:', faviconUrl);
 
-      // 检查图标尺寸，有些网站返回的是 1x1 的占位图
       if (img.width <= 1 || img.height <= 1) {
         console.log('图标尺寸无效，尝试备用方案');
         tryGoogleFavicon(urlObj);
       } else {
-        // 选择 URL 类型的图标
         document.querySelector('input[name="iconType"][value="url"]').checked = true;
         document.getElementById('iconUrlInput').style.display = 'block';
         document.getElementById('iconUploadInput').style.display = 'none';
-
-        // 填充图标 URL
         document.getElementById('iconUrl').value = faviconUrl;
         updateIconPreview(faviconUrl);
       }
@@ -117,7 +115,6 @@ function autoFillFavicon(url) {
     img.src = faviconUrl;
   } catch (error) {
     console.error('获取网站图标失败:', error);
-    // 保持默认的"无图标"选项
     document.querySelector('input[name="iconType"][value="none"]').checked = true;
   }
 }
@@ -138,16 +135,11 @@ function tryGoogleFavicon(urlObj) {
   img.onload = () => {
     clearTimeout(timeout);
 
-    // 检查是否是有效图标（Google 返回的默认图标尺寸通常是 16x16 或更大）
     if (img.width > 1 && img.height > 1) {
       console.log('Google favicon 加载成功');
-
-      // 选择 URL 类型的图标
       document.querySelector('input[name="iconType"][value="url"]').checked = true;
       document.getElementById('iconUrlInput').style.display = 'block';
       document.getElementById('iconUploadInput').style.display = 'none';
-
-      // 填充图标 URL
       document.getElementById('iconUrl').value = googleFaviconUrl;
       updateIconPreview(googleFaviconUrl);
     } else {
@@ -159,68 +151,38 @@ function tryGoogleFavicon(urlObj) {
   img.onerror = () => {
     clearTimeout(timeout);
     console.log('Google favicon 加载失败，设置为无图标');
-    // 保持默认的"无图标"选项
     document.querySelector('input[name="iconType"][value="none"]').checked = true;
   };
 
   img.src = googleFaviconUrl;
 }
 
-// 获取Token
-async function getToken() {
+// 获取 API Key
+async function getApiKey() {
   return new Promise((resolve) => {
-    browserAPI.storage.local.get(['authToken'], (result) => {
-      console.log('从storage获取token:', result.authToken);
-      resolve(result.authToken || '');
+    browserAPI.storage.sync.get(['apiKey'], (result) => {
+      resolve(result.apiKey || '');
     });
   });
 }
 
-// 打开登录窗口
-function openLoginWindow() {
-  // 防止重复打开
-  if (loginWindowOpening) {
-    console.log('登录窗口已在打开中，跳过重复请求');
-    return;
+// 发送带 API Key 的请求
+async function fetchWithApiKey(url, options = {}) {
+  const apiKey = await getApiKey();
+
+  if (!apiKey) {
+    showAlert('请先在插件设置中配置 API Key', 'error');
+    setTimeout(() => {
+      browserAPI.runtime.openOptionsPage();
+    }, 2000);
+    throw new Error('未配置 API Key');
   }
 
-  loginWindowOpening = true;
-  console.log('准备打开登录窗口');
-
-  browserAPI.windows.create({
-    url: browserAPI.runtime.getURL('login.html'),
-    type: 'popup',
-    width: 480,
-    height: 600,
-    focused: true
-  }, (window) => {
-    console.log('登录窗口已创建:', window);
-  });
-
-  // 5秒后重置标志，允许再次打开（防止窗口被用户关闭后无法重新打开）
-  setTimeout(() => {
-    loginWindowOpening = false;
-    console.log('登录窗口标志已重置');
-  }, 5000);
-}
-
-// 发送带Token的请求
-async function fetchWithAuth(url, options = {}) {
-  const token = await getToken();
-  console.log('fetchWithAuth - 使用token:', token);
-
-  // 添加Token到请求头
   const headers = {
     ...options.headers,
-    'Content-Type': 'application/json'
+    'Content-Type': 'application/json',
+    'X-Api-Key': apiKey
   };
-
-  if (token) {
-    headers['token'] = token;
-  }
-
-  console.log('fetchWithAuth - 请求URL:', url);
-  console.log('fetchWithAuth - 请求头:', headers);
 
   const response = await fetch(url, {
     ...options,
@@ -228,37 +190,27 @@ async function fetchWithAuth(url, options = {}) {
   });
 
   const result = await response.json();
-  console.log('fetchWithAuth - 响应:', result);
 
-  // 检查是否需要登录（401 token失效 或 403 未授权）
+  // 检查认证错误
   if (result.code === 401 || result.code === 403) {
-    console.error('收到认证错误，需要重新登录, code:', result.code);
-    showAlert('登录失效，请重新登录', 'error');
-    // 延迟打开登录窗口
-    setTimeout(() => {
-      openLoginWindow();
-    }, 1500);
-    throw new Error('需要登录');
+    showAlert(result.message || 'API Key 无效或无权限，请检查设置', 'error');
+    throw new Error('API Key 无效');
   }
 
   return { response, result };
 }
 
-// 构建API URL - 确保正确处理基础路径
+// 构建API URL
 function buildApiUrl(endpoint) {
-  // 移除API_BASE_URL末尾的斜杠（如果有）
   let baseUrl = API_BASE_URL.replace(/\/$/, '');
-
-  // 移除endpoint开头的斜杠（如果有）
   endpoint = endpoint.replace(/^\//, '');
-
   return `${baseUrl}/${endpoint}`;
 }
 
 // 加载分类列表
 async function loadCategories() {
   try {
-    const { result } = await fetchWithAuth(buildApiUrl('navCategory/lists'), {
+    const { result } = await fetchWithApiKey(buildApiUrl('openapi/category/list'), {
       method: 'GET'
     });
 
@@ -278,7 +230,7 @@ async function loadCategories() {
     }
   } catch (error) {
     console.error('加载分类失败:', error);
-    if (error.message !== '需要登录') {
+    if (error.message !== '未配置 API Key' && error.message !== 'API Key 无效') {
       showAlert('加载分类失败: ' + error.message, 'error');
     }
   }
@@ -287,7 +239,7 @@ async function loadCategories() {
 // 加载平台列表
 async function loadPlatforms() {
   try {
-    const { result } = await fetchWithAuth(buildApiUrl('sitePublish/lists'), {
+    const { result } = await fetchWithApiKey(buildApiUrl('openapi/publish/list'), {
       method: 'GET'
     });
 
@@ -317,7 +269,6 @@ function bindEvents() {
       document.getElementById('iconUrlInput').style.display = type === 'url' ? 'block' : 'none';
       document.getElementById('iconUploadInput').style.display = type === 'upload' ? 'block' : 'none';
 
-      // 清空预览
       const preview = document.getElementById('iconPreview');
       preview.innerHTML = '<span style="color: #999; font-size: 12px;">预览</span>';
     });
@@ -335,20 +286,17 @@ function bindEvents() {
   document.getElementById('iconFile').addEventListener('change', async (e) => {
     const file = e.target.files[0];
     if (file) {
-      // 验证文件类型
       const validTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/gif', 'image/webp'];
       if (!validTypes.includes(file.type)) {
         showAlert('只支持 JPG/PNG/GIF/WEBP 格式的图片！', 'error');
         return;
       }
 
-      // 验证文件大小（2MB）
       if (file.size > 2 * 1024 * 1024) {
         showAlert('图片大小不能超过 2MB！', 'error');
         return;
       }
 
-      // 转换为base64
       const base64 = await fileToBase64(file);
       updateIconPreview(base64);
     }
@@ -383,16 +331,11 @@ function fileToBase64(file) {
 async function handleSubmit(e) {
   e.preventDefault();
 
-  // 获取表单数据
   const name = document.getElementById('name').value.trim();
   const url = document.getElementById('url').value.trim();
   const category = document.getElementById('category').value;
   const sort = parseInt(document.getElementById('sort').value) || 1;
   const remark = document.getElementById('remark').value.trim();
-  const account = document.getElementById('account').value.trim();
-  const password = document.getElementById('password').value.trim();
-  const lookAccount = document.getElementById('lookAccount').checked;
-  const nvaAccessSecret = document.getElementById('nvaAccessSecret').value.trim() || 'tan';
   const showPlatform = document.getElementById('showPlatform').value;
   const status = document.getElementById('status').checked ? 1 : 0;
 
@@ -433,10 +376,6 @@ async function handleSubmit(e) {
     sort,
     icon,
     remark,
-    account,
-    password,
-    lookAccount,
-    nvaAccessSecret,
     status,
     showPlatform: showPlatform || undefined
   };
@@ -446,7 +385,7 @@ async function handleSubmit(e) {
   document.getElementById('submitBtn').disabled = true;
 
   try {
-    const { result } = await fetchWithAuth(buildApiUrl('navigation/append'), {
+    const { result } = await fetchWithApiKey(buildApiUrl('openapi/nav/append'), {
       method: 'POST',
       body: JSON.stringify(submitData)
     });
@@ -461,7 +400,7 @@ async function handleSubmit(e) {
     }
   } catch (error) {
     console.error('提交失败:', error);
-    if (error.message !== '需要登录') {
+    if (error.message !== '未配置 API Key' && error.message !== 'API Key 无效') {
       showAlert('提交失败: ' + error.message, 'error');
     }
   } finally {

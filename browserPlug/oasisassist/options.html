@@ -141,6 +141,12 @@
       </div>
 
       <div class="form-group">
+        <label>API Key</label>
+        <input type="text" id="apiKey" placeholder="oasis_xxxxxxxx" required>
+        <small>在 Oasis 管理后台「第三方开发」中创建 API Key，需包含 nav:add、category:list、publish:list 权限</small>
+      </div>
+
+      <div class="form-group">
         <label>Web 网页地址（可选）</label>
         <input type="url" id="webUrl" placeholder="http://localhost:1249/web">
         <small>Oasis 网页访问地址，留空则使用 API 地址（例如：http://localhost:1249:1249/web 或 http://localhost:1249:1249）</small>
@@ -156,20 +162,14 @@
       <h3>使用说明</h3>
       <ul>
         <li><strong>API 接口地址</strong>（必填）：用于插件调用接口，必须配置</li>
-        <li><strong>Web 网页地址</strong>（可选）：点击"打开 Oasis"按钮时跳转的地址</li>
-        <li>如果 Web 地址留空，则"打开 Oasis"按钮会使用 API 地址</li>
-        <li><strong>配置示例</strong>：
+        <li><strong>API Key</strong>（必填）：在 Oasis 后台「第三方开发」页面创建，需授予以下权限：
           <ul>
-            <li>情况1：API 和 Web 地址相同
-              <br>→ API 地址：http://localhost:1249
-              <br>→ Web 地址：留空
-            </li>
-            <li>情况2：API 和 Web 地址不同
-              <br>→ API 地址：http://localhost:1249/api
-              <br>→ Web 地址：http://localhost:1249/web（或 http://localhost:1249）
-            </li>
+            <li>nav:add - 新增导航</li>
+            <li>category:list - 获取分类列表</li>
+            <li>publish:list - 获取发布页面列表</li>
           </ul>
         </li>
+        <li><strong>Web 网页地址</strong>（可选）：点击"打开 Oasis"按钮时跳转的地址</li>
         <li>修改后需要重新打开添加页面才能生效</li>
       </ul>
     </div>
