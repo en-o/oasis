@@ -41,4 +41,19 @@ public class OpenApiEndpoint {
      * 是否需要API Key认证
      */
     private boolean needAuth;
+
+    /**
+     * 请求体示例（JSON字符串，仅POST请求）
+     */
+    private String requestExample;
+
+    /**
+     * 响应体示例（JSON字符串）
+     */
+    private String responseExample;
+
+    /**
+     * 接口说明
+     */
+    private String description;
 }

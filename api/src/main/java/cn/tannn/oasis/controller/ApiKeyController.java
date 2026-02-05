@@ -55,14 +55,11 @@ public class ApiKeyController {
 
     @Operation(summary = "获取API Key列表")
     @GetMapping("lists")
-    public ResultVO<List<ApiKeyVO>> lists() {
+    public ResultVO<List<ApiKey>> lists() {
         Sorteds sorteds = Sorteds.defs();
         sorteds.fixSort(1, "createTime"); // 按创建时间倒序
         List<ApiKey> finds = apiKeyService.finds(sorteds);
-        List<ApiKeyVO> voList = finds.stream()
-                .map(ApiKeyVO::fromEntity) // 列表脱敏
-                .collect(Collectors.toList());
-        return ResultVO.success(voList);
+        return ResultVO.success(finds);
     }
 
     @Operation(summary = "删除API Key")

@@ -23,6 +23,7 @@ const ApiKeyManagement: React.FC = () => {
   const [testLoading, setTestLoading] = useState(false);
   const [testResult, setTestResult] = useState<{ status: number; data: any } | null>(null);
   const [requestBody, setRequestBody] = useState<string>('');
+  const [testApiKey, setTestApiKey] = useState<string>(''); // 用户输入的完整 API Key
 
   // 加载API Key列表
   const loadData = async () => {
@@ -132,6 +133,7 @@ const ApiKeyManagement: React.FC = () => {
     setSelectedEndpoint(null);
     setTestResult(null);
     setRequestBody('');
+    setTestApiKey(record.apiKey); // 自动填充完整的 API Key
     setTestModalVisible(true);
   };
 
@@ -142,34 +144,12 @@ const ApiKeyManagement: React.FC = () => {
     return endpoints.filter(e => permList.includes(e.permission));
   };
 
-  // 获取默认请求体
+  // 获取默认请求体 - 优先使用后端返回的示例
   const getDefaultRequestBody = (endpoint: OpenApiEndpoint): string => {
     if (endpoint.method === 'GET') return '';
-    // 根据接口类型返回示例请求体
-    if (endpoint.path.includes('/nav/page')) {
-      return JSON.stringify({
-        page: { pageIndex: 1, pageSize: 10 }
-      }, null, 2);
-    }
-    if (endpoint.path.includes('/nav/append')) {
-      return JSON.stringify({
-        name: "示例网站",
-        url: "https://example.com",
-        sort: 1,
-        category: "工具"
-      }, null, 2);
-    }
-    if (endpoint.path.includes('/nav/edit')) {
-      return JSON.stringify({
-        id: 1,
-        name: "修改后的名称"
-      }, null, 2);
-    }
-    if (endpoint.path.includes('/category/append')) {
-      return JSON.stringify({
-        categoryName: "新分类",
-        sort: 1
-      }, null, 2);
+    // 优先使用后端返回的请求示例
+    if (endpoint.requestExample) {
+      return endpoint.requestExample;
     }
     return '{}';
   };
@@ -185,13 +165,22 @@ const ApiKeyManagement: React.FC = () => {
   const handleTestRequest = async () => {
     if (!selectedEndpoint || !testingKey) return;
 
+    if (!testApiKey.trim()) {
+      message.warning('请输入完整的 API Key');
+      return;
+    }
+
     setTestLoading(true);
     try {
+      // 获取 API 基础路径
+      const apiBaseUrl = import.meta.env.VITE_API_BASE_URL !== undefined
+        ? import.meta.env.VITE_API_BASE_URL
+        : '/api';
       const baseUrl = window.location.origin;
-      const url = `${baseUrl}${selectedEndpoint.path}`;
+      const url = `${baseUrl}${apiBaseUrl}${selectedEndpoint.path}`;
 
       const headers: HeadersInit = {
-        'X-Api-Key': testingKey.apiKey,
+        'X-Api-Key': testApiKey.trim(),
         'Content-Type': 'application/json',
       };
 
@@ -205,7 +194,20 @@ const ApiKeyManagement: React.FC = () => {
       }
 
       const response = await fetch(url, options);
-      const data = await response.json();
+      const contentType = response.headers.get('content-type') || '';
+
+      let data: any;
+      if (contentType.includes('application/json')) {
+        data = await response.json();
+      } else {
+        // 非 JSON 响应，获取文本内容
+        const text = await response.text();
+        data = {
+          error: '响应不是 JSON 格式',
+          contentType,
+          body: text.substring(0, 500) + (text.length > 500 ? '...' : '')
+        };
+      }
 
       setTestResult({
         status: response.status,
@@ -224,11 +226,11 @@ const ApiKeyManagement: React.FC = () => {
   // 生成 cURL 命令
   const generateCurlCommand = (): string => {
     if (!selectedEndpoint || !testingKey) return '';
-    const baseUrl = window.location.origin;
-    const url = `${baseUrl}${selectedEndpoint.path}`;
+    const apiKey = testApiKey.trim() || '<your-api-key>';
+    const url = `http://your-domain${selectedEndpoint.path}`;
 
     let curl = `curl -X ${selectedEndpoint.method} "${url}"`;
-    curl += ` \\\n  -H "X-Api-Key: ${testingKey.apiKey}"`;
+    curl += ` \\\n  -H "X-Api-Key: ${apiKey}"`;
     curl += ` \\\n  -H "Content-Type: application/json"`;
 
     if (selectedEndpoint.method === 'POST' && requestBody) {
@@ -296,23 +298,27 @@ const ApiKeyManagement: React.FC = () => {
       title: '名称',
       dataIndex: 'name',
       key: 'name',
-      width: 150,
+      width: 120,
       ellipsis: true,
     },
     {
       title: 'API Key',
       dataIndex: 'apiKey',
       key: 'apiKey',
-      width: 180,
-      render: (text: string) => (
-        <Text code copyable={{ text }}>{text}</Text>
-      ),
+      width: 200,
+      render: (text: string) => {
+        // 显示遮掩版本，复制完整原文
+        const masked = text.length > 20
+          ? `${text.substring(0, 10)}****${text.substring(text.length - 6)}`
+          : text;
+        return <Text code copyable={{ text }}>{masked}</Text>;
+      },
     },
     {
       title: '权限',
       dataIndex: 'permissions',
       key: 'permissions',
-      width: 200,
+      ellipsis: true,
       render: (text: string) => getPermissionTags(text),
     },
     {
@@ -325,39 +331,24 @@ const ApiKeyManagement: React.FC = () => {
       title: '过期时间',
       dataIndex: 'expireTime',
       key: 'expireTime',
-      width: 150,
+      width: 140,
       render: (text: string) => formatDateTime(text),
-    },
-    {
-      title: '创建时间',
-      dataIndex: 'createTime',
-      key: 'createTime',
-      width: 150,
-      render: (text: string) => formatDateTime(text),
-    },
-    {
-      title: '备注',
-      dataIndex: 'remark',
-      key: 'remark',
-      width: 120,
-      ellipsis: true,
     },
     {
       title: '操作',
       key: 'action',
-      width: 200,
-      fixed: 'right' as const,
+      width: 160,
       render: (_: any, record: ApiKey) => (
-        <Space>
+        <Space size={4}>
           {record.status === 1 && !record.expired && (
-            <Button
-              type="link"
-              size="small"
-              icon={<Play className="w-4 h-4" />}
-              onClick={() => handleOpenTest(record)}
-            >
-              测试
-            </Button>
+            <Tooltip title="测试接口">
+              <Button
+                type="link"
+                size="small"
+                icon={<Play className="w-4 h-4" />}
+                onClick={() => handleOpenTest(record)}
+              />
+            </Tooltip>
           )}
           {record.status === 1 && !record.expired ? (
             <Popconfirm
@@ -366,24 +357,24 @@ const ApiKeyManagement: React.FC = () => {
               okText="确定"
               cancelText="取消"
             >
-              <Button
-                type="link"
-                size="small"
-                icon={<Ban className="w-4 h-4" />}
-              >
-                禁用
-              </Button>
+              <Tooltip title="禁用">
+                <Button
+                  type="link"
+                  size="small"
+                  icon={<Ban className="w-4 h-4" />}
+                />
+              </Tooltip>
             </Popconfirm>
           ) : (
             !record.expired && (
-              <Button
-                type="link"
-                size="small"
-                icon={<CheckCircle className="w-4 h-4" />}
-                onClick={() => handleEnable(record.id)}
-              >
-                启用
-              </Button>
+              <Tooltip title="启用">
+                <Button
+                  type="link"
+                  size="small"
+                  icon={<CheckCircle className="w-4 h-4" />}
+                  onClick={() => handleEnable(record.id)}
+                />
+              </Tooltip>
             )
           )}
           <Popconfirm
@@ -393,14 +384,14 @@ const ApiKeyManagement: React.FC = () => {
             okText="确定"
             cancelText="取消"
           >
-            <Button
-              type="link"
-              size="small"
-              danger
-              icon={<Trash2 className="w-4 h-4" />}
-            >
-              删除
-            </Button>
+            <Tooltip title="删除">
+              <Button
+                type="link"
+                size="small"
+                danger
+                icon={<Trash2 className="w-4 h-4" />}
+              />
+            </Tooltip>
           </Popconfirm>
         </Space>
       ),
@@ -431,7 +422,6 @@ const ApiKeyManagement: React.FC = () => {
           dataSource={apiKeys}
           loading={loading}
           rowKey="id"
-          scroll={{ x: 1250 }}
           pagination={{
             pageSize: 10,
             showSizeChanger: true,
@@ -573,6 +563,16 @@ const ApiKeyManagement: React.FC = () => {
         styles={{ body: { maxHeight: '70vh', overflow: 'auto' } }}
       >
         <div className="mt-4">
+          {/* API Key */}
+          <div className="mb-4">
+            <div className="text-sm font-medium mb-2">API Key：</div>
+            <Input.Password
+              value={testApiKey}
+              onChange={e => setTestApiKey(e.target.value)}
+              placeholder="请输入 API Key"
+            />
+          </div>
+
           {/* 接口选择 */}
           <div className="mb-4">
             <div className="text-sm font-medium mb-2">选择要测试的接口：</div>
@@ -604,6 +604,9 @@ const ApiKeyManagement: React.FC = () => {
                   <Text code>{selectedEndpoint.path}</Text>
                 </div>
                 <div className="text-gray-500 text-sm">{selectedEndpoint.name}</div>
+                {selectedEndpoint.description && (
+                  <div className="text-gray-400 text-xs mt-1">{selectedEndpoint.description}</div>
+                )}
               </div>
 
               {/* POST 请求体编辑 */}
@@ -638,7 +641,7 @@ const ApiKeyManagement: React.FC = () => {
                 </Button>
               </div>
 
-              {/* Tabs: cURL 示例 & 响应结果 */}
+              {/* Tabs: cURL 示例 & 响应示例 & 响应结果 */}
               <Tabs
                 items={[
                   {
@@ -651,8 +654,25 @@ const ApiKeyManagement: React.FC = () => {
                     ),
                   },
                   {
+                    key: 'responseExample',
+                    label: '响应示例',
+                    children: (
+                      <div>
+                        {selectedEndpoint.responseExample ? (
+                          <pre className="bg-gray-100 rounded-lg p-4 text-sm overflow-x-auto max-h-80">
+                            {selectedEndpoint.responseExample}
+                          </pre>
+                        ) : (
+                          <div className="text-gray-400 text-center py-8">
+                            暂无响应示例
+                          </div>
+                        )}
+                      </div>
+                    ),
+                  },
+                  {
                     key: 'response',
-                    label: '响应结果',
+                    label: '实际响应',
                     children: (
                       <div>
                         {testLoading ? (

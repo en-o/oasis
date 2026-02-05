@@ -217,4 +217,7 @@ export interface OpenApiEndpoint {
   path: string; // 接口路径
   method: string; // 请求方法: GET, POST
   needAuth: boolean; // 是否需要API Key认证
+  requestExample?: string; // 请求体示例（JSON字符串）
+  responseExample?: string; // 响应体示例（JSON字符串）
+  description?: string; // 接口说明
 }

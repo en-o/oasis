@@ -23,35 +23,175 @@ public class OpenApiRegistry {
      */
     private final Map<String, OpenApiEndpoint> pathMap = new LinkedHashMap<>();
 
+    // 通用响应结构
+    private static final String RESPONSE_SUCCESS = """
+            {
+              "code": 200,
+              "message": "操作成功",
+              "data": ...,
+              "ts": 1738742400000
+            }""";
+
+    private static final String RESPONSE_PAGE = """
+            {
+              "code": 200,
+              "message": "查询成功",
+              "data": {
+                "currentPage": 1,
+                "pageSize": 10,
+                "totalPages": 1,
+                "total": 5,
+                "rows": [...]
+              },
+              "ts": 1738742400000
+            }""";
+
     public OpenApiRegistry() {
         // ===== 公开接口（无需认证） =====
         register(OpenApiEndpoint.builder()
                 .permission("endpoints").name("获取开放接口清单")
-                .path("/openapi/endpoints").method("GET").needAuth(false).build());
+                .path("/openapi/endpoints").method("GET").needAuth(false)
+                .description("获取所有可用的开放API接口列表")
+                .responseExample("""
+                        {
+                          "code": 200,
+                          "data": [
+                            {
+                              "permission": "nav:page",
+                              "name": "分页查询导航",
+                              "path": "/openapi/nav/page",
+                              "method": "POST",
+                              "needAuth": true
+                            }
+                          ]
+                        }""")
+                .build());
 
         // ===== 导航相关 =====
         register(OpenApiEndpoint.builder()
                 .permission("nav:page").name("分页查询导航")
-                .path("/openapi/nav/page").method("POST").needAuth(true).build());
+                .path("/openapi/nav/page").method("POST").needAuth(true)
+                .description("分页查询导航列表，支持按发布平台过滤")
+                .requestExample("""
+                        {
+                          "showPlatform": "dev",
+                          "page": {
+                            "pageIndex": 1,
+                            "pageSize": 10
+                          }
+                        }""")
+                .responseExample(RESPONSE_PAGE)
+                .build());
+
         register(OpenApiEndpoint.builder()
                 .permission("nav:add").name("新增导航")
-                .path("/openapi/nav/append").method("POST").needAuth(true).build());
+                .path("/openapi/nav/append").method("POST").needAuth(true)
+                .description("新增一个导航链接")
+                .requestExample("""
+                        {
+                          "name": "示例网站",
+                          "url": "https://example.com",
+                          "sort": 1,
+                          "category": "工具",
+                          "icon": "https://example.com/favicon.ico",
+                          "remark": "这是一个示例网站",
+                          "status": 1,
+                          "showPlatform": "dev"
+                        }""")
+                .responseExample("""
+                        {
+                          "code": 200,
+                          "message": "创建成功",
+                          "data": true,
+                          "ts": 1738742400000
+                        }""")
+                .build());
+
         register(OpenApiEndpoint.builder()
                 .permission("nav:edit").name("修改导航")
-                .path("/openapi/nav/edit").method("POST").needAuth(true).build());
+                .path("/openapi/nav/edit").method("POST").needAuth(true)
+                .description("修改已有的导航链接，只需传入要修改的字段")
+                .requestExample("""
+                        {
+                          "id": 1,
+                          "name": "修改后的名称",
+                          "url": "https://new-url.com",
+                          "sort": 2,
+                          "status": 1
+                        }""")
+                .responseExample("""
+                        {
+                          "code": 200,
+                          "message": "修改成功",
+                          "data": true,
+                          "ts": 1738742400000
+                        }""")
+                .build());
 
         // ===== 分类相关 =====
         register(OpenApiEndpoint.builder()
                 .permission("category:list").name("获取分类列表")
-                .path("/openapi/category/list").method("GET").needAuth(true).build());
+                .path("/openapi/category/list").method("GET").needAuth(true)
+                .description("获取所有导航分类列表")
+                .responseExample("""
+                        {
+                          "code": 200,
+                          "data": [
+                            {
+                              "id": 1,
+                              "categoryName": "工具",
+                              "sort": 1
+                            },
+                            {
+                              "id": 2,
+                              "categoryName": "文档",
+                              "sort": 2
+                            }
+                          ],
+                          "ts": 1738742400000
+                        }""")
+                .build());
+
         register(OpenApiEndpoint.builder()
                 .permission("category:add").name("新增分类")
-                .path("/openapi/category/append").method("POST").needAuth(true).build());
+                .path("/openapi/category/append").method("POST").needAuth(true)
+                .description("新增一个导航分类")
+                .requestExample("""
+                        {
+                          "categoryName": "新分类",
+                          "sort": 10
+                        }""")
+                .responseExample("""
+                        {
+                          "code": 200,
+                          "message": "创建成功",
+                          "data": true,
+                          "ts": 1738742400000
+                        }""")
+                .build());
 
         // ===== 发布页面相关 =====
         register(OpenApiEndpoint.builder()
                 .permission("publish:list").name("获取发布页面列表")
-                .path("/openapi/publish/list").method("GET").needAuth(true).build());
+                .path("/openapi/publish/list").method("GET").needAuth(true)
+                .description("获取所有发布页面配置列表")
+                .responseExample("""
+                        {
+                          "code": 200,
+                          "data": [
+                            {
+                              "id": 1,
+                              "name": "开发环境",
+                              "routePath": "dev",
+                              "hideAdminEntry": false,
+                              "enabled": true,
+                              "defPage": true,
+                              "sort": 1
+                            }
+                          ],
+                          "ts": 1738742400000
+                        }""")
+                .build());
     }
 
     private void register(OpenApiEndpoint endpoint) {
