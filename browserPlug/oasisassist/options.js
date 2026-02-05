@@ -74,9 +74,9 @@ async function fetchWithAuth(url, options = {}) {
 
   const result = await response.json();
 
-  // 检查是否需要登录（403错误）
-  if (result.code === 403) {
-    showAlert('登录已过期，请重新登录', 'error');
+  // 检查是否需要登录（401 token失效 或 403 未授权）
+  if (result.code === 401 || result.code === 403) {
+    showAlert('登录失效，请重新登录', 'error');
     // 延迟打开登录窗口
     setTimeout(() => {
       openLoginWindow();
