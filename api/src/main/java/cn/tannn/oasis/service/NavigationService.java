@@ -5,8 +5,6 @@ import cn.tannn.oasis.controller.dto.NavigationAdd;
 import cn.tannn.oasis.entity.Navigation;
 import jakarta.validation.Valid;
 
-import java.util.List;
-
 /**
  * 导航项表
  *

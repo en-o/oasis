@@ -3,8 +3,6 @@ package cn.tannn.oasis.dao;
 import cn.tannn.jdevelops.jpa.repository.JpaBasicsRepository;
 import cn.tannn.oasis.entity.Navigation;
 
-import java.util.List;
-
 /**
  * 导航项表
  *

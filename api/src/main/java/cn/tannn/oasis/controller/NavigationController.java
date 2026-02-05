@@ -2,7 +2,6 @@
 package cn.tannn.oasis.controller;
 
 import cn.tannn.jdevelops.annotations.web.mapping.PathRestController;
-import cn.tannn.jdevelops.jpa.constant.SQLOperator;
 import cn.tannn.jdevelops.jpa.result.JpaPageResult;
 import cn.tannn.jdevelops.jpa.select.EnhanceSpecification;
 import cn.tannn.jdevelops.result.response.ResultPageVO;
