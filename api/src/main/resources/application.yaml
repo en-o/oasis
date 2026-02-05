@@ -23,10 +23,6 @@ jdevelops:
   jwt:
     prefix: ${spring.application.name}
     token-secret: b4c12a6f172f13f91500b6c437a78d2cc5e5f9973e7dee431a1e8c34e68d365e
-    web:
-      interceptor:
-        exclude-path-patterns:
-          - /openapi/**
   swagger:
     base-package:
       - cn.tannn.oasis.controller

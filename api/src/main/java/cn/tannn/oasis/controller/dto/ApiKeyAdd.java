@@ -40,9 +40,10 @@ public class ApiKeyAdd extends SerializableBean<ApiKeyAdd> {
     private Integer expireDays;
 
     /**
-     * 权限范围（逗号分隔）: nav,category,publish
+     * 权限范围（逗号分隔）: nav:page,nav:add,category:list 等
      */
-    @Schema(description = "权限范围，逗号分隔：nav,category,publish")
+    @Schema(description = "权限范围，逗号分隔的接口权限标识，如：nav:page,nav:add,category:list", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotBlank(message = "权限范围不允许为空，请至少选择一个接口权限")
     private String permissions;
 
     /**

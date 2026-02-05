@@ -18,6 +18,9 @@ import type {
   SitePublish,
   SitePublishAdd,
   SitePublishEdit,
+  ApiKey,
+  ApiKeyAddRequest,
+  OpenApiEndpoint,
 } from '@/types';
 
 // Navigation APIs - 对应 NavigationController
@@ -163,4 +166,31 @@ export const sitePublishApi = {
 
   // 获取默认页 - GET /sitePublish/default
   getDefaultPage: () => request.get<ResultVO<SitePublish>>('/sitePublish/default'),
+};
+
+// API Key APIs - 对应 ApiKeyController
+export const apiKeyApi = {
+  // 获取可授权的接口清单 - GET /apiKey/endpoints
+  getEndpoints: () => request.get<ResultVO<OpenApiEndpoint[]>>('/apiKey/endpoints'),
+
+  // 获取API Key列表 - GET /apiKey/lists
+  getList: () => request.get<ResultVO<ApiKey[]>>('/apiKey/lists'),
+
+  // 创建API Key - POST /apiKey/append
+  create: (data: ApiKeyAddRequest) => request.post<ResultVO<ApiKey>>('/apiKey/append', data),
+
+  // 删除API Key - DELETE /apiKey/delete?id={id}
+  delete: (id: number) => request.delete<ResultVO<boolean>>(`/apiKey/delete?id=${id}`),
+
+  // 禁用API Key - POST /apiKey/revoke?id={id}
+  revoke: (id: number) => request.post<ResultVO<boolean>>(`/apiKey/revoke?id=${id}`),
+
+  // 启用API Key - POST /apiKey/enable?id={id}
+  enable: (id: number) => request.post<ResultVO<boolean>>(`/apiKey/enable?id=${id}`),
+};
+
+// Open API - 对应 OpenApiController
+export const openApi = {
+  // 获取开放接口清单 - GET /openapi/endpoints（无需认证）
+  getEndpoints: () => request.get<ResultVO<OpenApiEndpoint[]>>('/openapi/endpoints'),
 };

@@ -3,8 +3,10 @@ package cn.tannn.oasis.controller;
 import cn.tannn.jdevelops.annotations.web.mapping.PathRestController;
 import cn.tannn.jdevelops.jpa.request.Sorteds;
 import cn.tannn.jdevelops.result.response.ResultVO;
+import cn.tannn.oasis.config.OpenApiRegistry;
 import cn.tannn.oasis.controller.dto.ApiKeyAdd;
 import cn.tannn.oasis.controller.vo.ApiKeyVO;
+import cn.tannn.oasis.controller.vo.OpenApiEndpoint;
 import cn.tannn.oasis.entity.ApiKey;
 import cn.tannn.oasis.service.ApiKeyService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -31,6 +33,17 @@ import java.util.stream.Collectors;
 public class ApiKeyController {
 
     private final ApiKeyService apiKeyService;
+    private final OpenApiRegistry openApiRegistry;
+
+    @Operation(summary = "获取可授权的接口清单")
+    @GetMapping("endpoints")
+    public ResultVO<List<OpenApiEndpoint>> endpoints() {
+        // 只返回需要认证的接口（可授权的）
+        List<OpenApiEndpoint> authEndpoints = openApiRegistry.getAllEndpoints().stream()
+                .filter(OpenApiEndpoint::isNeedAuth)
+                .collect(Collectors.toList());
+        return ResultVO.success(authEndpoints);
+    }
 
     @Operation(summary = "创建API Key")
     @PostMapping("append")
