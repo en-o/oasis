@@ -23,6 +23,7 @@ services:
       H2_CONSOLE_ENABLED: ${H2_CONSOLE_ENABLED:-false}
       DOC_PASSWORD: ${DOC_PASSWORD:-tan}
       DOC_USERNAME: ${DOC_USERNAME:-tan}
+      OASIS_OPENAPI_SECRET: ${OASIS_OPENAPI_SECRET:-oasis-default-secret-key-please-change}
     volumes:
       # 持久化数据库文件
       - ./api/db:/app/api/db
