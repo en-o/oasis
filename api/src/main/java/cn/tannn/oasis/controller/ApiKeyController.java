@@ -56,7 +56,7 @@ public class ApiKeyController {
     @DeleteMapping("delete")
     @Parameter(name = "id", description = "API Key ID", required = true)
     public ResultVO<Boolean> delete(@RequestParam("id") Integer id) {
-        apiKeyService.deleteById(id);
+        apiKeyService.deleteEq("id", id);
         log.info("API Key已删除: id={}", id);
         return ResultVO.success("删除成功", true);
     }
