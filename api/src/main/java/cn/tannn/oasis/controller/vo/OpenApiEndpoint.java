@@ -5,6 +5,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 /**
  * 开放API接口信息
  *
@@ -56,4 +58,9 @@ public class OpenApiEndpoint {
      * 接口说明
      */
     private String description;
+
+    /**
+     * 请求参数定义列表
+     */
+    private List<ApiParam> requestParams;
 }

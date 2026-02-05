@@ -16,6 +16,7 @@ import cn.tannn.oasis.entity.ApiKey;
 import cn.tannn.oasis.entity.NavCategory;
 import cn.tannn.oasis.entity.Navigation;
 import cn.tannn.oasis.entity.SitePublish;
+import cn.tannn.oasis.service.ApiKeyService;
 import cn.tannn.oasis.service.NavCategoryService;
 import cn.tannn.oasis.service.NavigationService;
 import cn.tannn.oasis.service.SitePublishService;
@@ -45,11 +46,12 @@ import java.util.List;
 @Tag(name = "开放API")
 @RequiredArgsConstructor
 public class OpenApiController {
-    public static final String API_KEY_ATTRIBUTE = "openApiKey";
+    private static final String API_KEY_HEADER = "X-Api-Key";
     private final NavigationService navigationService;
     private final NavCategoryService navCategoryService;
     private final SitePublishService sitePublishService;
     private final OpenApiRegistry openApiRegistry;
+    private final ApiKeyService apiKeyService;
 
     // ==================== 导航相关 ====================
 
@@ -147,14 +149,27 @@ public class OpenApiController {
     }
 
     /**
-     * 检查权限 - 基于请求路径从注册表中匹配权限
+     * 检查权限 - 从请求头获取API Key并验证权限
      */
     private void checkPermission(HttpServletRequest request) {
-        ApiKey apiKey = (ApiKey) request.getAttribute(API_KEY_ATTRIBUTE);
-        if (apiKey == null) {
-            throw new RuntimeException("未获取到API Key信息");
+        String apiKeyValue = request.getHeader(API_KEY_HEADER);
+        if (apiKeyValue == null || apiKeyValue.isBlank()) {
+            throw new RuntimeException("缺少 X-Api-Key 请求头");
+        }
+        ApiKey apiKey = apiKeyService.getByApiKey(apiKeyValue)
+                .orElseThrow(() -> new RuntimeException("无效的 API Key"));
+        if (apiKey.getStatus() != 1) {
+            throw new RuntimeException("API Key 已被禁用");
+        }
+        if (apiKey.isExpired()) {
+            throw new RuntimeException("API Key 已过期");
         }
         String path = request.getRequestURI();
+        // 移除 contextPath 前缀
+        String contextPath = request.getContextPath();
+        if (path.startsWith(contextPath)) {
+            path = path.substring(contextPath.length());
+        }
         if (!openApiRegistry.hasPermission(apiKey.getPermissions(), path)) {
             throw new RuntimeException("API Key没有访问 " + path + " 的权限");
         }

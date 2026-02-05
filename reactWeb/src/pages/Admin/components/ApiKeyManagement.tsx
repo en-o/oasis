@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Table, Button, Modal, Form, Input, Select, Popconfirm, Space, App, Tag, Typography, Checkbox, Tooltip, Tabs, Spin } from 'antd';
 import { Plus, Trash2, Key, Copy, Ban, CheckCircle, Play, Code } from 'lucide-react';
-import type { ApiKey, ApiKeyAddRequest, OpenApiEndpoint } from '@/types';
+import type { ApiKey, ApiKeyAddRequest, OpenApiEndpoint, ApiParam } from '@/types';
 import { apiKeyApi } from '@/services/api';
 
 const { Text } = Typography;
@@ -244,6 +244,18 @@ const ApiKeyManagement: React.FC = () => {
     }
 
     return curl;
+  };
+
+  // 扁平化嵌套参数，用于表格展示
+  const flattenParams = (params: ApiParam[], level = 0): (ApiParam & { level: number })[] => {
+    const result: (ApiParam & { level: number })[] = [];
+    for (const param of params) {
+      result.push({ ...param, level });
+      if (param.children && param.children.length > 0) {
+        result.push(...flattenParams(param.children, level + 1));
+      }
+    }
+    return result;
   };
 
   const formatDateTime = (dateStr: string) => {
@@ -649,9 +661,70 @@ const ApiKeyManagement: React.FC = () => {
                 </Button>
               </div>
 
-              {/* Tabs: cURL 示例 & 响应示例 & 响应结果 */}
+              {/* Tabs: 请求参数 & cURL 示例 & 响应示例 & 响应结果 */}
               <Tabs
                 items={[
+                  {
+                    key: 'params',
+                    label: '请求参数',
+                    children: (
+                      <div>
+                        {selectedEndpoint.requestParams && selectedEndpoint.requestParams.length > 0 ? (
+                          <Table
+                            dataSource={flattenParams(selectedEndpoint.requestParams)}
+                            columns={[
+                              {
+                                title: '参数名',
+                                dataIndex: 'name',
+                                key: 'name',
+                                width: 150,
+                                render: (text: string, record: ApiParam & { level?: number }) => (
+                                  <span style={{ paddingLeft: (record.level || 0) * 16 }}>
+                                    {record.level ? '└ ' : ''}{text}
+                                  </span>
+                                ),
+                              },
+                              {
+                                title: '类型',
+                                dataIndex: 'type',
+                                key: 'type',
+                                width: 100,
+                                render: (text: string) => <Tag color="blue">{text}</Tag>,
+                              },
+                              {
+                                title: '必填',
+                                dataIndex: 'required',
+                                key: 'required',
+                                width: 80,
+                                render: (val: boolean) => (
+                                  <Tag color={val ? 'red' : 'default'}>{val ? '是' : '否'}</Tag>
+                                ),
+                              },
+                              {
+                                title: '说明',
+                                dataIndex: 'description',
+                                key: 'description',
+                              },
+                              {
+                                title: '默认值',
+                                dataIndex: 'defaultValue',
+                                key: 'defaultValue',
+                                width: 100,
+                                render: (text: string) => text || '-',
+                              },
+                            ]}
+                            rowKey={(record, index) => `${record.name}-${index}`}
+                            pagination={false}
+                            size="small"
+                          />
+                        ) : (
+                          <div className="text-gray-400 text-center py-8">
+                            {selectedEndpoint.method === 'GET' ? '该接口无请求参数' : '暂无参数定义'}
+                          </div>
+                        )}
+                      </div>
+                    ),
+                  },
                   {
                     key: 'curl',
                     label: 'cURL 示例',

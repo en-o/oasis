@@ -1,5 +1,6 @@
 package cn.tannn.oasis.config;
 
+import cn.tannn.oasis.controller.vo.ApiParam;
 import cn.tannn.oasis.controller.vo.OpenApiEndpoint;
 import org.springframework.stereotype.Component;
 
@@ -72,6 +73,22 @@ public class OpenApiRegistry {
                 .permission("nav:page").name("分页查询导航")
                 .path("/openapi/nav/page").method("POST").needAuth(true)
                 .description("分页查询导航列表，支持按发布平台过滤")
+                .requestParams(Arrays.asList(
+                        ApiParam.builder().name("showPlatform").type("String").required(false)
+                                .description("发布页面，逗号分隔的routePath，如：dev,cp,public").build(),
+                        ApiParam.builder().name("name").type("String").required(false)
+                                .description("名称（模糊匹配）").build(),
+                        ApiParam.builder().name("category").type("String").required(false)
+                                .description("分类（模糊匹配）").build(),
+                        ApiParam.builder().name("page").type("Object").required(false)
+                                .description("分页参数")
+                                .children(Arrays.asList(
+                                        ApiParam.builder().name("pageIndex").type("Integer").required(false)
+                                                .description("页码，从1开始").defaultValue("1").build(),
+                                        ApiParam.builder().name("pageSize").type("Integer").required(false)
+                                                .description("每页条数").defaultValue("10").build()
+                                )).build()
+                ))
                 .requestExample("""
                         {
                           "showPlatform": "dev",
@@ -87,6 +104,24 @@ public class OpenApiRegistry {
                 .permission("nav:add").name("新增导航")
                 .path("/openapi/nav/append").method("POST").needAuth(true)
                 .description("新增一个导航链接")
+                .requestParams(Arrays.asList(
+                        ApiParam.builder().name("name").type("String").required(true)
+                                .description("名称").build(),
+                        ApiParam.builder().name("url").type("String").required(true)
+                                .description("访问地址").build(),
+                        ApiParam.builder().name("sort").type("Integer").required(false)
+                                .description("排序值(默认1,正序)").defaultValue("1").build(),
+                        ApiParam.builder().name("category").type("String").required(true)
+                                .description("分类，多个逗号隔开").build(),
+                        ApiParam.builder().name("icon").type("String").required(false)
+                                .description("图标[base64/url]").build(),
+                        ApiParam.builder().name("remark").type("String").required(false)
+                                .description("备注").build(),
+                        ApiParam.builder().name("status").type("Integer").required(false)
+                                .description("状态；0=停用，1=启用").defaultValue("1").build(),
+                        ApiParam.builder().name("showPlatform").type("String").required(false)
+                                .description("发布页面，逗号分隔的routePath，如：dev,cp,public").build()
+                ))
                 .requestExample("""
                         {
                           "name": "示例网站",
@@ -111,6 +146,26 @@ public class OpenApiRegistry {
                 .permission("nav:edit").name("修改导航")
                 .path("/openapi/nav/edit").method("POST").needAuth(true)
                 .description("修改已有的导航链接，只需传入要修改的字段")
+                .requestParams(Arrays.asList(
+                        ApiParam.builder().name("id").type("Integer").required(true)
+                                .description("导航项ID").build(),
+                        ApiParam.builder().name("name").type("String").required(false)
+                                .description("名称").build(),
+                        ApiParam.builder().name("url").type("String").required(false)
+                                .description("访问地址").build(),
+                        ApiParam.builder().name("sort").type("Integer").required(false)
+                                .description("排序值").build(),
+                        ApiParam.builder().name("category").type("String").required(false)
+                                .description("分类，多个逗号隔开").build(),
+                        ApiParam.builder().name("icon").type("String").required(false)
+                                .description("图标[base64/url]").build(),
+                        ApiParam.builder().name("remark").type("String").required(false)
+                                .description("备注").build(),
+                        ApiParam.builder().name("status").type("Integer").required(false)
+                                .description("状态；0=停用，1=启用").build(),
+                        ApiParam.builder().name("showPlatform").type("String").required(false)
+                                .description("发布页面，逗号分隔的routePath，如：dev,cp,public").build()
+                ))
                 .requestExample("""
                         {
                           "id": 1,
@@ -156,6 +211,12 @@ public class OpenApiRegistry {
                 .permission("category:add").name("新增分类")
                 .path("/openapi/category/append").method("POST").needAuth(true)
                 .description("新增一个导航分类")
+                .requestParams(Arrays.asList(
+                        ApiParam.builder().name("categoryName").type("String").required(true)
+                                .description("分类名称").build(),
+                        ApiParam.builder().name("sort").type("Integer").required(false)
+                                .description("排序值(默认1,正序)").defaultValue("1").build()
+                ))
                 .requestExample("""
                         {
                           "categoryName": "新分类",

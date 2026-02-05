@@ -210,6 +210,16 @@ export interface ApiKeyAddRequest {
   remark?: string;
 }
 
+// API参数定义
+export interface ApiParam {
+  name: string;
+  type: string;        // String, Integer, Boolean, Object, Array
+  required: boolean;
+  description: string;
+  defaultValue?: string;
+  children?: ApiParam[]; // 嵌套参数
+}
+
 // 开放API接口信息
 export interface OpenApiEndpoint {
   permission: string; // 权限标识，如: nav:list, nav:add
@@ -220,4 +230,5 @@ export interface OpenApiEndpoint {
   requestExample?: string; // 请求体示例（JSON字符串）
   responseExample?: string; // 响应体示例（JSON字符串）
   description?: string; // 接口说明
+  requestParams?: ApiParam[]; // 请求参数定义列表
 }
