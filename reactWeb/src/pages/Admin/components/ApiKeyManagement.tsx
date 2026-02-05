@@ -227,7 +227,10 @@ const ApiKeyManagement: React.FC = () => {
   const generateCurlCommand = (): string => {
     if (!selectedEndpoint || !testingKey) return '';
     const apiKey = testApiKey.trim() || '<your-api-key>';
-    const url = `http://your-domain${selectedEndpoint.path}`;
+    const apiBaseUrl = import.meta.env.VITE_API_BASE_URL !== undefined
+      ? import.meta.env.VITE_API_BASE_URL
+      : '/api';
+    const url = `${window.location.origin}${apiBaseUrl}${selectedEndpoint.path}`;
 
     let curl = `curl -X ${selectedEndpoint.method} "${url}"`;
     curl += ` \\\n  -H "X-Api-Key: ${apiKey}"`;

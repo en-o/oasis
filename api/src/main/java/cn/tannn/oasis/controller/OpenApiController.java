@@ -154,7 +154,8 @@ public class OpenApiController {
     private void checkPermission(HttpServletRequest request) {
         String apiKeyValue = request.getHeader(API_KEY_HEADER);
         if (apiKeyValue == null || apiKeyValue.isBlank()) {
-            throw new RuntimeException("缺少 X-Api-Key 请求头");
+            // X-Api-Key
+            throw new RuntimeException("缺少第三方验证请求头");
         }
         ApiKey apiKey = apiKeyService.getByApiKey(apiKeyValue)
                 .orElseThrow(() -> new RuntimeException("无效的 API Key"));
