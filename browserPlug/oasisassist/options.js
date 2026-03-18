@@ -1,71 +1,37 @@
 // 兼容Chrome和Firefox的API
 const browserAPI = typeof chrome !== 'undefined' ? chrome : browser;
 
-// 登录窗口打开标志，防止重复打开
-let loginWindowOpening = false;
-
 // 构建API URL - 确保正确处理基础路径
 function buildApiUrl(baseUrl, endpoint) {
   // 移除baseUrl末尾的斜杠（如果有）
   baseUrl = baseUrl.replace(/\/$/, '');
-
   // 移除endpoint开头的斜杠（如果有）
   endpoint = endpoint.replace(/^\//, '');
-
   return `${baseUrl}/${endpoint}`;
 }
 
-// 获取Token
-async function getToken() {
+// 获取 API Key
+async function getApiKey() {
   return new Promise((resolve) => {
-    browserAPI.storage.local.get(['authToken'], (result) => {
-      console.log('[Options] 从storage获取token:', result.authToken);
-      resolve(result.authToken || '');
+    browserAPI.storage.sync.get(['apiKey'], (result) => {
+      resolve(result.apiKey || '');
     });
   });
 }
 
-// 打开登录窗口
-function openLoginWindow() {
-  // 防止重复打开
-  if (loginWindowOpening) {
-    console.log('[Options] 登录窗口已在打开中，跳过重复请求');
-    return;
+// 发送带 API Key 的请求
+async function fetchWithApiKey(url, options = {}) {
+  const apiKey = await getApiKey();
+
+  if (!apiKey) {
+    throw new Error('请先配置 API Key');
   }
 
-  loginWindowOpening = true;
-  console.log('[Options] 准备打开登录窗口');
-
-  browserAPI.windows.create({
-    url: browserAPI.runtime.getURL('login.html'),
-    type: 'popup',
-    width: 480,
-    height: 600,
-    focused: true
-  }, (window) => {
-    console.log('[Options] 登录窗口已创建:', window);
-  });
-
-  // 5秒后重置标志
-  setTimeout(() => {
-    loginWindowOpening = false;
-    console.log('[Options] 登录窗口标志已重置');
-  }, 5000);
-}
-
-// 发送带Token的请求
-async function fetchWithAuth(url, options = {}) {
-  const token = await getToken();
-
-  // 添加Token到请求头
   const headers = {
     ...options.headers,
-    'Content-Type': 'application/json'
+    'Content-Type': 'application/json',
+    'X-Api-Key': apiKey
   };
-
-  if (token) {
-    headers['token'] = token;
-  }
 
   const response = await fetch(url, {
     ...options,
@@ -74,14 +40,9 @@ async function fetchWithAuth(url, options = {}) {
 
   const result = await response.json();
 
-  // 检查是否需要登录（403错误）
-  if (result.code === 403) {
-    showAlert('登录已过期，请重新登录', 'error');
-    // 延迟打开登录窗口
-    setTimeout(() => {
-      openLoginWindow();
-    }, 1500);
-    throw new Error('需要登录');
+  // 检查认证错误
+  if (result.code === 401 || result.code === 403) {
+    throw new Error(result.message || 'API Key 无效或无权限');
   }
 
   return { response, result };
@@ -98,11 +59,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // 加载配置
 function loadConfig() {
-  browserAPI.storage.sync.get(['apiUrl', 'webUrl'], (result) => {
+  browserAPI.storage.sync.get(['apiUrl', 'apiKey', 'webUrl'], (result) => {
     if (result.apiUrl) {
       document.getElementById('apiUrl').value = result.apiUrl;
     } else {
       document.getElementById('apiUrl').value = 'http://localhost:1249';
+    }
+
+    if (result.apiKey) {
+      document.getElementById('apiKey').value = result.apiKey;
     }
 
     if (result.webUrl) {
@@ -116,6 +81,7 @@ function saveConfig(e) {
   e.preventDefault();
 
   let apiUrl = document.getElementById('apiUrl').value.trim();
+  let apiKey = document.getElementById('apiKey').value.trim();
   let webUrl = document.getElementById('webUrl').value.trim();
 
   // 去除末尾的斜杠
@@ -132,13 +98,19 @@ function saveConfig(e) {
     return;
   }
 
+  // 验证 API Key
+  if (!apiKey) {
+    showAlert('请输入 API Key', 'error');
+    return;
+  }
+
   if (webUrl && !webUrl.startsWith('http://') && !webUrl.startsWith('https://')) {
     showAlert('Web 地址必须是有效的 HTTP 或 HTTPS 地址', 'error');
     return;
   }
 
-  // 保存配置（webUrl 可能为空）
-  const config = { apiUrl };
+  // 保存配置
+  const config = { apiUrl, apiKey };
   if (webUrl) {
     config.webUrl = webUrl;
   }
@@ -151,31 +123,44 @@ function saveConfig(e) {
 // 测试连接
 async function testConnection() {
   let apiUrl = document.getElementById('apiUrl').value.trim();
+  let apiKey = document.getElementById('apiKey').value.trim();
 
   if (apiUrl.endsWith('/')) {
     apiUrl = apiUrl.slice(0, -1);
   }
 
   if (!apiUrl) {
-    showAlert('请先输入API地址', 'error');
+    showAlert('请先输入 API 地址', 'error');
+    return;
+  }
+
+  if (!apiKey) {
+    showAlert('请先输入 API Key', 'error');
     return;
   }
 
   try {
-    const { result } = await fetchWithAuth(buildApiUrl(apiUrl, 'navCategory/lists'), {
-      method: 'GET'
+    // 使用 OpenAPI 的分类列表接口测试
+    const response = await fetch(buildApiUrl(apiUrl, 'openapi/category/list'), {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Api-Key': apiKey
+      }
     });
 
+    const result = await response.json();
+
     if (result.code === 200) {
-      showAlert('连接成功！服务器响应正常');
+      showAlert('连接成功！API Key 验证通过');
+    } else if (result.code === 401 || result.code === 403) {
+      showAlert(`连接失败：${result.message || 'API Key 无效或无权限'}`, 'error');
     } else {
-      showAlert(`连接失败：${result.msg || result.message || '服务器返回异常'}`, 'error');
+      showAlert(`连接失败：${result.message || '服务器返回异常'}`, 'error');
     }
   } catch (error) {
     console.error('连接测试失败:', error);
-    if (error.message !== '需要登录') {
-      showAlert(`连接失败：${error.message}`, 'error');
-    }
+    showAlert(`连接失败：${error.message}`, 'error');
   }
 }
 

@@ -8,8 +8,10 @@
 4. oasis_navigation_build.bat - 入口脚本，自动调用oasis_navigation_ build-all.ps1
 
 ## 打包
+> 注意版本需要自己手动更改`manifest.xxx.json`里
 > cd /mnt/c/work/组件/服务套件/oasis/browserPlug/oasis-navigation
 > zip -r ../chrome-extension.zip ./*
+
 1. 运行打包脚本 `./oasis_navigation_build.bat`
 2. 按照 PUBLISH_GUIDE.md 准备截图
 3. 上传到商店：
@@ -20,6 +22,8 @@
 当前项目的一个辅助插件，是将导航添加功能封装成支持Chrome、Edge和Firefox的扩展，用于快捷添加
 
 ## 打包
+> 注意版本需要自己手动更改`manifest.xxx.json`里
+
 ```batch
 cd ./oasisassist && build.bat
 ```

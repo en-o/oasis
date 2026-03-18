@@ -1,6 +1,6 @@
 import React from 'react';
-import { Button, Card, Row, Col, App, Modal } from 'antd';
-import { Download } from 'lucide-react';
+import { Button, Card, Row, Col, App, Modal, Tag } from 'antd';
+import { Download, ExternalLink, Github } from 'lucide-react';
 
 const BrowserExtension: React.FC = () => {
   const { message } = App.useApp();
@@ -142,9 +142,25 @@ const BrowserExtension: React.FC = () => {
   return (
     <div className="bg-white rounded-lg p-6">
       <div className="mb-6">
-        <h2 className="text-xl font-semibold mb-2">浏览器插件</h2>
-        <p className="text-gray-600">
+        <div className="flex items-center justify-between mb-2">
+          <h2 className="text-xl font-semibold">浏览器插件</h2>
+          <a
+            href="https://github.com/en-o/oasis/tree/main/browserPlug/dist"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <Button
+              size="small"
+              icon={<Github className="w-3.5 h-3.5" />}
+            >
+              GitHub 最新插件
+              <ExternalLink className="w-3 h-3 ml-1" />
+            </Button>
+          </a>
+        </div>
+        <p className="text-gray-500 text-sm">
           下载 Oasis 导航助手插件，快速添加网页到您的导航系统
+          <Tag color="orange" className="ml-2">插件版本可能独立于项目更新</Tag>
         </p>
       </div>
 

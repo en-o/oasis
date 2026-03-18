@@ -189,3 +189,46 @@ export interface SitePublishEdit {
   sort: number;
   description?: string;
 }
+
+// API Key 管理相关类型定义
+export interface ApiKey {
+  id: number;
+  apiKey: string; // 列表时脱敏显示
+  name: string;
+  expireTime: string;
+  createTime: string;
+  status: number; // 0=禁用, 1=启用
+  permissions?: string; // 权限范围，逗号分隔的permission标识，如：nav:list,nav:add,category:list
+  remark?: string;
+  expired: boolean; // 是否已过期
+}
+
+export interface ApiKeyAddRequest {
+  name: string;
+  expireDays: number; // 有效天数
+  permissions: string; // 权限范围，逗号分隔的permission标识（必填）
+  remark?: string;
+}
+
+// API参数定义
+export interface ApiParam {
+  name: string;
+  type: string;        // String, Integer, Boolean, Object, Array
+  required: boolean;
+  description: string;
+  defaultValue?: string;
+  children?: ApiParam[]; // 嵌套参数
+}
+
+// 开放API接口信息
+export interface OpenApiEndpoint {
+  permission: string; // 权限标识，如: nav:list, nav:add
+  name: string; // 接口名称
+  path: string; // 接口路径
+  method: string; // 请求方法: GET, POST
+  needAuth: boolean; // 是否需要API Key认证
+  requestExample?: string; // 请求体示例（JSON字符串）
+  responseExample?: string; // 响应体示例（JSON字符串）
+  description?: string; // 接口说明
+  requestParams?: ApiParam[]; // 请求参数定义列表
+}
